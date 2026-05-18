@@ -28,61 +28,27 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 		links.push(LinkPreset.Guestbook);
 	}
 
-	// 我的及其子菜单
-	links.push({
-		name: "我的",
-		url: "/my/",
-		icon: "material-symbols:person",
-		children: [
-			// 根据配置决定是否添加相册，在siteConfig关闭pages.gallery时导航栏不显示相册
-			...(siteConfig.pages.gallery ? [LinkPreset.Gallery] : []),
-
-			// 根据配置决定是否添加番组计划，在siteConfig关闭pages.bangumi时导航栏不显示番组计划
-			...(siteConfig.pages.bangumi ? [LinkPreset.Bangumi] : []),
-		],
-	});
+	// 游戏入口
+	if (siteConfig.pages.bangumi) {
+		links.push({
+			name: "游戏",
+			url: "/bangumi/",
+			icon: "material-symbols:stadia-controller",
+		});
+	}
 
 	// 关于及其子菜单
 	links.push({
-		name: "关于",
-		url: "/content/",
+		name: "关于我",
+		url: "/about/",
 		icon: "material-symbols:info",
-		children: [
+		/*children: [
 			// 根据配置决定是否添加赞助，在siteConfig关闭pages.sponsor时导航栏不显示赞助
 			...(siteConfig.pages.sponsor ? [LinkPreset.Sponsor] : []),
 
 			// 关于页面
 			LinkPreset.About,
-		],
-	});
-
-	// 自定义导航栏链接,并且支持多级菜单
-	links.push({
-		name: "链接",
-		url: "/links/",
-		icon: "material-symbols:link",
-
-		// 子菜单
-		children: [
-			{
-				name: "GitHub",
-				url: "https://github.com/CuteLeaf/Firefly",
-				external: true,
-				icon: "fa7-brands:github",
-			},
-			{
-				name: "Gitee",
-				url: "https://gitee.com/CuteLeaf/Firefly",
-				external: true,
-				icon: "fa7-brands:gitee",
-			},
-			{
-				name: "QQ交流群",
-				url: "https://qm.qq.com/q/ZGsFa8qX2G",
-				external: true,
-				icon: "fa7-brands:qq",
-			},
-		],
+		], */
 	});
 
 	// 仅返回链接，其它导航搜索相关配置在模块顶层常量中独立导出

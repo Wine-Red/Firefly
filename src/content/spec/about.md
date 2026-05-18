@@ -1,38 +1,40 @@
 # 关于我 / About Me
 
-你好！我是 **夏叶** ，一个在数字世界中默默无闻的一片叶子。
+你好！我是 **WineRed** 。
 
-## 🛠️ 关于本站
+## 关于本站
 
-这个网站使用 **Astro** 框架构建，采用了 [Firefly](https://github.com/CuteLeaf/Firefly) 模板，Firefly 是基于 [Fuwari](https://github.com/saicaca/fuwari) 的二次开发。
+这里是我的个人博客，也是一个长期运行的个人实验场。我会在这里记录自己的项目开发、技术折腾、AI Agent 实践、服务器部署、游戏观察，以及一些学习和生活中的碎片思考。
 
-**Firefly** 是一款基于 Astro 框架和 Fuwari 模板开发的清新美观且现代化个人博客主题模板，专为技术爱好者和内容创作者设计。该主题融合了现代 Web 技术栈，提供了丰富的功能模块和高度可定制的界面，让您能够轻松打造出专业且美观的个人博客网站。
+我不是特别想把这个博客做成一个很正式的“作品展示站”，它更像是一个可以持续生长的工作空间：有些内容是完整文章，有些是项目复盘，也可能是某个想法的阶段性存档，又或者只是结束一款游戏的感想。
 
+无论如何，相遇即是缘分，欢迎交流\~
 
-**🖥️在线预览： [Firefly - Demo site](https://firefly.cuteleaf.cn/)**
+## 我的项目
 
-**🏠我的博客： [https://blog.cuteleaf.cn](https://blog.cuteleaf.cn/)**
+### **OWCS Stats**
 
-**📝Firefly使用文档： [https://docs-firefly.cuteleaf.cn](https://docs-firefly.cuteleaf.cn/)**
+> *技术栈：Vue 3 / Element Plus / ECharts / Node.js / Express / Sequelize / MySQL*
 
-**⭐Firefly开源地址：[https://github.com/CuteLeaf/Firefly](https://github.com/CuteLeaf/Firefly)** 
+我正在开发一个围绕《守望先锋》电竞赛事数据的可视化平台 **OWCS Stats**。
 
-**⭐Fuwari开源地址：[https://github.com/saicaca/fuwari](https://github.com/saicaca/fuwari)**
+它主要用于展示战队、选手、地图、英雄禁用、比赛结果等数据，并通过图表和数据面板让赛事信息更直观。这个项目也是我长期练习前后端开发、数据治理、可视化设计和部署运维的主要项目之一。
 
-::github{repo="CuteLeaf/Firefly"}
+我也在尝试把 Agent 引入数据导入和结构化解析流程中，让赛事数据的整理过程更自动化。除此之外，针对守望先锋赛事的独立全维度数据抓取工具也在 ~~幻想~~ 规划中。
 
-::github{repo="saicaca/fuwari"}
+**🖥️在线浏览：** **[OWCS Stats - Visualize](https://owmini.xyz/stats/visualize)**
 
+**🏠我的博客：** **[https://winered-0v0.com](https://winered-0v0.com/)**
+
+::github{repo="Wine-Red/owcs-stats"}
 
 ## 📫 联系方式
 
-如果你想和我交流技术问题，分享有趣的想法，或者只是想打个招呼，欢迎通过以下方式联系我：
+如果你想和我交流问题，分享有趣的想法，或者只是想打个招呼，欢迎通过以下方式联系我：
 
-- 💻 **GitHub**: [CuteLeaf](https://github.com/CuteLeaf)
-- ✉️ **Email**: [xiaye@msn.com](mailto:xiaye@msn.com)
-- 🐧 **QQ交流群：[1087127207](https://qm.qq.com/q/ZGsFa8qX2G)**
+- 💻 **GitHub**: [CuteLeaf](https://github.com/Wine-Red)
+- ✉️ **Email**: <winered0v0@qq.com>
 
----
+***
 
-*感谢你的来访！希望在这里能找到对你有用的内容！*
-
+*感谢你的到访！希望在这里能找到对你有用的内容！*

@@ -402,6 +402,7 @@ export type CoverImageConfig = {
 // 组件配置类型定义
 export type WidgetComponentType =
 	| "profile"
+	| "githubHeatmap"
 	| "announcement"
 	| "categories"
 	| "tags"
@@ -537,15 +538,17 @@ export type Live2DModelConfig = {
 	};
 };
 
+export type WallpaperImage = string | { light: string; dark: string };
+
 export type BackgroundWallpaperConfig = {
 	mode: "banner" | "fullscreen" | "overlay" | "none"; // 壁纸模式：banner横幅模式、fullscreen全屏壁纸、overlay全屏透明覆盖模式或none纯色背景
 	switchable?: boolean; // 是否允许用户通过导航栏切换壁纸模式，默认true
 	src:
-		| string
-		| string[]
+		| WallpaperImage
+		| WallpaperImage[]
 		| {
-				desktop?: string | string[];
-				mobile?: string | string[];
+				desktop?: WallpaperImage | WallpaperImage[];
+				mobile?: WallpaperImage | WallpaperImage[];
 		  }; // 支持单个图片、图片数组或分别设置桌面端和移动端图片
 
 	// 横幅壁纸和全屏壁纸共享配置

@@ -1,7 +1,8 @@
+import type { WallpaperImage } from "../types/config";
 import { backgroundWallpaper } from "../config";
 
 // 将单个值或数组统一为数组
-const toArray = (src: string | string[] | undefined): string[] => {
+const toArray = (src: WallpaperImage | WallpaperImage[] | undefined): WallpaperImage[] => {
 	if (!src) return [];
 	if (Array.isArray(src)) return src;
 	return [src];
@@ -16,11 +17,12 @@ export const getBackgroundImages = () => {
 		typeof bgSrc === "object" &&
 		bgSrc !== null &&
 		!Array.isArray(bgSrc) &&
-		("desktop" in bgSrc || "mobile" in bgSrc)
+		("desktop" in bgSrc || "mobile" in bgSrc) &&
+		!("light" in bgSrc)
 	) {
 		const srcObj = bgSrc as {
-			desktop?: string | string[];
-			mobile?: string | string[];
+			desktop?: WallpaperImage | WallpaperImage[];
+			mobile?: WallpaperImage | WallpaperImage[];
 		};
 		const desktopImages = toArray(srcObj.desktop);
 		const mobileImages = toArray(srcObj.mobile);
@@ -31,7 +33,7 @@ export const getBackgroundImages = () => {
 		};
 	}
 	// 如果是字符串或数组，同时用于桌面端和移动端
-	const images = toArray(bgSrc as string | string[]);
+	const images = toArray(bgSrc as WallpaperImage | WallpaperImage[]);
 	return {
 		desktop: images,
 		mobile: images,
@@ -42,22 +44,26 @@ export const getBackgroundImages = () => {
 // 类型守卫函数
 export const isBannerSrcObject = (
 	src:
-		| string
-		| string[]
-		| { desktop?: string | string[]; mobile?: string | string[] },
-): src is { desktop?: string | string[]; mobile?: string | string[] } => {
+		| WallpaperImage
+		| WallpaperImage[]
+		| { desktop?: WallpaperImage | WallpaperImage[]; mobile?: WallpaperImage | WallpaperImage[] },
+): src is { desktop?: WallpaperImage | WallpaperImage[]; mobile?: WallpaperImage | WallpaperImage[] } => {
 	return (
 		typeof src === "object" &&
 		src !== null &&
 		!Array.isArray(src) &&
-		("desktop" in src || "mobile" in src)
+		("desktop" in src || "mobile" in src) &&
+		!("light" in src)
 	);
 };
 
 // 获取默认背景图片（返回第一张，用于 SEO 等场景）
 export const getDefaultBackground = (): string => {
 	const images = getBackgroundImages();
-	return images.desktop[0] || images.mobile[0] || "";
+	const first = images.desktop[0] || images.mobile[0];
+	if (!first) return "";
+	if (typeof first === "string") return first;
+	return first.light || first.dark || "";
 };
 
 // 检查是否为首页

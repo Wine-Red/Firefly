@@ -39,7 +39,7 @@ export function getDefaultHue(): number {
 export function getDefaultTheme(): LIGHT_DARK_MODE {
 	// 如果配置文件中设置了 defaultMode，使用配置的值
 	// 否则使用 DEFAULT_THEME（向后兼容）
-	return siteConfig.themeColor.defaultMode ?? DEFAULT_THEME;
+	return siteConfig.themeColor.defaultMode ?? SYSTEM_MODE;
 }
 
 // 获取系统主题

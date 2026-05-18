@@ -2,7 +2,6 @@
 import fs from "node:fs";
 import path from "node:path";
 import { footerConfig, profileConfig } from "@/config";
-import { url } from "@/utils/url-utils";
 
 const currentYear = new Date().getFullYear();
 
@@ -38,37 +37,43 @@ if (footerConfig.enable) {
     <div class="mb-2">
       {customFooterHtml && <div set:html={customFooterHtml} />}
     </div>
-    <div class="m-0.5">
-      &copy; <span id="copyright-year">{currentYear}</span>
-      {profileConfig.name}. All Rights Reserved. /
+    
+    <div class="m-0.5 mb-1 text-sm">
       <a
-        class="transition link text-(--primary) font-medium"
+        class="transition link text-(--primary) hover:opacity-80"
         target="_blank"
-        href={url("rss.xml")}>RSS</a
-      > /
+        href="https://space.bilibili.com/141513904">Bilibili</a
+      > <span class="mx-1 text-black/30 dark:text-white/30">/</span>
       <a
-        class="transition link text-(--primary) font-medium"
+        class="transition link text-(--primary) hover:opacity-80"
         target="_blank"
-        href={url("sitemap-index.xml")}>Sitemap</a
+        href="https://github.com/Wine-Red">GitHub</a
+      > <span class="mx-1 text-black/30 dark:text-white/30">/</span>
+      <a
+        class="transition link text-(--primary) hover:opacity-80"
+        target="_blank"
+        href="mailto:winered0v0@qq.com">Email</a
       >
     </div>
-    <div class="m-0.5">
+
+    <div class="m-0.5 text-xs text-black/60 dark:text-white/60">
+      &copy; <span id="copyright-year">{currentYear}</span>
+      {profileConfig.name}. All Rights Reserved.
+    </div>
+
+    <div class="m-0.5 text-xs text-black/60 dark:text-white/60">
       Powered by
       <a
-        class="transition link text-(--primary) font-medium"
+        class="transition link text-(--primary) hover:opacity-80"
         target="_blank"
         href="https://astro.build">Astro</a
       > &
       <a
-        class="transition link text-(--primary) font-medium"
+        class="transition link text-(--primary) hover:opacity-80"
         target="_blank"
         href="https://github.com/CuteLeaf/Firefly">Firefly</a
       >
     </div>
-    <!-- 
-      注意：请勿随意修改或删除 "Powered by Astro & Firefly" 部分，这是对开源项目的尊重和支持。
-      如果您需要在底部增加内容，请在src/config/footerConfig.ts中修改enable属性为true，然后编辑src/config/FooterConfig.html文件。
-      您可以随意在src/config/FooterConfig.html中随意添加自定义内容，不需要修改Footer.astro文件。
-    -->
+
   </div>
 </div>

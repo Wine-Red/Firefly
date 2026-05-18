@@ -80,11 +80,11 @@ export const zh_CN: Translation = {
 	[Key.updatedAt]: "更新于",
 	[Key.readTime]: "阅读时长",
 	[Key.license]: "许可协议",
-	[Key.bangumi]: "番组计划",
+	[Key.bangumi]: "游戏",
 
-	// 番组计划筛选和状态文本
-	[Key.bangumiTitle]: "我的番组计划",
-	[Key.bangumiSubtitle]: "记录我的二次元之旅",
+	// 游戏页筛选和状态文本
+	[Key.bangumiTitle]: "我的游戏",
+	[Key.bangumiSubtitle]: "记录我的游戏历程",
 	[Key.bangumiFilterAll]: "全部",
 	[Key.bangumiFilterWatched]: "看过",
 	[Key.bangumiFilterWatching]: "在看",

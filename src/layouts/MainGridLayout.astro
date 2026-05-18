@@ -322,65 +322,193 @@ const bannerCarouselInterval = Math.max(
         <!-- Mobile: 默认渲染第一张，其余放入 template 避免浏览器预加载 -->
         {backgroundImages.mobile.length > 0 && (
             <div class="banner-image-slot-mobile absolute inset-0 block lg:hidden">
-                <ImageWrapper
-                    alt="Mobile background image of the blog"
-                    class="object-cover h-full w-full"
-                    src={backgroundImages.mobile[0]}
-                    position={backgroundWallpaper.banner?.position}
-                    widths={[640, 750, 1080]}
-                    sizes="100vw"
-                    loading="eager"
-                    fetchpriority="high"
-                    quality={mobileQuality}
-                />
+                {typeof backgroundImages.mobile[0] === 'string' ? (
+                    <ImageWrapper
+                        alt="Mobile background image of the blog"
+                        class="object-cover h-full w-full"
+                        src={backgroundImages.mobile[0]}
+                        position={backgroundWallpaper.banner?.position}
+                        widths={[640, 750, 1080]}
+                        sizes="100vw"
+                        loading="eager"
+                        fetchpriority="high"
+                        quality={mobileQuality}
+                    />
+                ) : (
+                    <>
+                        <div class="absolute inset-0 opacity-100 dark:opacity-0 transition-opacity duration-300">
+                            <ImageWrapper
+                                alt="Mobile background image of the blog (light)"
+                                class="object-cover h-full w-full"
+                                src={backgroundImages.mobile[0].light}
+                                position={backgroundWallpaper.banner?.position}
+                                widths={[640, 750, 1080]}
+                                sizes="100vw"
+                                loading="eager"
+                                fetchpriority="high"
+                                quality={mobileQuality}
+                            />
+                        </div>
+                        <div class="absolute inset-0 opacity-0 dark:opacity-100 transition-opacity duration-300">
+                            <ImageWrapper
+                                alt="Mobile background image of the blog (dark)"
+                                class="object-cover h-full w-full"
+                                src={backgroundImages.mobile[0].dark}
+                                position={backgroundWallpaper.banner?.position}
+                                widths={[640, 750, 1080]}
+                                sizes="100vw"
+                                loading="eager"
+                                fetchpriority="high"
+                                quality={mobileQuality}
+                            />
+                        </div>
+                    </>
+                )}
             </div>
         )}
         {backgroundImages.mobile.slice(1).map((src) => (
             <template class="banner-tpl-mobile">
-                <ImageWrapper
-                    alt="Mobile background image of the blog"
-                    class="object-cover h-full w-full"
-                    src={src}
-                    position={backgroundWallpaper.banner?.position}
-                    widths={[640, 750, 1080]}
-                    sizes="100vw"
-                    loading="eager"
-                    fetchpriority="high"
-                    quality={mobileQuality}
-                />
+                {typeof src === 'string' ? (
+                    <ImageWrapper
+                        alt="Mobile background image of the blog"
+                        class="object-cover h-full w-full"
+                        src={src}
+                        position={backgroundWallpaper.banner?.position}
+                        widths={[640, 750, 1080]}
+                        sizes="100vw"
+                        loading="eager"
+                        fetchpriority="high"
+                        quality={mobileQuality}
+                    />
+                ) : (
+                    <>
+                        <div class="absolute inset-0 opacity-100 dark:opacity-0 transition-opacity duration-300">
+                            <ImageWrapper
+                                alt="Mobile background image of the blog (light)"
+                                class="object-cover h-full w-full"
+                                src={src.light}
+                                position={backgroundWallpaper.banner?.position}
+                                widths={[640, 750, 1080]}
+                                sizes="100vw"
+                                loading="eager"
+                                fetchpriority="high"
+                                quality={mobileQuality}
+                            />
+                        </div>
+                        <div class="absolute inset-0 opacity-0 dark:opacity-100 transition-opacity duration-300">
+                            <ImageWrapper
+                                alt="Mobile background image of the blog (dark)"
+                                class="object-cover h-full w-full"
+                                src={src.dark}
+                                position={backgroundWallpaper.banner?.position}
+                                widths={[640, 750, 1080]}
+                                sizes="100vw"
+                                loading="eager"
+                                fetchpriority="high"
+                                quality={mobileQuality}
+                            />
+                        </div>
+                    </>
+                )}
             </template>
         ))}
         <!-- Desktop: 默认渲染第一张，其余放入 template -->
         {backgroundImages.desktop.length > 0 && (
             <div class="banner-image-slot-desktop absolute inset-0 hidden lg:block">
-                <ImageWrapper
-                    id="banner"
-                    alt="Desktop background image of the blog"
-                    class="object-cover h-full"
-                    src={backgroundImages.desktop[0]}
-                    position={backgroundWallpaper.banner?.position}
-                    widths={[1280, 1920, 2560]}
-                    sizes="100vw"
-                    loading="eager"
-                    fetchpriority="high"
-                    quality={configQuality}
-                />
+                {typeof backgroundImages.desktop[0] === 'string' ? (
+                    <ImageWrapper
+                        id="banner"
+                        alt="Desktop background image of the blog"
+                        class="object-cover h-full"
+                        src={backgroundImages.desktop[0]}
+                        position={backgroundWallpaper.banner?.position}
+                        widths={[1280, 1920, 2560]}
+                        sizes="100vw"
+                        loading="eager"
+                        fetchpriority="high"
+                        quality={configQuality}
+                    />
+                ) : (
+                    <>
+                            <div class="absolute inset-0 opacity-100 dark:opacity-0 transition-opacity duration-300">
+                                <ImageWrapper
+                                    id="banner"
+                                    alt="Desktop background image of the blog (light)"
+                                    class="object-cover h-full w-full"
+                                    src={backgroundImages.desktop[0].light}
+                                    position={backgroundWallpaper.banner?.position}
+                                    widths={[1280, 1920, 2560]}
+                                    sizes="100vw"
+                                    loading="eager"
+                                    fetchpriority="high"
+                                    quality={configQuality}
+                                />
+                            </div>
+                            <div class="absolute inset-0 opacity-0 dark:opacity-100 transition-opacity duration-300">
+                                <ImageWrapper
+                                    id="banner-dark"
+                                    alt="Desktop background image of the blog (dark)"
+                                    class="object-cover h-full w-full"
+                                    src={backgroundImages.desktop[0].dark}
+                                    position={backgroundWallpaper.banner?.position}
+                                    widths={[1280, 1920, 2560]}
+                                    sizes="100vw"
+                                    loading="eager"
+                                    fetchpriority="high"
+                                    quality={configQuality}
+                                />
+                            </div>
+                    </>
+                )}
             </div>
         )}
         {backgroundImages.desktop.slice(1).map((src) => (
             <template class="banner-tpl-desktop">
-                <ImageWrapper
-                    id="banner"
-                    alt="Desktop background image of the blog"
-                    class="object-cover h-full"
-                    src={src}
-                    position={backgroundWallpaper.banner?.position}
-                    widths={[1280, 1920, 2560]}
-                    sizes="100vw"
-                    loading="eager"
-                    fetchpriority="high"
-                    quality={configQuality}
-                />
+                {typeof src === 'string' ? (
+                    <ImageWrapper
+                        id="banner"
+                        alt="Desktop background image of the blog"
+                        class="object-cover h-full"
+                        src={src}
+                        position={backgroundWallpaper.banner?.position}
+                        widths={[1280, 1920, 2560]}
+                        sizes="100vw"
+                        loading="eager"
+                        fetchpriority="high"
+                        quality={configQuality}
+                    />
+                ) : (
+                    <>
+                            <div class="absolute inset-0 opacity-100 dark:opacity-0 transition-opacity duration-300">
+                                <ImageWrapper
+                                    id="banner"
+                                    alt="Desktop background image of the blog (light)"
+                                    class="object-cover h-full w-full"
+                                    src={src.light}
+                                    position={backgroundWallpaper.banner?.position}
+                                    widths={[1280, 1920, 2560]}
+                                    sizes="100vw"
+                                    loading="eager"
+                                    fetchpriority="high"
+                                    quality={configQuality}
+                                />
+                            </div>
+                            <div class="absolute inset-0 opacity-0 dark:opacity-100 transition-opacity duration-300">
+                                <ImageWrapper
+                                    id="banner-dark"
+                                    alt="Desktop background image of the blog (dark)"
+                                    class="object-cover h-full w-full"
+                                    src={src.dark}
+                                    position={backgroundWallpaper.banner?.position}
+                                    widths={[1280, 1920, 2560]}
+                                    sizes="100vw"
+                                    loading="eager"
+                                    fetchpriority="high"
+                                    quality={configQuality}
+                                />
+                            </div>
+                    </>
+                )}
             </template>
         ))}
     </div>
@@ -429,7 +557,9 @@ const bannerCarouselInterval = Math.max(
                 var tpl = templates[randomIndex - 1];
                 if (!tpl) return;
                 slot.innerHTML = '';
-                slot.appendChild(tpl.content.cloneNode(true));
+                // Clone the fragment to get all child nodes (both light and dark images)
+                var clone = tpl.content.cloneNode(true);
+                slot.appendChild(clone);
             }
 
             applyRandom('banner-image-slot-mobile', 'banner-tpl-mobile', window.__bannerRandomIndex.mobile);

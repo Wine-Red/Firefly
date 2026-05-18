@@ -1,0 +1,43 @@
+name: Deploy to Baota Panel
+
+on:
+  push:
+    # 每次推送到 main 或 master 分支时触发
+    branches: [ main, master ]
+  # 允许在 GitHub Actions 页面手动触发
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.14.4
+          run_install: false
+          
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+      
+      - name: Build site
+        run: pnpm run build
+      
+      - name: Deploy to Baota Panel
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SERVER_KEY }}
+          port: ${{ secrets.SERVER_PORT }}
+          source: "dist/*"
+          target: "/www/wwwroot/winered-0v0.com" # 请修改为你的宝塔站点实际根目录
+          strip_components: 1 # 去除外层的 dist 文件夹路径，直接将里面的文件传到 target 目录

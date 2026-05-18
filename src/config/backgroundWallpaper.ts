@@ -6,7 +6,7 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 	// 是否允许用户通过导航栏切换壁纸模式
 	// 且同时维护多种壁纸模式过于复杂（已经屎山代码），在切换时有时候可能会出现一些奇怪的过渡效果或者bug
 	// 推荐只选择自己喜欢的模式并关闭切换功能
-	switchable: true,
+	switchable: false,
 	/**
 	 * 背景图片配置
 	 * 图片路径支持三种格式：
@@ -41,22 +41,34 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 		// 桌面背景图片（支持单张或多张随机）
 		// desktop: "assets/images/DesktopWallpaper/d1.avif",
 		desktop: [
-			"assets/images/DesktopWallpaper/d1.avif",
-			"assets/images/DesktopWallpaper/d2.avif",
-			"assets/images/DesktopWallpaper/d3.avif",
-			"assets/images/DesktopWallpaper/d4.avif",
-			"assets/images/DesktopWallpaper/d5.avif",
-			"assets/images/DesktopWallpaper/d6.avif",
+			{
+				light: "assets/images/DesktopWallpaper/Light1.jpg",
+				dark: "assets/images/DesktopWallpaper/Dark1.jpg"
+			},
+			{
+				light: "assets/images/DesktopWallpaper/Light2.jpg",
+				dark: "assets/images/DesktopWallpaper/Dark2.jpg"
+			},
+			{
+				light: "assets/images/DesktopWallpaper/Light3.jpg",
+				dark: "assets/images/DesktopWallpaper/Dark3.jpg"
+			}
 		],
-		// 移动背景图片（支持单张或多张随机）
+		// 移动背景图片（支持单张或多张随机，也支持深浅色配对）
 		// mobile: "assets/images/MobileWallpaper/m1.avif",
 		mobile: [
-			"assets/images/MobileWallpaper/m1.avif",
-			"assets/images/MobileWallpaper/m2.avif",
-			"assets/images/MobileWallpaper/m3.avif",
-			"assets/images/MobileWallpaper/m4.avif",
-			"assets/images/MobileWallpaper/m5.avif",
-			"assets/images/MobileWallpaper/m6.avif",
+			{
+				light: "assets/images/DesktopWallpaper/Light1.jpg",
+				dark: "assets/images/DesktopWallpaper/Dark1.jpg"
+			},
+			{
+				light: "assets/images/DesktopWallpaper/Light2.jpg",
+				dark: "assets/images/DesktopWallpaper/Dark2.jpg"
+			},
+			{
+				light: "assets/images/DesktopWallpaper/Light3.jpg",
+				dark: "assets/images/DesktopWallpaper/Dark3.jpg"
+			}
 		],
 	},
 	// 横幅壁纸和全屏壁纸共享配置
@@ -68,19 +80,14 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 			// 是否启用主页横幅文字
 			enable: true,
 			// 是否允许用户通过控制面板切换横幅标题显示
-			switchable: true,
+			switchable: false,
 			// 主页横幅主标题
-			title: "Lovely firefly!",
+			title: "WineRed",
 			// 主页横幅主标题字体大小
 			titleSize: "3.8rem",
 			// 主页横幅副标题
 			subtitle: [
-				"In Reddened Chrysalis, I Once Rest",
-				"From Shattered Sky, I Free Fall",
-				"Amidst Silenced Stars, I Deep Sleep",
-				"Upon Lighted Fyrefly, I Soon Gaze",
-				"From Undreamt Night, I Thence Shine",
-				"In Finalized Morrow, I Full Bloom",
+				"hitokoto"
 			],
 			// 主页横幅副标题字体大小
 			subtitleSize: "1.5rem",
@@ -115,7 +122,7 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 				mobile: true,
 			},
 			// 是否允许用户通过控制面板切换水波纹动画
-			switchable: true,
+			switchable: false,
 		},
 		// 渐变过渡效果配置，当水波纹关闭时自动启用，提供壁纸底部到背景色的平滑过渡
 		gradient: {
@@ -128,7 +135,7 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 			// 渐变高度
 			height: "15vh",
 			// 是否允许用户通过控制面板切换渐变过渡
-			switchable: true,
+			switchable: false,
 		},
 	},
 	// Banner模式特有配置
@@ -153,11 +160,7 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 	// 全屏透明覆盖模式特有配置
 	overlay: {
 		// 是否允许用户通过控制面板调整全屏透明模式参数
-		switchable: {
-			opacity: true,
-			blur: true,
-			cardOpacity: true,
-		},
+		switchable: false,
 		// 层级，确保壁纸在背景层
 		zIndex: -1,
 		// 壁纸透明度
