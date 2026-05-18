@@ -16,8 +16,7 @@ export const siteConfig: SiteConfig = {
 	site_url: "https://winered-0v0.com",
 
 	// 站点描述
-	description:
-		"WineRed 的个人博客，记录技术、生活与个人创作。",
+	description: "WineRed 的个人博客，记录技术、生活与个人创作。",
 
 	// 站点关键词
 	keywords: ["WineRed", "个人博客", "博客", "技术", "生活", "Astro"],

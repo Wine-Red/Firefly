@@ -43,32 +43,32 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 		desktop: [
 			{
 				light: "assets/images/DesktopWallpaper/Light1.jpg",
-				dark: "assets/images/DesktopWallpaper/Dark1.jpg"
+				dark: "assets/images/DesktopWallpaper/Dark1.jpg",
 			},
 			{
 				light: "assets/images/DesktopWallpaper/Light2.jpg",
-				dark: "assets/images/DesktopWallpaper/Dark2.jpg"
+				dark: "assets/images/DesktopWallpaper/Dark2.jpg",
 			},
 			{
 				light: "assets/images/DesktopWallpaper/Light3.jpg",
-				dark: "assets/images/DesktopWallpaper/Dark3.jpg"
-			}
+				dark: "assets/images/DesktopWallpaper/Dark3.jpg",
+			},
 		],
 		// 移动背景图片（支持单张或多张随机，也支持深浅色配对）
 		// mobile: "assets/images/MobileWallpaper/m1.avif",
 		mobile: [
 			{
 				light: "assets/images/DesktopWallpaper/Light1.jpg",
-				dark: "assets/images/DesktopWallpaper/Dark1.jpg"
+				dark: "assets/images/DesktopWallpaper/Dark1.jpg",
 			},
 			{
 				light: "assets/images/DesktopWallpaper/Light2.jpg",
-				dark: "assets/images/DesktopWallpaper/Dark2.jpg"
+				dark: "assets/images/DesktopWallpaper/Dark2.jpg",
 			},
 			{
 				light: "assets/images/DesktopWallpaper/Light3.jpg",
-				dark: "assets/images/DesktopWallpaper/Dark3.jpg"
-			}
+				dark: "assets/images/DesktopWallpaper/Dark3.jpg",
+			},
 		],
 	},
 	// 横幅壁纸和全屏壁纸共享配置
@@ -86,9 +86,7 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 			// 主页横幅主标题字体大小
 			titleSize: "3.8rem",
 			// 主页横幅副标题
-			subtitle: [
-				"hitokoto"
-			],
+			subtitle: ["hitokoto"],
 			// 主页横幅副标题字体大小
 			subtitleSize: "1.5rem",
 			typewriter: {

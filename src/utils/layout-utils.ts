@@ -1,8 +1,10 @@
-import type { WallpaperImage } from "../types/config";
 import { backgroundWallpaper } from "../config";
+import type { WallpaperImage } from "../types/config";
 
 // 将单个值或数组统一为数组
-const toArray = (src: WallpaperImage | WallpaperImage[] | undefined): WallpaperImage[] => {
+const toArray = (
+	src: WallpaperImage | WallpaperImage[] | undefined,
+): WallpaperImage[] => {
 	if (!src) return [];
 	if (Array.isArray(src)) return src;
 	return [src];
@@ -46,8 +48,14 @@ export const isBannerSrcObject = (
 	src:
 		| WallpaperImage
 		| WallpaperImage[]
-		| { desktop?: WallpaperImage | WallpaperImage[]; mobile?: WallpaperImage | WallpaperImage[] },
-): src is { desktop?: WallpaperImage | WallpaperImage[]; mobile?: WallpaperImage | WallpaperImage[] } => {
+		| {
+				desktop?: WallpaperImage | WallpaperImage[];
+				mobile?: WallpaperImage | WallpaperImage[];
+		  },
+): src is {
+	desktop?: WallpaperImage | WallpaperImage[];
+	mobile?: WallpaperImage | WallpaperImage[];
+} => {
 	return (
 		typeof src === "object" &&
 		src !== null &&
