@@ -56,7 +56,8 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 		name: "监测",
 		url: "https://status.winered-0v0.com/status/winered",
 		icon: "material-symbols:monitor-heart-rounded", // 替换为实心图标
-		external: false, // 设置为 false 以移除外链标志（但在模板实现中，如果是外部URL，点击时通常仍会在新标签页打开）
+		external: true, 
+		hideExternalIcon: true, // 隐藏外链标志
 	});
 
 	// 仅返回链接，其它导航搜索相关配置在模块顶层常量中独立导出

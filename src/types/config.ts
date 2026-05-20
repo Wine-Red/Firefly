@@ -184,6 +184,7 @@ export type NavBarLink = {
 	name: string;
 	url: string;
 	external?: boolean;
+	hideExternalIcon?: boolean; // 是否隐藏外部链接的小图标
 	icon?: string; // 菜单项图标
 	children?: (NavBarLink | LinkPreset)[]; // 支持子菜单，可以是NavBarLink或LinkPreset
 };
