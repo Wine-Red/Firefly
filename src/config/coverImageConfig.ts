@@ -33,4 +33,14 @@ export const coverImageConfig: CoverImageConfig = {
 		// 是否显示加载动画
 		showLoading: false,
 	},
+
+	// 分类默认封面图功能
+	// 如果文章没有设置 image 且匹配到以下分类，将自动使用对应的预设封面
+	categoryCover: {
+		enable: true,
+		map: {
+			"AI日报": "assets/images/cover/AI-daily.png",
+			"热门仓库": "assets/images/cover/Github-weekly.png",
+		},
+	},
 };

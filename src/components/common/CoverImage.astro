@@ -45,7 +45,6 @@ const className = Astro.props.class;
 
 // 判断图片类型
 const isLocal = !(
-	src.startsWith("/") ||
 	src.startsWith("http") ||
 	src.startsWith("https") ||
 	src.startsWith("data:")
@@ -61,10 +60,18 @@ if (isLocal) {
 			import: "default",
 		},
 	);
-	const normalizedPath = path
-		.normalize(path.join("../../", basePath, src))
-		.replace(/\\/g, "/");
+	
+	// 处理绝对路径和相对路径
+	let normalizedPath;
+	if (src.startsWith('/')) {
+		// 如果是绝对路径，去掉开头的 / 然后相对于 src 目录解析
+		normalizedPath = path.normalize(path.join("../../", src.substring(1))).replace(/\\/g, "/");
+	} else {
+		normalizedPath = path.normalize(path.join("../../", basePath, src)).replace(/\\/g, "/");
+	}
+
 	const file = files[normalizedPath];
+
 	if (file) {
 		img = await file();
 	} else {
@@ -205,6 +212,7 @@ const remoteReferrerPolicy =
 			data-cover-img
 			data-remote="true"
 			referrerpolicy={remoteReferrerPolicy}
+			onerror="this.style.display='none'; this.parentElement.setAttribute('data-error', 'true');"
 		/>
 	)}
 </div>

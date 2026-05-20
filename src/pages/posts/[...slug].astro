@@ -57,13 +57,12 @@ const bannerPostMeta = {
 };
 
 // 处理随机图：如果image为"api"，则从配置的API获取随机图
-const processedImage = processCoverImageSync(entry.data.image, entry.id);
-const apiUrls = getApiUrlList(entry.data.image, entry.id);
+const processedImage = processCoverImageSync(entry.data.image, entry.id, entry.data.category);
+const apiUrls = getApiUrlList(entry.data.image, entry.id, entry.data.category);
 
 let posterCoverUrl = processedImage;
 if (processedImage) {
 	const isLocal = !(
-		processedImage.startsWith("/") ||
 		processedImage.startsWith("http") ||
 		processedImage.startsWith("https") ||
 		processedImage.startsWith("data:")

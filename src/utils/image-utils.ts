@@ -29,14 +29,27 @@ function appendSeedParam(apiUrl: string, hash: number): string {
 /**
  * 处理文章封面图
  * 当image字段为"api"时，返回第一个API的URL（客户端会按顺序尝试所有API）
+ * 当image为空且分类默认封面开启时，返回分类对应的预设封面
  * @param image - 文章frontmatter中的image字段值
  * @param seed - 用于生成唯一URL的种子（文章id或slug）
+ * @param category - 文章所属的分类
  */
 export function processCoverImageSync(
 	image: string | undefined,
 	seed?: string,
+	category?: string | null,
 ): string {
 	if (!image || image === "") {
+		// 检查是否有分类预设封面
+		if (
+			category &&
+			coverImageConfig.categoryCover?.enable &&
+			coverImageConfig.categoryCover.map[category]
+		) {
+			const coverPath = coverImageConfig.categoryCover.map[category];
+			// 确保路径以 / 开头，或者能够被正确解析
+			return coverPath.startsWith('http') || coverPath.startsWith('/') ? coverPath : `/${coverPath}`;
+		}
 		return "";
 	}
 
@@ -62,11 +75,26 @@ export function processCoverImageSync(
  * 用于客户端按顺序尝试，第一个成功即使用，全部失败则显示回退图片
  * @param image - 文章frontmatter中的image字段值
  * @param seed - 用于生成唯一URL的种子（文章id或slug）
+ * @param category - 文章所属的分类
  */
 export function getApiUrlList(
 	image: string | undefined,
 	seed?: string,
+	category?: string | null,
 ): string[] {
+	if (!image || image === "") {
+		// 检查是否有分类预设封面
+		if (
+			category &&
+			coverImageConfig.categoryCover?.enable &&
+			coverImageConfig.categoryCover.map[category]
+		) {
+			const coverPath = coverImageConfig.categoryCover.map[category];
+			return [];
+		}
+		return [];
+	}
+
 	if (image !== "api" || !randomCoverImage.enable || !randomCoverImage.apis) {
 		return [];
 	}
