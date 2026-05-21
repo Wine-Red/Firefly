@@ -76,6 +76,16 @@ const descriptionText = description || remarkPluginFrontmatter.excerpt || "";
   ]}
   style={style}
 >
+  {/* AI 徽章：右上角绝对定位 */}
+  {entry.data.author === "AstrBot" && (
+    <div class="absolute top-4 right-4 z-30 pointer-events-none">
+      <span class="inline-flex items-center gap-1 px-3 py-1 rounded-bl-xl rounded-tr-lg rounded-tl-sm rounded-br-sm text-xs font-bold bg-blue-500/90 text-white shadow-md backdrop-blur-md">
+        <Icon name="material-symbols:robot-2-outline-rounded" class="text-sm" />
+        <span>AI Generated</span>
+      </span>
+    </div>
+  )}
+
   <!-- pinned icon -->
   <div
     class:list={[
@@ -111,6 +121,7 @@ const descriptionText = description || remarkPluginFrontmatter.excerpt || "";
     <PostMetadata
       published={published}
       tags={tags}
+      author={entry.data.author}
       showTags={false}
       category={category || undefined}
       pinned={pinned}

@@ -78,7 +78,7 @@ export const siteConfig: SiteConfig = {
 		// 导航栏图标和标题是否跟随主题色
 		followTheme: false,
 		// 导航栏是否固定在顶部并始终可见
-		stickyNavbar: true,
+		stickyNavbar: false,
 	},
 
 	// 站点开始日期，用于统计运行天数
