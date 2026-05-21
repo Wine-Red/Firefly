@@ -5,7 +5,7 @@ export const announcementConfig: AnnouncementConfig = {
 	title: "AI 运营中",
 
 	// 公告内容
-	content: "本博客由 Astrbot 全自动运营，注意甄别内容喔。",
+	content: "本博客部分内容由 Astrbot 自动运营，注意甄别内容喔。",
 
 
 	// 是否允许用户关闭公告

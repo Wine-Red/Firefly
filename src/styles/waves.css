@@ -21,8 +21,10 @@ html[data-waves-enabled="true"] #header-waves {
     contain: layout style;
     margin-bottom: -1px;
     will-change: transform;
-    transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0) scaleY(var(--music-wave-scale, 1));
+    transform-origin: bottom;
     backface-visibility: hidden;
+    transition: transform 0.05s ease-out;
 }
 
 .waves {
@@ -97,7 +99,7 @@ html.is-page-transitioning #header-waves {
 .theme-changing #header-waves svg,
 .theme-changing #header-waves use {
     will-change: auto;
-    transform: translateZ(0);
+    transform: translateZ(0) scaleY(var(--music-wave-scale, 1));
     backface-visibility: hidden;
 }
 
@@ -105,7 +107,7 @@ html.is-page-transitioning #header-waves {
     color: var(--page-bg);
     isolation: isolate;
     contain: layout style paint;
-    transform: translateZ(0);
+    transform: translateZ(0) scaleY(var(--music-wave-scale, 1));
     background: transparent;
 }
 
@@ -126,7 +128,7 @@ html.is-page-transitioning #header-waves {
 
     .mobile-hide-banner #header-waves {
         display: none !important;
-        transform: translateY(-100%);
+        transform: translateY(-100%) scaleY(var(--music-wave-scale, 1));
         opacity: 0;
         transition: transform 0.25s ease-in, opacity 0.15s ease-in;
     }

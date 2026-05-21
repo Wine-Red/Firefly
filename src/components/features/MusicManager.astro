@@ -127,6 +127,50 @@ const managerConfigStr = JSON.stringify({
         window.dispatchEvent(new CustomEvent(name, { detail: detail || {} }));
     }
 
+    // ── Audio Analyser for Waves ─────────────────────────────
+    var audioCtx = null;
+    var analyser = null;
+    var dataArray = null;
+
+    function initAudioAnalyser() {
+        if (audioCtx) return;
+        try {
+            var AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContext) return;
+            audioCtx = new AudioContext();
+            analyser = audioCtx.createAnalyser();
+            analyser.fftSize = 256;
+            var source = audioCtx.createMediaElementSource(audio);
+            source.connect(analyser);
+            analyser.connect(audioCtx.destination);
+            dataArray = new Uint8Array(analyser.frequencyBinCount);
+            
+            function renderFrame() {
+                if (!state.isPlaying) {
+                    document.documentElement.style.setProperty('--music-wave-scale', '1');
+                } else {
+                    analyser.getByteFrequencyData(dataArray);
+                    
+                    var sum = 0;
+                    // Calculate average of the first few bins (bass frequencies)
+                    var count = 10;
+                    for (var i = 0; i < count; i++) {
+                        sum += dataArray[i];
+                    }
+                    var avg = sum / count;
+                    
+                    // Map 0-255 to scale 1.0 - 1.2 for a subtle effect
+                    var scale = 1 + (avg / 255) * 0.2;
+                    document.documentElement.style.setProperty('--music-wave-scale', scale.toString());
+                }
+                requestAnimationFrame(renderFrame);
+            }
+            renderFrame();
+        } catch (e) {
+            console.warn('Audio analyser init failed:', e);
+        }
+    }
+
     // ── Meting fetch ─────────────────────────────────────────
     async function fetchMetingData() {
         if (!config.meting) return;
@@ -212,6 +256,10 @@ const managerConfigStr = JSON.stringify({
         emit('fm:track', { index: index, track: track, autoPlay: !!autoPlay });
 
         if (autoPlay) {
+            initAudioAnalyser();
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
             audio.play().then(function () {
                 state.isPlaying = true;
                 emit('fm:play-state', { isPlaying: true });
@@ -227,6 +275,10 @@ const managerConfigStr = JSON.stringify({
     // ── Playback controls ────────────────────────────────────
     function togglePlay() {
         if (audio.paused) {
+            initAudioAnalyser();
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
             audio.play().then(function () {
                 state.isPlaying = true;
                 emit('fm:play-state', { isPlaying: true });
@@ -241,6 +293,10 @@ const managerConfigStr = JSON.stringify({
     function playNext(auto) {
         if (state.playMode === 1 && auto) {
             audio.currentTime = 0;
+            initAudioAnalyser();
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
             audio.play();
             return;
         }
