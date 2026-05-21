@@ -78,8 +78,7 @@ html.is-page-transitioning .banner-home-text-overlay {
     /* 主内容区域位置调整 - 向上移动以部分遮挡banner */
     /* 仅在 banner 模式下应用，其他模式（全屏壁纸/纯色）使用默认的 5.5rem */
     body.enable-banner .absolute.w-full.z-30:not(.no-banner-layout):not(.mobile-main-no-banner) {
-        top: 70vh !important; /* 内容从水波纹处开始，平滑过渡 */
-        min-height: calc(100vh - 70vh) !important;
+        top: calc(var(--banner-height) - 3.5rem) !important; /* 内容向上移动以部分遮挡banner */
     }
     
     /* 横幅文本覆盖层优化 */
@@ -126,8 +125,7 @@ html.is-page-transitioning .banner-home-text-overlay {
     /* 主内容区域位置调整 - 向上移动以部分遮挡banner */
     /* 仅在 banner 模式下应用，其他模式（全屏壁纸/纯色）使用默认的 5.5rem */
     body.enable-banner .absolute.w-full.z-30:not(.no-banner-layout):not(.mobile-main-no-banner) {
-        top: 75vh !important; /* 内容从水波纹处开始，平滑过渡 */
-        min-height: calc(100vh - 75vh) !important;
+        top: calc(var(--banner-height) - 3.5rem) !important; /* 内容向上移动以部分遮挡banner */
     }
     
     /* 横幅文本覆盖层优化 */
@@ -174,8 +172,7 @@ html.is-page-transitioning .banner-home-text-overlay {
     /* 主内容区域位置调整 - 向上移动以部分遮挡banner */
     /* 仅在 banner 模式下应用，其他模式（全屏壁纸/纯色）使用默认的 5.5rem */
     body.enable-banner .absolute.w-full.z-30:not(.no-banner-layout):not(.mobile-main-no-banner) {
-        top: 72vh !important; /* 内容从水波纹处开始，平滑过渡 */
-        min-height: calc(100vh - 72vh) !important;
+        top: calc(var(--banner-height) - 3.5rem) !important; /* 内容向上移动以部分遮挡banner */
     }
     
     /* 横幅文本覆盖层优化 */
@@ -222,8 +219,7 @@ html.is-page-transitioning .banner-home-text-overlay {
     /* 主内容区域位置调整 - 向上移动以部分遮挡banner */
     /* 仅在 banner 模式下应用，其他模式（全屏壁纸/纯色）使用默认的 5.5rem */
     body.enable-banner .absolute.w-full.z-30:not(.no-banner-layout):not(.mobile-main-no-banner) {
-        top: 70vh !important; /* 内容从水波纹处开始，平滑过渡 */
-        min-height: calc(100vh - 70vh) !important;
+        top: calc(var(--banner-height) - 3.5rem) !important; /* 内容向上移动以部分遮挡banner */
     }
     
     /* 横幅文本覆盖层优化 */
@@ -446,8 +442,7 @@ html[data-wallpaper-mode="fullscreen"] .absolute.w-full.z-30.no-banner-layout {
     /* 主内容区域位置调整 - 确保在banner下面，但不影响非首页 */
     /* 仅在 banner 模式下应用，其他模式（全屏壁纸/纯色）使用默认的 5.5rem */
     body.enable-banner .absolute.w-full.z-30:not(.mobile-main-no-banner):not(.no-banner-layout) {
-        top: 60vh !important; /* 内容从水波纹处开始，平滑过渡 */
-        min-height: calc(100vh - 60vh) !important;
+        top: calc(var(--banner-height) - 3.5rem) !important;
     }
     
     .banner-container {
@@ -503,8 +498,7 @@ html[data-wallpaper-mode="fullscreen"] .absolute.w-full.z-30.no-banner-layout {
     }
 
     body.enable-banner .absolute.w-full.z-30:not(.no-banner-layout):not(.mobile-main-no-banner) {
-        top: 85vh !important;
-        min-height: calc(100vh - 85vh) !important;
+        top: calc(var(--banner-height) - 3.5rem) !important;
     }
     
     .banner-home-text-overlay {
@@ -535,8 +529,7 @@ html[data-wallpaper-mode="fullscreen"] .absolute.w-full.z-30.no-banner-layout {
     }
 
     body.enable-banner .absolute.w-full.z-30:not(.no-banner-layout):not(.mobile-main-no-banner) {
-        top: 80vh !important;
-        min-height: calc(100vh - 80vh) !important;
+        top: calc(var(--banner-height) - 3.5rem) !important;
     }
     
     .banner-home-text-overlay {
@@ -567,8 +560,7 @@ html[data-wallpaper-mode="fullscreen"] .absolute.w-full.z-30.no-banner-layout {
     }
 
     body.enable-banner .absolute.w-full.z-30:not(.no-banner-layout):not(.mobile-main-no-banner) {
-        top: 75vh !important;
-        min-height: calc(100vh - 75vh) !important;
+        top: calc(var(--banner-height) - 3.5rem) !important;
     }
     
     .banner-home-text-overlay {
@@ -599,8 +591,7 @@ html[data-wallpaper-mode="fullscreen"] .absolute.w-full.z-30.no-banner-layout {
     }
 
     body.enable-banner .absolute.w-full.z-30:not(.mobile-main-no-banner):not(.no-banner-layout) {
-        top: 90vh !important;
-        min-height: calc(100vh - 90vh) !important;
+        top: calc(var(--banner-height) - 3.5rem) !important;
     }
     
     .banner-home-text-overlay {
