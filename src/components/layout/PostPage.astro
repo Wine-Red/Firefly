@@ -209,7 +209,10 @@ const initialLayoutClass =
     // 仅在 grid 模式下应用
     if (!container.classList.contains("grid-mode")) return;
 
-    const items = Array.from(container.querySelectorAll(".post-card-item"));
+    const items = Array.from(container.querySelectorAll(".post-card-item")).filter(item => {
+      // @ts-ignore
+      return getComputedStyle(item).display !== 'none';
+    });
     if (items.length === 0) return;
 
     // 瀑布流配置

@@ -75,6 +75,7 @@ const descriptionText = description || remarkPluginFrontmatter.excerpt || "";
     className,
   ]}
   style={style}
+  data-is-ai={entry.data.author === "AstrBot" ? "true" : "false"}
 >
   {/* AI 徽章：右上角绝对定位 */}
   {entry.data.author === "AstrBot" && (

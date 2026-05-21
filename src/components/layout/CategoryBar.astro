@@ -93,10 +93,30 @@ const archiveUrl = url("/archive/");
       </div>
       <div class="scroll-fade scroll-fade-right" aria-hidden="true"></div>
     </div>
+    
+    <div id="ai-filter-wrap" class="flex items-center overflow-hidden transition-all duration-300 ease-out origin-right" style="max-width: 150px; opacity: 1; transform: translateX(0);">
+      <div class="category-divider shrink-0 mr-2"></div>
+      <button 
+        id="ai-filter-btn"
+        class="category-pill text-sm px-3 py-1 rounded-lg shrink-0 transition-colors duration-150 ease-out flex items-center justify-center gap-1"
+        aria-label="Toggle AI Posts"
+        title="隐藏 AI 生成的文章"
+      >
+        <Icon name="material-symbols:robot-2-outline-rounded" class="text-[1.25rem]" />
+        <span class="hidden md:inline">过滤 AI</span>
+      </button>
+    </div>
   </div>
 </div>
 
 <style>
+  #ai-filter-wrap.hide-filter {
+    max-width: 0 !important;
+    opacity: 0 !important;
+    transform: translateX(20px) !important;
+    pointer-events: none;
+    margin-left: -0.5rem; /* 抵消父元素的 gap-2 (0.5rem) */
+  }
   .category-bar {
     margin-bottom: 1rem;
   }
@@ -194,6 +214,27 @@ const archiveUrl = url("/archive/");
   }
 </style>
 
+<style is:global>
+  body.filter-ai .post-card-item[data-is-ai="true"],
+  body.filter-ai .post-card-wrapper[data-is-ai="true"] {
+    display: none !important;
+  }
+</style>
+
+<script is:inline>
+  if (typeof localStorage !== 'undefined' && localStorage.getItem("filterAI") === "true") {
+    document.documentElement.classList.add("filter-ai");
+    // 也添加到 body 上，兼容不同的选择器习惯
+    if (document.body) {
+      document.body.classList.add("filter-ai");
+    } else {
+      document.addEventListener("DOMContentLoaded", () => {
+        document.body.classList.add("filter-ai");
+      });
+    }
+  }
+</script>
+
 <script>
   let delayedCategoryBarScrollTimer: number | undefined;
 
@@ -201,7 +242,7 @@ const archiveUrl = url("/archive/");
     const pathname = currentUrl.pathname.replace(/\/$/, "");
     const homePath = (bar.getAttribute("data-home-path") || "/").replace(/\/$/, "");
     const archivePath = (bar.getAttribute("data-archive-path") || "/archive").replace(/\/$/, "");
-    const isHome = pathname === homePath || pathname === "" || pathname === "/";
+    const isHome = pathname === homePath || pathname === "" || pathname === "/" || pathname.startsWith("/page/");
     const isArchive = pathname === archivePath;
 
     return {
@@ -218,7 +259,7 @@ const archiveUrl = url("/archive/");
       getCategoryBarState(bar, currentUrl);
     const postCategory = (bar.getAttribute("data-current-post-category") || "").trim();
 
-    const pills = bar.querySelectorAll<HTMLAnchorElement>(".category-pill");
+    const pills = bar.querySelectorAll<HTMLAnchorElement>("a.category-pill");
     pills.forEach((pill) => {
       pill.removeAttribute("data-active");
       pill.removeAttribute("data-soft-active");
@@ -320,7 +361,7 @@ const archiveUrl = url("/archive/");
     bar.addEventListener("click", (event) => {
       if (!(event.target instanceof Element)) return;
 
-      const pill = event.target.closest<HTMLAnchorElement>(".category-pill");
+      const pill = event.target.closest<HTMLAnchorElement>("a.category-pill");
       if (!pill) return;
 
       if (
@@ -418,6 +459,17 @@ const archiveUrl = url("/archive/");
       if (!bar) return;
       const targetUrl = new URL(visit.to.url, window.location.href);
       setActiveCategory(bar, targetUrl);
+      
+      // 在页面跳转前提前触发过滤按钮的动画
+      const wrap = document.getElementById("ai-filter-wrap");
+      if (wrap) {
+        const isHome = targetUrl.pathname === "/" || targetUrl.pathname === "/index.html" || targetUrl.pathname.startsWith("/page/");
+        if (!isHome) {
+          wrap.classList.add("hide-filter");
+        } else {
+          wrap.classList.remove("hide-filter");
+        }
+      }
     });
   }
   if (window.swup?.hooks) {
@@ -425,4 +477,71 @@ const archiveUrl = url("/archive/");
   } else {
     document.addEventListener("swup:enable", setupSwupEarlyUpdate);
   }
+
+  // AI 过滤逻辑
+  function initAIFilter() {
+    const btn = document.getElementById("ai-filter-btn");
+    const wrap = document.getElementById("ai-filter-wrap");
+    if (!btn || !wrap) return;
+    
+    // 检查是否在首页，如果不在首页则向右滑动隐藏
+    const isHome = window.location.pathname === "/" || window.location.pathname === "/index.html" || window.location.pathname.startsWith("/page/");
+    
+    if (!isHome) {
+      wrap.classList.add("hide-filter");
+    } else {
+      wrap.classList.remove("hide-filter");
+    }
+
+    if (btn.dataset.bound === "true") return;
+    btn.dataset.bound = "true";
+
+    // 默认不过滤（false）
+    const isFiltered = localStorage.getItem("filterAI") === "true";
+    
+    function updateFilterState(filtered: boolean) {
+      if (filtered) {
+        document.documentElement.classList.add("filter-ai");
+        document.body.classList.add("filter-ai");
+        btn?.setAttribute("data-active", "");
+        btn?.setAttribute("title", "显示 AI 生成的文章");
+      } else {
+        document.documentElement.classList.remove("filter-ai");
+        document.body.classList.remove("filter-ai");
+        btn?.removeAttribute("data-active");
+        btn?.removeAttribute("title");
+        btn?.setAttribute("title", "隐藏 AI 生成的文章");
+      }
+      
+      // 触发 resize 事件以重新计算 Masonry 布局（如果有）
+      window.dispatchEvent(new Event("resize"));
+    }
+
+    // 初始化状态
+    updateFilterState(isFiltered);
+
+    btn.addEventListener("click", () => {
+      const currentState = document.documentElement.classList.contains("filter-ai");
+      const newState = !currentState;
+      localStorage.setItem("filterAI", String(newState));
+      
+      // 平滑动画过滤
+      const container = document.getElementById("post-list-container");
+      if (container) {
+        container.classList.add("layout-switching");
+        setTimeout(() => {
+          updateFilterState(newState);
+          requestAnimationFrame(() => {
+            container.classList.remove("layout-switching");
+          });
+        }, 200); // 匹配 CSS 中的过渡时间
+      } else {
+        updateFilterState(newState);
+      }
+    });
+  }
+
+  initAIFilter();
+  document.addEventListener("astro:page-load", initAIFilter);
+  document.addEventListener("swup:contentReplaced", initAIFilter);
 </script>
