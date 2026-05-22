@@ -76,6 +76,12 @@ const descriptionText = description || remarkPluginFrontmatter.excerpt || "";
   ]}
   style={style}
   data-is-ai={entry.data.author === "AstrBot" ? "true" : "false"}
+  data-tilt
+  data-tilt-max="3"
+  data-tilt-speed="400"
+  data-tilt-glare="true"
+  data-tilt-max-glare="0.15"
+  data-tilt-perspective="1000"
 >
   {/* AI 徽章：右上角绝对定位 */}
   {entry.data.author === "AstrBot" && (

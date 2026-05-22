@@ -357,8 +357,7 @@ const initialLayoutClass =
 
   /* 文章卡片的过渡动画 */
   #post-list-container > :global(*) {
-    transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   /* 布局切换时的动画效果 */
@@ -388,17 +387,19 @@ const initialLayoutClass =
 
   #post-list-container.grid-mode :global(.post-card-content) {
     width: 100% !important;
-    padding: 1rem !important;
+    padding: 1.5rem !important; /* 增加内边距，提升呼吸感 */
   }
 
   #post-list-container.grid-mode :global(.no-cover .post-card-content) {
-    padding-right: 4.5rem !important;
+    padding-right: 1.5rem !important; /* 移除之前预留给按钮的过大空间 */
   }
 
   #post-list-container.grid-mode :global(.post-card-title) {
-    font-size: 1.35rem !important;
-    line-height: 1.75rem !important;
-    margin-bottom: 0.5rem !important;
+    font-size: 1.45rem !important;
+    line-height: 1.8rem !important;
+    margin-bottom: 0.75rem !important;
+    letter-spacing: -0.015em !important;
+    font-weight: 700 !important;
   }
 
   #post-list-container.grid-mode :global(.post-card-title::before) {
@@ -406,8 +407,9 @@ const initialLayoutClass =
   }
 
   #post-list-container.grid-mode :global(.post-meta) {
-    margin-bottom: 0.5rem !important;
+    margin-bottom: 0.75rem !important;
     gap: 0.5rem !important;
+    opacity: 0.85 !important;
   }
 
   #post-list-container.grid-mode :global(.post-meta .text-xl) {
@@ -422,7 +424,7 @@ const initialLayoutClass =
   }
 
   #post-list-container.grid-mode :global(.post-meta .text-sm) {
-    font-size: 0.75rem !important;
+    font-size: 0.8rem !important;
     line-height: 1rem !important;
   }
 
@@ -430,4 +432,10 @@ const initialLayoutClass =
     padding: 0.25rem 0.375rem !important;
   }
 
+  #post-list-container.grid-mode :global(.description) {
+    font-size: 0.95rem !important;
+    line-height: 1.6 !important;
+    margin-bottom: 0.75rem !important;
+    opacity: 0.8;
+  }
 </style>

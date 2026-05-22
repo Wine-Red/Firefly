@@ -141,6 +141,14 @@ if (isLocalSrcLogo) {
                 <Search
                     client:load
                 />
+                <a 
+                  href="https://blogs.quest" 
+                  target="_blank" 
+                  title="空间穿梭-随机访问BlogsClub成员博客"
+                  class="btn-plain scale-animation rounded-lg h-11 w-11 flex items-center justify-center active:scale-90 space-shuttle-btn"
+                >
+                  <img src="https://www.blogsclub.org/images/shuttle_7.png" alt="空间穿梭" class="h-[1.125rem] w-auto object-contain transition-all duration-300" />
+                </a>
                 {musicPlayerConfig.showInNavbar && (
                     <button aria-label={i18n(I18nKey.music)} class="btn-plain scale-animation rounded-lg h-11 w-11 active:scale-90" id="music-player-switch">
                         <Icon name="material-symbols:music-note-rounded" is:inline class="text-[1.25rem]"></Icon>
@@ -299,6 +307,25 @@ if (document.readyState === 'loading') {
     initSemifullScrollDetection();
 }
 </script>
+
+<style is:global>
+    /* 空间穿梭图标主题适应逻辑 */
+    /* 浅色模式下默认反色 (变为黑色) */
+    :root:not(.dark) .space-shuttle-btn img {
+        filter: invert(1);
+    }
+    
+    /* 深色模式下默认保持原色 (白色) */
+    :root.dark .space-shuttle-btn img {
+        filter: invert(0);
+    }
+    
+    /* 鼠标悬浮时契合主题色 */
+    .space-shuttle-btn:hover img {
+        /* 使用 CSS 滤镜组合将图标转换为当前主题色 */
+        filter: invert(50%) sepia(100%) saturate(500%) hue-rotate(calc(var(--hue) * 1deg - 45deg)) brightness(90%) contrast(120%) !important;
+    }
+</style>
 
 {
     import.meta.env.PROD && (

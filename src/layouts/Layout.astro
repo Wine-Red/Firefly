@@ -550,6 +550,41 @@ const siteLang = lang.replace("_", "-");
 
     <!-- Font Manager -->
     <FontManager />
+
+    <!-- Vanilla Tilt for 3D card effects -->
+    <script src="https://cdn.jsdelivr.net/npm/vanilla-tilt@1.8.1/dist/vanilla-tilt.min.js" defer></script>
+    <script is:inline>
+      function initTilt() {
+        if (typeof VanillaTilt !== 'undefined') {
+          // 只在非移动端初始化，移动端倾斜效果体验不佳且耗性能
+          if (window.innerWidth >= 768) {
+            // 过滤掉已经初始化过的元素，防止重复绑定导致 DOM 爆炸和卡顿
+            const elements = Array.from(document.querySelectorAll('[data-tilt]')).filter(el => !el.vanillaTilt);
+            if (elements.length > 0) {
+              VanillaTilt.init(elements);
+            }
+          }
+        }
+      }
+      // 使用较短的延迟，且仅绑定必要的生命周期事件，避免重复触发
+      document.addEventListener("astro:page-load", () => {
+        setTimeout(initTilt, 150);
+      });
+      document.addEventListener("swup:contentReplaced", () => {
+        setTimeout(initTilt, 150);
+      });
+      // 监听窗口大小变化，可能需要销毁或重新初始化
+      window.addEventListener("resize", () => {
+        if (window.innerWidth < 768 && typeof VanillaTilt !== 'undefined') {
+          const elements = document.querySelectorAll('[data-tilt]');
+          elements.forEach(el => {
+            if (el.vanillaTilt) el.vanillaTilt.destroy();
+          });
+        } else {
+          initTilt();
+        }
+      });
+    </script>
   </head>
   <body
     class="min-h-screen"
