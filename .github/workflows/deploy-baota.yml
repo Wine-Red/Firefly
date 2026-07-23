@@ -79,13 +79,36 @@ jobs:
           CMS_CONTENT_SOURCE: ${{ env.DIRECTUS_PUBLIC_URL != '' && 'directus' || 'local' }}
         run: pnpm build
 
-      - name: Deploy to Baota Panel
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USERNAME }}
-          key: ${{ secrets.SERVER_KEY }}
-          port: ${{ secrets.SERVER_PORT }}
-          source: "dist/*"
-          target: "/www/wwwroot/winered-0v0.com"
-          strip_components: 1
+      - name: Deploy changed files to Baota Panel
+        env:
+          SSH_HOST: ${{ secrets.SERVER_HOST }}
+          SSH_USER: ${{ secrets.SERVER_USERNAME }}
+          SSH_PORT: ${{ secrets.SERVER_PORT }}
+          SSH_PRIVATE_KEY: ${{ secrets.SERVER_KEY }}
+          DEPLOY_TARGET: /www/wwwroot/winered-0v0.com
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/firefly-deploy
+          chmod 600 ~/.ssh/firefly-deploy
+          ssh-keyscan -p "$SSH_PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts
+          trap 'rm -f ~/.ssh/firefly-deploy' EXIT
+
+          ssh \
+            -i ~/.ssh/firefly-deploy \
+            -p "$SSH_PORT" \
+            "$SSH_USER@$SSH_HOST" \
+            "if ! command -v rsync >/dev/null; then echo 'rsync is required on the server' >&2; exit 1; fi; mkdir -p '$DEPLOY_TARGET'"
+
+          rsync \
+            --archive \
+            --compress \
+            --checksum \
+            --delete-delay \
+            --delay-updates \
+            --human-readable \
+            --itemize-changes \
+            --exclude='.user.ini' \
+            --exclude='.well-known/' \
+            -e "ssh -i ~/.ssh/firefly-deploy -p $SSH_PORT" \
+            dist/ \
+            "$SSH_USER@$SSH_HOST:$DEPLOY_TARGET/"
