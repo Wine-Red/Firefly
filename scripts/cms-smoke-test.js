@@ -35,7 +35,7 @@ const server = http.createServer((request, response) => {
 					comment: true,
 					password: "",
 					password_hint: "",
-					content: "![asset](/assets/body-id)",
+					content: "---\n\n![asset](/assets/body-id)",
 				},
 			],
 		}),
@@ -77,6 +77,7 @@ try {
 		generated,
 		/!\[asset\]\(https:\/\/cms\.example\.test\/assets\/body-id\)/,
 	);
+	assert.match(generated, /\n---\n\n!\[asset\]/);
 	console.log("CMS 同步冒烟测试通过。 ");
 } finally {
 	server.close();

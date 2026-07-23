@@ -81,7 +81,7 @@ for (const post of posts) {
 	const content = absoluteCmsAssets(post.content || "", publicUrl);
 	await writeFile(
 		target,
-		matter.stringify(content, toFrontmatter(post)),
+		matter.stringify({ content, data: {} }, toFrontmatter(post)),
 		"utf8",
 	);
 }
