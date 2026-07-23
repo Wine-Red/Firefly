@@ -10,7 +10,7 @@ import {
 } from "./cms-lib.js";
 
 const outputRoot = path.resolve("src/content/.cms-posts");
-const { baseUrl, token } = getCmsConfig();
+const { baseUrl, publicUrl, token } = getCmsConfig();
 
 async function fetchPublishedPosts() {
 	const posts = [];
@@ -49,7 +49,7 @@ function toFrontmatter(post) {
 		...(updated ? { updated } : {}),
 		draft: false,
 		description: post.description || "",
-		image: absoluteCmsAssets(post.image || "", baseUrl),
+		image: absoluteCmsAssets(post.image || "", publicUrl),
 		tags: Array.isArray(post.tags) ? post.tags : [],
 		category: post.category || "",
 		lang: post.lang || "",
@@ -78,7 +78,7 @@ await mkdir(tempRoot, { recursive: true });
 for (const post of posts) {
 	const target = cmsPostFile(tempRoot, post.slug);
 	await mkdir(path.dirname(target), { recursive: true });
-	const content = absoluteCmsAssets(post.content || "", baseUrl);
+	const content = absoluteCmsAssets(post.content || "", publicUrl);
 	await writeFile(
 		target,
 		matter.stringify(content, toFrontmatter(post)),

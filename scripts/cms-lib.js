@@ -28,6 +28,8 @@ export const CMS_FIELDS = [
 
 export function getCmsConfig({ requireToken = false } = {}) {
 	const baseUrl = process.env.DIRECTUS_URL?.trim().replace(/\/$/, "");
+	const publicUrl =
+		process.env.DIRECTUS_PUBLIC_URL?.trim().replace(/\/$/, "") || baseUrl;
 	const token = process.env.DIRECTUS_TOKEN?.trim();
 
 	if (!baseUrl) {
@@ -37,7 +39,7 @@ export function getCmsConfig({ requireToken = false } = {}) {
 		throw new Error("此操作需要 DIRECTUS_TOKEN");
 	}
 
-	return { baseUrl, token };
+	return { baseUrl, publicUrl, token };
 }
 
 export async function directusRequest(url, options = {}) {

@@ -47,6 +47,8 @@ pnpm cms:import
 
 没有配置 `DIRECTUS_URL` 时，工作流会继续使用仓库里的旧文章，避免切换过程中断站点。
 
+Actions 会复用既有的 `SERVER_HOST`、`SERVER_USERNAME`、`SERVER_KEY` 和 `SERVER_PORT`，建立仅在构建期间存在的 SSH 隧道，通过服务器本机的 `127.0.0.1:8055` 拉取文章。这样不需要为 GitHub Runner 放开 CMS 的海外公网访问；文章中的 Directus 资源地址仍使用 `DIRECTUS_URL` 对应的公开 HTTPS 域名。
+
 ## 4. 配置文章发布触发器
 
 创建一个仅拥有当前仓库 `Contents: Read and write` 权限的 fine-grained GitHub Token。在 Directus 的 Settings → Flows 中创建 Flow：

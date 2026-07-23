@@ -53,6 +53,7 @@ try {
 			env: {
 				...process.env,
 				DIRECTUS_URL: `http://127.0.0.1:${address.port}`,
+				DIRECTUS_PUBLIC_URL: "https://cms.example.test",
 				DIRECTUS_TOKEN: "smoke-token",
 			},
 		});
@@ -70,11 +71,11 @@ try {
 	);
 	assert.match(
 		generated,
-		/image: '?http:\/\/127\.0\.0\.1:\d+\/assets\/cover-id'?/,
+		/image: '?https:\/\/cms\.example\.test\/assets\/cover-id'?/,
 	);
 	assert.match(
 		generated,
-		/!\[asset\]\(http:\/\/127\.0\.0\.1:\d+\/assets\/body-id\)/,
+		/!\[asset\]\(https:\/\/cms\.example\.test\/assets\/body-id\)/,
 	);
 	console.log("CMS 同步冒烟测试通过。 ");
 } finally {
