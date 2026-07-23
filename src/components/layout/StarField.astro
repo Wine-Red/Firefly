@@ -1,9 +1,12 @@
 ---
-// 全局星空 Canvas + 动效管理器
-// - 星空：细密星辰闪烁 + 偶发流星，纯原生 Canvas，无依赖
-// - 同时托管：Hero 鼠标 3D 倾斜、滚动视差退场、元素 reveal
+// 全局星空 Canvas + 动效管理器 v4
+// - 星空：细密星辰闪烁 + 流星池（同时多条），纯原生 Canvas，无依赖
+// - 月亮单摆阻尼入场：屏外右侧沿圆周摆入，弹簧-阻尼物理积分
+// - 滚动编舞：断绳式加速月落（左下向、带旋转、不缩小）、
+//   各装饰层差速剥离、文字先行淡出、正文条目从地平线升起联动
+// - 惯性：滚动值 lerp 平滑，滚动停止后有余韵
 // 性能与体验：密度上限、离屏暂停、标签页隐藏暂停、
-// Swup 切换自动重扫、prefers-reduced-motion 静止、移动端降密度
+// Swup 切换自动重扫、prefers-reduced-motion 全量降级、移动端降密度
 ---
 
 <canvas
@@ -42,14 +45,16 @@
 
 		/* ---------------- 星空 ---------------- */
 		interface Star { x: number; y: number; r: number; base: number; phase: number; speed: number; color: string; born: number }
-		interface Meteor { x: number; y: number; vx: number; vy: number; life: number; maxLife: number }
+		interface Meteor { x: number; y: number; vx: number; vy: number; life: number; maxLife: number; tail: number; bright: number }
+
+		const METEOR_SLOTS = 2;
 
 		class StarCanvas {
 			canvas: HTMLCanvasElement;
 			ctx: CanvasRenderingContext2D;
 			stars: Star[] = [];
-			meteor: Meteor | null = null;
-			nextMeteorAt = 0;
+			meteors: (Meteor | null)[] = new Array(METEOR_SLOTS).fill(null);
+			nextMeteorAt: number[] = new Array(METEOR_SLOTS).fill(0);
 			visible = true;
 			w = 0; h = 0;
 			birth = performance.now();
@@ -102,7 +107,11 @@
 						born: this.birth + Math.random() * 1600,
 					});
 				}
-				this.nextMeteorAt = performance.now() + 3000 + Math.random() * 5000;
+				this.meteors = new Array(METEOR_SLOTS).fill(null);
+				const now = performance.now();
+				for (let s = 0; s < METEOR_SLOTS; s++) {
+					this.nextMeteorAt[s] = now + 2500 + s * 2600 + Math.random() * 4000;
+				}
 			}
 
 			drawStatic() {
@@ -123,40 +132,43 @@
 					ctx.arc(s.x + drift * 0.35, s.y - drift, s.r, 0, Math.PI * 2);
 					ctx.fill();
 				}
-				// 流星
+				// 流星池：多条并存，方向/长度/亮度各异
 				if (!forceFull && this.canvas.dataset.meteors === "true" && !this.isMobile) {
-					if (!this.meteor && t >= this.nextMeteorAt) {
-						const fromLeft = Math.random() > 0.5;
-						const speed = 0.35 + Math.random() * 0.25;
-						this.meteor = {
-							x: fromLeft ? -40 : this.w + 40,
-							y: Math.random() * this.h * 0.45,
-							vx: (fromLeft ? 1 : -1) * speed,
-							vy: speed * (0.35 + Math.random() * 0.25),
-							life: 0,
-							maxLife: 900 + Math.random() * 500,
-						};
-					}
-					if (this.meteor) {
-						const m = this.meteor;
-						m.life += 16.7;
-						m.x += m.vx * 16.7;
-						m.y += m.vy * 16.7;
-						const progress = m.life / m.maxLife;
-						const alpha = progress < 0.2 ? progress / 0.2 : 1 - (progress - 0.2) / 0.8;
-						const tail = 90;
-						const grad = ctx.createLinearGradient(m.x, m.y, m.x - m.vx * tail, m.y - m.vy * tail);
-						grad.addColorStop(0, hexToRgba(palette.cream, Math.max(0, alpha * 0.85)));
-						grad.addColorStop(1, hexToRgba(palette.gold, 0));
-						ctx.strokeStyle = grad;
-						ctx.lineWidth = 1.2;
-						ctx.beginPath();
-						ctx.moveTo(m.x, m.y);
-						ctx.lineTo(m.x - m.vx * tail, m.y - m.vy * tail);
-						ctx.stroke();
-						if (m.life >= m.maxLife || m.x < -120 || m.x > this.w + 120 || m.y > this.h + 120) {
-							this.meteor = null;
-							this.nextMeteorAt = t + 5000 + Math.random() * 7000;
+					for (let slot = 0; slot < METEOR_SLOTS; slot++) {
+						if (!this.meteors[slot] && t >= this.nextMeteorAt[slot]) {
+							const fromLeft = Math.random() > 0.5;
+							const speed = 0.3 + Math.random() * 0.3;
+							this.meteors[slot] = {
+								x: fromLeft ? -40 : this.w + 40,
+								y: Math.random() * this.h * 0.45,
+								vx: (fromLeft ? 1 : -1) * speed,
+								vy: speed * (0.3 + Math.random() * 0.3),
+								life: 0,
+								maxLife: 800 + Math.random() * 600,
+								tail: 60 + Math.random() * 80,
+								bright: 0.5 + Math.random() * 0.4,
+							};
+						}
+						const m = this.meteors[slot];
+						if (m) {
+							m.life += 16.7;
+							m.x += m.vx * 16.7;
+							m.y += m.vy * 16.7;
+							const progress = m.life / m.maxLife;
+							const alpha = (progress < 0.2 ? progress / 0.2 : 1 - (progress - 0.2) / 0.8) * m.bright;
+							const grad = ctx.createLinearGradient(m.x, m.y, m.x - m.vx * m.tail, m.y - m.vy * m.tail);
+							grad.addColorStop(0, hexToRgba(palette.cream, Math.max(0, alpha * 0.85)));
+							grad.addColorStop(1, hexToRgba(palette.gold, 0));
+							ctx.strokeStyle = grad;
+							ctx.lineWidth = 1.2;
+							ctx.beginPath();
+							ctx.moveTo(m.x, m.y);
+							ctx.lineTo(m.x - m.vx * m.tail, m.y - m.vy * m.tail);
+							ctx.stroke();
+							if (m.life >= m.maxLife || m.x < -160 || m.x > this.w + 160 || m.y > this.h + 160) {
+								this.meteors[slot] = null;
+								this.nextMeteorAt[slot] = t + 2500 + Math.random() * 4000 + slot * 1400;
+							}
 						}
 					}
 				}
@@ -185,57 +197,160 @@
 			}
 		}
 
+		/* ---------------- 月亮单摆入场 ----------------
+		   月亮拴在看不见的绳子上：支点在最终位正上方 L 处，
+		   从屏幕右上方（θ0≈1.35rad）沿圆周摆入，阻尼振荡至稳定。
+		   渲染技巧：CSS 已把月亮定位在最终位，JS 只写相对偏移
+		   translate3d(L·sinθ, L·(cosθ−1), 0)，θ=0 时偏移为零。 */
+		interface Pendulum { theta: number; omega: number; t: number; L: number }
+		let pendulum: Pendulum | null = null;
+		const PEND_G = 2600; // px/s²
+		const PEND_C = 0.9; // 阻尼系数（轻度欠阻尼，过冲 2~3 次）
+		const PEND_THETA0 = 1.35;
+		let moonArts: HTMLElement[] = [];
+
+		function applyPendulum(moon: HTMLElement, p: Pendulum) {
+			const dx = p.L * Math.sin(p.theta);
+			const dy = p.L * (Math.cos(p.theta) - 1);
+			moon.style.transform = `translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 0)`;
+			moon.style.opacity = "1";
+			const rot = (p.theta * 0.28 * 57.2958).toFixed(2);
+			for (const art of moonArts) art.style.transform = `rotate(${rot}deg)`;
+		}
+
+		function initPendulum() {
+			const moon = document.querySelector<HTMLElement>("[data-ch3-moon]");
+			if (!moon) return;
+			// reduced-motion：不起摆，但必须现身（CSS 默认 opacity:0 防闪现）
+			if (REDUCED.matches) { moon.style.opacity = "1"; return; }
+			if (pendulum) return; // 摆入进行中不被 page-load 重置
+			moonArts = Array.from(moon.querySelectorAll<HTMLElement>(".ch3-moon-art"));
+			pendulum = {
+				theta: PEND_THETA0,
+				omega: 0,
+				t: 0,
+				L: (window.innerHeight || 800) * 0.9,
+			};
+			applyPendulum(moon, pendulum); // 立即摆到屏外初始位，避免闪现最终位
+		}
+
+		function finishPendulum() {
+			pendulum = null;
+			for (const art of moonArts) art.style.transform = "";
+			lastWritten = -1; // 强制编舞下一帧把月亮写到精确最终位，避免跳变
+		}
+
+		function stepPendulum(dt: number) {
+			if (!pendulum) return;
+			const moon = moonEl;
+			if (!moon || !moon.isConnected) { finishPendulum(); return; }
+			// 用户提前滚动：直接结束摆入，编舞无缝接管
+			if ((window.scrollY || 0) > 40) { finishPendulum(); return; }
+			pendulum.t += dt;
+			// 阻尼递增：3.2s 后绳子"沾上空气阻力"，残余摆动平滑收敛，
+			// 避免硬 cutoff 时从可见偏移瞬跳到零
+			const damp = PEND_C + Math.max(0, pendulum.t - 3.2) * 2.2;
+			const accel = -(PEND_G / pendulum.L) * Math.sin(pendulum.theta) - damp * pendulum.omega;
+			pendulum.omega += accel * dt;
+			pendulum.theta += pendulum.omega * dt;
+			applyPendulum(moon, pendulum);
+			const settled = pendulum.t > 1.2 && Math.abs(pendulum.theta) < 0.012 && Math.abs(pendulum.omega) < 0.04;
+			if (settled || pendulum.t > 8) finishPendulum();
+		}
+
 		/* ---------------- 滚动编舞 ----------------
-		   月亮下坠沉没、装饰层差速剥离、文字先行淡出。
-		   全部为 scrollY 的纯函数，滚回顶部自然复位。 */
+		   断绳式月落、装饰层差速剥离、文字先行淡出、
+		   正文条目从地平线升起。全部为滚动值的纯函数，
+		   滚回顶部自然复位；滚动值经 lerp 平滑带惯性。 */
 		interface DriftLayer { el: HTMLElement; yRate: number; xRate: number; fadeLen: number }
+		interface RiseItem { el: HTMLElement; index: number }
 		let driftLayers: DriftLayer[] = [];
+		let riseItems: RiseItem[] = [];
 		let moonEl: HTMLElement | null = null;
-		let lastChoreoScroll = -1;
+		let sSmooth = -1;
+		let lastWritten = -1;
 
 		function scanChoreo() {
 			driftLayers = [];
+			riseItems = [];
 			moonEl = document.querySelector<HTMLElement>("[data-ch3-moon]");
 			document.querySelectorAll<HTMLElement>("[data-ch3-drift]").forEach((el) => {
 				const [y, f, x] = (el.dataset.ch3Drift || "0 1 0").split(/\s+/).map(Number);
 				driftLayers.push({ el, yRate: y || 0, fadeLen: f || 1, xRate: x || 0 });
 			});
-			lastChoreoScroll = -1; // 强制下一帧重算
+			// 正文条目：从地平线升起联动（inline style 驱动，JS 失效时天然可见）
+			document.querySelectorAll<HTMLElement>("#post-list-container .post-card-wrapper").forEach((el, i) => {
+				riseItems.push({ el, index: i });
+			});
+			sSmooth = -1; // 强制下一帧重算
+			lastWritten = -1;
 		}
 
-		function updateChoreo() {
+		function updateChoreo(t: number) {
 			const s = window.scrollY || 0;
-			if (s === lastChoreoScroll) return;
-			lastChoreoScroll = s;
+			if (sSmooth < 0) sSmooth = s;
+			sSmooth += (s - sSmooth) * 0.14;
+			if (Math.abs(s - sSmooth) < 0.1) sSmooth = s;
+			// 短路：滚动值稳定且摆入不活跃时无需重写
+			if (!pendulum && sSmooth === lastWritten) return;
+			lastWritten = sSmooth;
+			const sS = sSmooth;
 			const vh = window.innerHeight || 1;
+
 			if (moonEl) {
 				if (!moonEl.isConnected) {
 					moonEl = null;
-				} else {
-					// 月落：下坠 + 微缩 + 微旋 + 渐隐，最终沉入地平线
-					const fall = s * 0.62;
-					const scale = 1 - Math.min(s / (vh * 1.5), 0.22);
-					const fade = 1 - Math.min(Math.max((s - vh * 0.22) / (vh * 0.46), 0), 1);
-					const rot = s * 0.008;
+				} else if (!pendulum) {
+					// 断绳月落：p² 重力加速，斜向左下，带翻滚，不缩小
+					const p = Math.min(sS / (vh * 0.9), 1);
+					const acc = p * p;
+					const fall = acc * vh * 0.85;
+					const driftX = -acc * vh * 0.42;
+					const rot = p * 34;
+					const fade = 1 - Math.min(Math.max((sS - vh * 0.3) / (vh * 0.42), 0), 1);
+					// 悬挂时的呼吸微摆（随坠落渐隐）
+					const sway = Math.sin(t * 0.0008) * 0.6 * fade;
 					moonEl.style.transform =
-						`translate3d(0, ${fall.toFixed(1)}px, 0) scale(${scale.toFixed(4)}) rotate(${rot.toFixed(2)}deg)`;
+						`translate3d(${driftX.toFixed(1)}px, ${fall.toFixed(1)}px, 0) rotate(${(rot + sway).toFixed(2)}deg)`;
 					moonEl.style.opacity = fade.toFixed(3);
 				}
 			}
+
 			for (const layer of driftLayers) {
 				if (!layer.el.isConnected) continue;
-				const ty = s * layer.yRate;
-				const tx = s * layer.xRate;
-				const fade = layer.fadeLen > 0 ? 1 - Math.min(s / (vh * layer.fadeLen), 1) : 1;
+				const ty = sS * layer.yRate;
+				const tx = sS * layer.xRate;
+				const fade = layer.fadeLen > 0 ? 1 - Math.min(sS / (vh * layer.fadeLen), 1) : 1;
 				layer.el.style.transform = `translate3d(${tx.toFixed(1)}px, ${ty.toFixed(1)}px, 0)`;
 				layer.el.style.opacity = fade.toFixed(3);
+			}
+
+			// 正文条目 stagger 升起（完成态清空 inline，归还 CSS hover 控制）
+			const riseStart = vh * 0.22;
+			for (const item of riseItems) {
+				if (!item.el.isConnected) continue;
+				const p = Math.min(Math.max((sS - (riseStart + item.index * vh * 0.065)) / (vh * 0.38), 0), 1);
+				if (p >= 1) {
+					if (item.el.style.opacity !== "") {
+						item.el.style.opacity = "";
+						item.el.style.transform = "";
+					}
+					continue;
+				}
+				const e = 1 - Math.pow(1 - p, 3);
+				item.el.style.opacity = e.toFixed(3);
+				item.el.style.transform = `translate3d(0, ${((1 - e) * 56).toFixed(1)}px, 0)`;
 			}
 		}
 
 		if (!REDUCED.matches) {
+			let lastT = 0;
 			const loop = (t: number) => {
+				const dt = Math.min((t - lastT) / 1000, 0.032);
+				lastT = t;
 				if (!document.hidden) {
-					updateChoreo();
+					stepPendulum(dt);
+					updateChoreo(t);
 					for (const inst of instances.values()) {
 						if (inst.visible) inst.draw(t);
 					}
@@ -326,8 +441,21 @@
 			scanReveals();
 		}
 
+		initPendulum(); // 首次加载：若有月亮立即起摆（必须在 rescan 前，先占住屏外位）
 		rescan();
-		document.addEventListener("astro:page-load", rescan);
+		// astro:page-load 在首次加载也会触发（且可能很晚，swup 模块慢加载后）。
+		// 首次触发跳过起摆——否则摆入稳定后会突然瞬移屏外重摆；
+		// 之后的事件才是 Swup 导航回首页，允许重摆。
+		let firstPageLoad = true;
+		document.addEventListener("astro:page-load", () => {
+			if (firstPageLoad) {
+				firstPageLoad = false;
+				rescan();
+				return;
+			}
+			initPendulum(); // Swup 导航回首页时重新摆入
+			rescan();
+		});
 		document.addEventListener("swup:contentReplaced", () => setTimeout(rescan, 50));
 
 		(window as any).__ch2Motion = true;

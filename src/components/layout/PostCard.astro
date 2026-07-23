@@ -176,11 +176,11 @@ const descriptionText = description || remarkPluginFrontmatter.excerpt || "";
           "group",
           "w-full md:w-(--coverWidth)",
           "aspect-2/1 md:aspect-auto",
-          "relative md:absolute md:top-4 md:bottom-4 md:right-4",
-          "rounded-(--radius-large) md:rounded-xl overflow-hidden",
+          "relative md:absolute md:top-0 md:bottom-0 md:right-0",
+          "rounded-(--radius-large) md:rounded-none overflow-hidden",
         ]}
       >
-        <div class="absolute pointer-events-none z-10 w-full h-full group-hover:bg-black/30 group-active:bg-black/50 transition" />
+        <div class="cover-blend absolute pointer-events-none z-10 w-full h-full transition-opacity duration-500" />
         <div class="absolute pointer-events-none z-20 w-full h-full flex items-center justify-center ">
           <Icon
             name="material-symbols:chevron-right-rounded"
@@ -292,11 +292,11 @@ const descriptionText = description || remarkPluginFrontmatter.excerpt || "";
     }
 
     :global(.list-mode) .has-cover .post-card-image {
-      top: 1rem !important;
-      bottom: 1rem !important;
-      right: 1rem !important;
+      top: 0 !important;
+      bottom: 0 !important;
+      right: 0 !important;
       width: var(--coverWidth) !important;
-      border-radius: 0.75rem !important;
+      border-radius: 0 !important;
     }
 
     :global(.list-mode) .post-card-title {
@@ -377,5 +377,68 @@ const descriptionText = description || remarkPluginFrontmatter.excerpt || "";
 
   :global(.grid-mode) .post-card-enter-btn {
     display: flex !important;
+  }
+
+  /* === 构成主义：封面融合与 hover 布局稳定 === */
+
+  /* hover 标题展开改用 transform，避免字距变化导致换行与高度抖动 */
+  .post-card-title {
+    transform: scale(1);
+    transform-origin: left center;
+    transition:
+      transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+      color 0.3s ease !important;
+  }
+
+  .post-card-wrapper:hover .post-card-title {
+    letter-spacing: 0.02em !important;
+    transform: scale(1.03);
+  }
+
+  /* 封面左缘渐变融入条目底色（去容器化） */
+  .post-card-image .cover-blend {
+    background: linear-gradient(
+      100deg,
+      var(--card-bg) 0%,
+      color-mix(in srgb, var(--card-bg) 55%, transparent) 38%,
+      transparent 70%
+    );
+    opacity: 1;
+  }
+
+  .post-card-wrapper:hover .post-card-image .cover-blend {
+    opacity: 0.25;
+  }
+
+  /* 桌面列表模式：封面斜切 bleeding 到条目右缘 + 金色细描边 */
+  @media (min-width: 768px) {
+    :global(.list-mode) .post-card-image {
+      clip-path: polygon(12% 0, 100% 0, 100% 100%, 0 100%) !important;
+      transition: clip-path 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+    }
+
+    :global(.list-mode) .post-card-wrapper:hover .post-card-image {
+      clip-path: polygon(6% 0, 100% 0, 100% 100%, 0 100%) !important;
+    }
+
+    /* 沿斜切缘的金色 hairline（与封面同步斜切的窄条） */
+    :global(.list-mode) .post-card-image::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 15;
+      pointer-events: none;
+      background: linear-gradient(
+        180deg,
+        var(--gold) 0%,
+        color-mix(in srgb, var(--gold) 55%, transparent) 100%
+      );
+      clip-path: polygon(12% 0, calc(12% + 1.5px) 0, 1.5px 100%, 0 100%);
+      transition: clip-path 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    :global(.list-mode) .post-card-wrapper:hover .post-card-image::before {
+      clip-path: polygon(6% 0, calc(6% + 1.5px) 0, 1.5px 100%, 0 100%);
+    }
   }
 </style>

@@ -1,9 +1,8 @@
 ---
-// 构成主义首页 Hero v3 —— 「月亮、星星与构成主义」分层天空
-// 不再是一张整图：月亮/日蚀、光束、竖条、刻度、文字全部是独立图层，
-// 页面背景即天幕（深色夜空 / 浅色纸面，同一构图的一体两面）。
-// 滚动编舞由 StarField 管理器驱动：月亮下坠沉没、各层差速剥离、
-// 文字先行淡出；数据属性声明运动参数，滚回顶部自然复位。
+// 构成主义首页 Hero v4 —— 「月亮、星星与构成主义」分层天空
+// v4：月亮单摆阻尼入场（屏外右侧沿圆周摆入，JS 物理模拟）、
+// 断绳式自由落体月落、更丰富的构成元素（轨道环/细光束/天文坐标/
+// 俄文竖排/星团）。图层运动全部由 StarField 管理器驱动。
 import TypewriterText from "@/components/features/TypewriterText.astro";
 import { backgroundWallpaper, siteConfig } from "@/config";
 
@@ -21,6 +20,9 @@ const titleChars = [...heroTitle];
 ---
 
 <section class="ch3-hero" aria-label={siteConfig.title} data-ch3-hero>
+	<!-- no-JS 兜底：CSS 默认隐藏月亮防单摆闪现，无脚本时强制现身 -->
+	<noscript><style>.ch3-moon { opacity: 1 !important; }</style></noscript>
+
 	<!-- 首屏加密星空（全局星空之上再叠一层，滚出即随文档离开） -->
 	<canvas
 		class="starfield ch3-stars"
@@ -29,12 +31,21 @@ const titleChars = [...heroTitle];
 		data-meteors="true"
 		aria-hidden="true"></canvas>
 
-	<!-- 透视舞台：鼠标轻微 3D 倾斜的载体，各层 translateZ 营造景深 -->
+	<!-- 透视舞台：鼠标轻微 3D 倾斜的载体 -->
 	<div class="ch3-stage" data-ch3-tilt>
 		<!-- 远景：主光束（左下 → 右上，穿月而过） -->
 		<div class="ch3-layer ch3-beam" data-ch3-drift="-0.18 0.85 0" aria-hidden="true">
 			<div class="ch3-beam-core"></div>
 			<div class="ch3-beam-edge"></div>
+		</div>
+
+		<!-- 第二条细光束：不同角度、更慢剥离 -->
+		<div class="ch3-layer ch3-beam-thin" data-ch3-drift="-0.24 0.95 0" aria-hidden="true"></div>
+
+		<!-- 轨道环：天空的坐标系，不随月亮摆入/坠落，仅慢速漂移 -->
+		<div class="ch3-layer ch3-orbits" data-ch3-drift="-0.08 1.15 0" aria-hidden="true">
+			<i class="ch3-orbit ch3-orbit-a"></i>
+			<i class="ch3-orbit ch3-orbit-b"></i>
 		</div>
 
 		<!-- 刻度尺：左右缘，慢速剥离 -->
@@ -44,7 +55,20 @@ const titleChars = [...heroTitle];
 		<!-- 准星：月亮左侧的观测标记 -->
 		<div class="ch3-layer ch3-cross" data-ch3-drift="-0.22 0.95 0" aria-hidden="true"></div>
 
-		<!-- 月亮（深色）/ 日蚀（浅色）：同一位置、同一编舞的主角 -->
+		<!-- 天文坐标标注：准星下方的观测数据 -->
+		<div class="ch3-layer ch3-coords" data-ch3-drift="-0.22 0.95 0" aria-hidden="true">
+			<span>RA 05h 35m</span>
+			<span>DEC −05° 23′</span>
+		</div>
+
+		<!-- 远处星团：左上小星群 -->
+		<div class="ch3-layer ch3-cluster" data-ch3-drift="-0.1 1.2 0" aria-hidden="true">
+			<i></i><i></i><i></i><i></i><i></i>
+		</div>
+
+		<!-- 月亮（深色）/ 日蚀（浅色）：同一位置、同一编舞的主角。
+		     入场由 JS 单摆驱动（见 StarField 管理器）；
+		     CSS 默认 opacity:0 防闪现，no-JS 时由 noscript 兜底现身 -->
 		<div class="ch3-layer ch3-moon" data-ch3-moon aria-hidden="true">
 			<img
 				class="ch3-moon-art ch3-moon-for-dark"
@@ -112,12 +136,13 @@ const titleChars = [...heroTitle];
 			</div>
 		</div>
 
-		<!-- 边缘构成元素 -->
+		<!-- 边缘构成元素：右缘竖排 + 左缘俄文竖排 -->
 		<div class="ch3-layer ch3-vertical" data-ch3-drift="-0.22 0.9 0" aria-hidden="true">{siteConfig.subtitle}</div>
+		<div class="ch3-layer ch3-vertical-l" data-ch3-drift="-0.16 1.05 0" aria-hidden="true">Луна · Звёзды · Конструктивизм</div>
 		<div class="ch3-layer ch3-swatch" data-ch3-drift="-0.26 0.9 0" aria-hidden="true"><i></i><i></i><i></i></div>
 	</div>
 
-	<!-- 地平线：月亮沉没处——一条横贯的金色细线 + 极轻光晕，替代任何卡片边界 -->
+	<!-- 地平线：月亮沉没处——一条横贯的金色细线 + 极轻光晕 -->
 	<div class="ch3-horizon" aria-hidden="true">
 		<span class="ch3-horizon-glow"></span>
 		<span class="ch3-horizon-line"></span>
