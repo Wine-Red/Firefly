@@ -15,9 +15,7 @@ function run(command, args, options = {}) {
 }
 
 if (!process.env.DIRECTUS_URL) {
-	console.error(
-		"未配置 DIRECTUS_URL。请在 .env 中配置后台地址；如需离线查看仓库旧文章，请运行 pnpm dev:local。",
-	);
+	console.error("未配置 DIRECTUS_URL。请在 .env 中配置 Directus 后台地址。");
 	process.exit(1);
 }
 
@@ -30,11 +28,11 @@ if (syncCode !== 0) process.exit(syncCode);
 const pnpmCli = process.env.npm_execpath;
 if (!pnpmCli) throw new Error("无法定位 pnpm，请通过 pnpm dev 启动开发环境");
 
-const devCode = await run(
-	process.execPath,
-	[pnpmCli, "exec", "astro", "dev", ...process.argv.slice(2)],
-	{
-		env: { ...process.env, CMS_CONTENT_SOURCE: "directus" },
-	},
-);
+const devCode = await run(process.execPath, [
+	pnpmCli,
+	"exec",
+	"astro",
+	"dev",
+	...process.argv.slice(2),
+]);
 process.exit(devCode);

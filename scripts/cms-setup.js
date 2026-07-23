@@ -90,4 +90,4 @@ await directusRequest(`${baseUrl}/collections`, {
 	}),
 });
 
-console.log("Directus posts 集合已创建。下一步运行 pnpm cms:import。 ");
+console.log("Directus posts 集合已创建，可以开始在后台维护文章。");

@@ -228,7 +228,6 @@ Astroがデフォルトで対応している[GitHub Flavored Markdown](https://g
 | `pnpm preview`             | ビルドされたサイトをローカルでプレビュー            |
 | `pnpm check`               | コード内のエラーをチェック                          |
 | `pnpm format`              | Biomeを使用してコードをフォーマット                 |
-| `pnpm new-post <filename>` | 新しい記事を作成                                    |
 | `pnpm astro ...`           | `astro add`、`astro check`などのコマンドを実行      |
 | `pnpm astro --help`        | Astro CLIヘルプを表示                               |
 

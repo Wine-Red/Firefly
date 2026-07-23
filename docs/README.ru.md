@@ -230,7 +230,6 @@ comment: true    # Включить комментарии
 | `pnpm preview`             | Локальный предварительный просмотр собранного сайта |
 | `pnpm check`               | Проверить код на наличие ошибок                     |
 | `pnpm format`              | Отформатировать код с помощью Biome                 |
-| `pnpm new-post <filename>` | Создать новую статью                                |
 | `pnpm astro ...`           | Выполнить `astro add`, `astro check` и другие команды |
 | `pnpm astro --help`        | Показать справку Astro CLI                          |
 

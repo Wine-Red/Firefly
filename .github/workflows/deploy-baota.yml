@@ -75,9 +75,7 @@ jobs:
           pnpm cms:sync
 
       - name: Build site
-        env:
-          CMS_CONTENT_SOURCE: ${{ env.DIRECTUS_PUBLIC_URL != '' && 'directus' || 'local' }}
-        run: pnpm build
+        run: pnpm build:site
 
       - name: Deploy changed files to Baota Panel
         env:

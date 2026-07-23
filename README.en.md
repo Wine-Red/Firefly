@@ -228,7 +228,6 @@ All commands need to be executed in the project root directory:
 | `pnpm preview`             | Preview built site locally                          |
 | `pnpm check`               | Check for errors in code                            |
 | `pnpm format`              | Format your code using Biome                        |
-| `pnpm new-post <filename>` | Create new article                                  |
 | `pnpm astro ...`           | Execute `astro add`, `astro check` and other commands |
 | `pnpm astro --help`        | Display Astro CLI help                              |
 

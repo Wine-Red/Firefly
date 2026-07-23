@@ -2,13 +2,9 @@ import { defineCollection } from "astro:content";
 import { glob } from "astro/loaders";
 import { z } from "astro/zod";
 
-// The CMS sync writes into src/content/.cms-posts before Astro starts.
-// Keeping the generated files under src/content preserves existing relative
-// image paths such as ../../assets/images/....
-const postsBase =
-	process.env.CMS_CONTENT_SOURCE === "directus"
-		? "./src/content/.cms-posts"
-		: "./src/content/posts";
+// Directus is the only source of truth for posts. The sync command writes the
+// generated Markdown into this ignored directory before Astro starts.
+const postsBase = "./src/content/.cms-posts";
 
 const postsCollection = defineCollection({
 	loader: glob({ pattern: "**/*.{md,mdx}", base: postsBase }),

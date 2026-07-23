@@ -22,19 +22,17 @@ docker compose up -d
 
 `database`、`uploads`、`extensions` 和 `.env` 必须纳入服务器备份，但不要提交到 Git。
 
-## 2. 初始化字段并迁移旧文章
+## 2. 初始化字段和访问权限
 
-在 Directus 后台创建一个仅用于初始化和迁移的静态管理员 Token，然后在本地 PowerShell 中运行：
+仅在新建或恢复 Directus 实例时，创建一个临时静态管理员 Token，然后在本地 PowerShell 中运行：
 
 ```powershell
 $env:DIRECTUS_URL = "https://cms.winered-0v0.com"
 $env:DIRECTUS_TOKEN = "你的临时管理员Token"
 pnpm cms:setup
-pnpm cms:import -- --dry-run
-pnpm cms:import
 ```
 
-迁移是按 `slug` 更新或新增，可重复执行。迁移完成后撤销管理员 Token。
+集合初始化完成后撤销管理员 Token。文章统一在 Directus 后台创建和维护，不再从仓库中的 Markdown 导入。
 
 随后创建一个只对 `posts` 集合拥有读取权限的角色和静态 Token。优先将读取规则限制为 `status = published`；如果当前 Core 界面不提供自定义过滤，则只开启 `posts` 的 `Read: All Access`，其余写入、更新、删除和分享权限全部关闭。构建脚本仍会显式请求 `status = published`，但该 Token 必须只保存在 GitHub Secrets 中，因为它本身仍能读取草稿。
 
@@ -45,9 +43,9 @@ pnpm cms:import
 - `DIRECTUS_URL`：`https://cms.winered-0v0.com`
 - `DIRECTUS_TOKEN`：上一步创建的只读 Token
 
-没有配置 `DIRECTUS_URL` 时，工作流会继续使用仓库里的旧文章，避免切换过程中断站点。
-
 Actions 会复用既有的 `SERVER_HOST`、`SERVER_USERNAME`、`SERVER_KEY` 和 `SERVER_PORT`，建立仅在构建期间存在的 SSH 隧道，通过服务器本机的 `127.0.0.1:8055` 拉取文章。这样不需要为 GitHub Runner 放开 CMS 的海外公网访问；文章中的 Directus 资源地址仍使用 `DIRECTUS_URL` 对应的公开 HTTPS 域名。
+
+构建完成后使用同一组 SSH 凭据通过 `rsync` 增量部署到宝塔站点目录，因此服务器需要安装 `rsync`。
 
 ## 4. 配置文章发布触发器
 
@@ -65,7 +63,7 @@ Actions 会复用既有的 `SERVER_HOST`、`SERVER_USERNAME`、`SERVER_KEY` 和 
 
 ## 5. 切换检查
 
-先手动运行一次 Actions。确认首页文章数、文章详情、归档、RSS 和搜索都正常后，再停止从 `src/content/posts` 发布新文章。旧目录可以暂留作离线备份；生产构建在配置 `DIRECTUS_URL` 后不会读取它。
+Directus 是文章的唯一数据源。请将服务器上的 `database`、`uploads` 和相关配置纳入定期备份；仓库不再保存文章副本。
 
 本地需要预览后台内容时：
 
@@ -75,8 +73,8 @@ Copy-Item .env.example .env
 pnpm dev
 ```
 
-`pnpm dev` 每次启动都会重新同步后台文章；同步失败会停止，避免误以为看到的是最新内容。确实需要离线开发时使用 `pnpm dev:local`，它会读取仓库内的旧文章备份。
+`pnpm dev` 每次启动都会重新同步后台文章；同步失败会停止，避免误以为看到的是最新内容。本地没有 CMS 连接时可以修改代码，但无法加载文章页面。
 
 开发服务器运行期间在后台改了文章，可以另开一个终端运行 `pnpm cms:sync`；Astro 会检测生成内容的变化并刷新页面。
 
-需要验证生产构建时可运行 `pnpm build:cms && pnpm preview`。
+需要验证生产构建时可运行 `pnpm build && pnpm preview`。
