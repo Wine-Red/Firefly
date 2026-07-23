@@ -163,7 +163,7 @@ const relatedPosts = await getRelatedPosts(entry, 5);
       {/* AI 徽章：文章详情页右上角绝对定位 */}
       {entry.data.author === "AstrBot" && (
         <div class="absolute top-0 right-0 z-30 pointer-events-none">
-          <span class="inline-flex items-center gap-1 px-4 py-1.5 rounded-bl-2xl rounded-tr-(--radius-large) text-sm font-bold bg-blue-500/90 text-white shadow-md backdrop-blur-md">
+          <span class="inline-flex items-center gap-1 px-4 py-1.5 rounded-none text-sm font-bold bg-(--vermilion) text-(--cream) tracking-[0.15em]">
             <Icon name="material-symbols:robot-2-outline-rounded" class="text-base" />
             <span>AI Generated</span>
           </span>

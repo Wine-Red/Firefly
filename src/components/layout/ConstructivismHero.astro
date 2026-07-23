@@ -1,0 +1,64 @@
+---
+// 构成主义首页 Hero —— 纯 CSS/SVG 海报构图
+// 大圆「月亮」、斜切光束、垂直矩条、准线、标尺刻度、色票、✦、
+// 超宽字距标题与竖排副标题。数据源保持 backgroundWallpaper.common.homeText。
+import TypewriterText from "@/components/features/TypewriterText.astro";
+import { backgroundWallpaper, siteConfig } from "@/config";
+
+const homeText = backgroundWallpaper.common?.homeText;
+const heroTitle = homeText?.title || siteConfig.title;
+const heroSubtitle = homeText?.subtitle;
+const typewriter = homeText?.typewriter;
+
+// 与 MainGridLayout 相同的随机副标题逻辑（打字机关闭时）
+const randomSubtitle = Array.isArray(heroSubtitle)
+	? heroSubtitle[Math.floor(Math.random() * heroSubtitle.length)]
+	: heroSubtitle;
+
+const year = new Date().getFullYear();
+---
+
+<section class="construct-hero" aria-label={siteConfig.title}>
+	<div class="ch-frame" aria-hidden="true">
+		<div class="ch-beam ch-beam-1"></div>
+		<div class="ch-beam ch-beam-2"></div>
+		<div class="ch-beam ch-beam-3"></div>
+		<div class="ch-moon"></div>
+		<div class="ch-moon-dot"></div>
+		<div class="ch-bars"><i></i><i></i><i></i><i></i><i></i></div>
+		<div class="ch-cross"></div>
+		<div class="ch-ruler"></div>
+		<div class="ch-star">✦</div>
+		<div class="ch-swatch"><i></i><i></i><i></i></div>
+		<div class="ch-no">Nº 001 — {year} · Personal Blog</div>
+		<div class="ch-vertical">{siteConfig.subtitle}</div>
+	</div>
+	<div class="ch-content">
+		<div class="ch-eyebrow">Constructivism · Exhibition of Notes</div>
+		<div class="ch-title">{heroTitle}</div>
+		<div class="ch-rule" aria-hidden="true"></div>
+		{
+			heroSubtitle && (
+				<div
+					class="ch-subtitle"
+					data-subtitles={
+						Array.isArray(heroSubtitle)
+							? JSON.stringify(heroSubtitle)
+							: undefined
+					}
+				>
+					{typewriter?.enable ? (
+						<TypewriterText
+							text={heroSubtitle}
+							speed={typewriter.speed}
+							deleteSpeed={typewriter.deleteSpeed}
+							pauseTime={typewriter.pauseTime}
+						/>
+					) : (
+						randomSubtitle
+					)}
+				</div>
+			)
+		}
+	</div>
+</section>

@@ -1,0 +1,51 @@
+---
+// 构成主义全局几何装饰层
+// 固定定位、pointer-events:none、纯 CSS 几何元素，置于内容层之下。
+// 含轻微滚动视差（仅 transform，尊重 prefers-reduced-motion）。
+---
+
+<div class="construct-decor" aria-hidden="true">
+	<div class="cd-ring"></div>
+	<div class="cd-disc"></div>
+	<div class="cd-beam cd-beam-a"></div>
+	<div class="cd-beam cd-beam-b"></div>
+	<div class="cd-vbar cd-vbar-a"></div>
+	<div class="cd-vbar cd-vbar-b"></div>
+	<div class="cd-crosshair"></div>
+	<div class="cd-ruler"></div>
+	<div class="cd-star">✦</div>
+	<div class="cd-swatches"><i></i><i></i><i></i></div>
+	<div class="cd-vertical">Constructivism · WineRed</div>
+</div>
+
+<script>
+	// 轻微滚动视差：只写 CSS 变量，GPU 友好的 transform 由 CSS 完成
+	(function initConstructivismParallax() {
+		if (
+			window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+			(window as any).__chParallaxBound
+		) {
+			return;
+		}
+		(window as any).__chParallaxBound = true;
+
+		let ticking = false;
+		const update = () => {
+			document.documentElement.style.setProperty(
+				"--cd-scroll",
+				String(window.scrollY || 0),
+			);
+			ticking = false;
+		};
+		window.addEventListener(
+			"scroll",
+			() => {
+				if (!ticking) {
+					requestAnimationFrame(update);
+					ticking = true;
+				}
+			},
+			{ passive: true },
+		);
+	})();
+</script>
