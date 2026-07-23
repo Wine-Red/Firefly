@@ -36,6 +36,11 @@ export async function getSortedPosts() {
 
 	return sorted;
 }
+
+export async function getSortedOriginalPosts() {
+	const sorted = await getRawSortedPosts();
+	return sorted.filter((post) => post.data.author !== "AstrBot");
+}
 export type PostForList = {
 	id: string;
 	data: CollectionEntry<"posts">["data"];

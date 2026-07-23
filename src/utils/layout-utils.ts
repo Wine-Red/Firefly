@@ -84,6 +84,15 @@ export const isHomePage = (pathname: string): boolean => {
 	if (pathname === baseUrlNoSlash) return true;
 	if (pathname === "/") return true;
 
+	// Paginated home pages and the original-only list are still home views.
+	let relativePath = pathname;
+	if (baseUrlNoSlash && relativePath.startsWith(baseUrlNoSlash)) {
+		relativePath = relativePath.slice(baseUrlNoSlash.length) || "/";
+	}
+	const normalizedPath = relativePath.replace(/\/+$/, "") || "/";
+	if (/^\/\d+$/.test(normalizedPath)) return true;
+	if (/^\/original(?:\/\d+)?$/.test(normalizedPath)) return true;
+
 	return false;
 };
 

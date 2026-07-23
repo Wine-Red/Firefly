@@ -17,6 +17,9 @@ pnpm-debug.log*
 .env
 .env.production
 
+# generated from Directus by scripts/cms-sync.js
+src/content/.cms-posts/
+
 # macOS-specific files
 .DS_Store
 

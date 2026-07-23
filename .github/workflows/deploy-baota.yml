@@ -2,35 +2,49 @@ name: Deploy to Baota Panel
 
 on:
   push:
-    # 每次推送到 main 或 master 分支时触发
-    branches: [ main, master ]
-  # 允许在 GitHub Actions 页面手动触发
+    branches: [main, master]
   workflow_dispatch:
+  # Directus Flow calls GitHub's repository dispatch API after content changes.
+  repository_dispatch:
+    types: [cms-publish]
+
+concurrency:
+  group: firefly-production
+  cancel-in-progress: true
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    env:
+      DIRECTUS_URL: ${{ secrets.DIRECTUS_URL }}
+      DIRECTUS_TOKEN: ${{ secrets.DIRECTUS_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
-          
+          node-version: "22"
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 9.14.4
           run_install: false
-          
+
       - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
-      
+        run: pnpm install --frozen-lockfile
+
+      - name: Pull published posts from Directus
+        if: ${{ env.DIRECTUS_URL != '' }}
+        run: pnpm cms:sync
+
       - name: Build site
-        run: pnpm run build
-      
+        env:
+          CMS_CONTENT_SOURCE: ${{ env.DIRECTUS_URL != '' && 'directus' || 'local' }}
+        run: pnpm build
+
       - name: Deploy to Baota Panel
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -39,5 +53,5 @@ jobs:
           key: ${{ secrets.SERVER_KEY }}
           port: ${{ secrets.SERVER_PORT }}
           source: "dist/*"
-          target: "/www/wwwroot/winered-0v0.com" # 请修改为你的宝塔站点实际根目录
-          strip_components: 1 # 去除外层的 dist 文件夹路径，直接将里面的文件传到 target 目录
+          target: "/www/wwwroot/winered-0v0.com"
+          strip_components: 1

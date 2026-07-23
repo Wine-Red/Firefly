@@ -396,7 +396,8 @@ const siteLang = lang.replace("_", "-");
           const isHomePage =
             window.location.pathname === baseUrl ||
             (baseUrl !== '/' && window.location.pathname === baseUrl.replace(/\/$/, '')) ||
-            window.location.pathname === "/";
+						window.location.pathname === "/" ||
+						/^\/(?:\d+|original(?:\/\d+)?)\/?$/.test(window.location.pathname);
 
           if (wallpaperMode === WALLPAPER_OVERLAY) {
             // 全屏壁纸透明模式：切换为 overlay 显示
@@ -497,7 +498,8 @@ const siteLang = lang.replace("_", "-");
             const isHomePage =
               window.location.pathname === baseUrl || 
               (baseUrl !== '/' && window.location.pathname === baseUrl.replace(/\/$/, '')) ||
-              window.location.pathname === "/";
+							window.location.pathname === "/" ||
+							/^\/(?:\d+|original(?:\/\d+)?)\/?$/.test(window.location.pathname);
             if ((wallpaperMode === WALLPAPER_BANNER || wallpaperMode === WALLPAPER_FULLSCREEN) && isHomePage) {
               bannerTextOverlay.classList.remove("hidden");
             } else {
@@ -1060,7 +1062,16 @@ function disableAnimation() {
       }
 
     });
-    window.swup.hooks.on("visit:start", (visit: { to: { url: string } }) => {
+    window.swup.hooks.on("visit:start", (visit: any) => {
+      const triggerElement = visit.trigger?.el;
+      const preserveCategoryScroll =
+        visit.meta?.preserveCategoryScroll === true ||
+        (triggerElement instanceof Element &&
+          !!triggerElement.closest("#category-bar"));
+      if (preserveCategoryScroll) {
+        visit.scroll.reset = false;
+        visit.meta.categoryScrollY = window.scrollY;
+      }
       // Start progress bar
       const progressBar = document.getElementById("progress-bar");
       if (progressBar) {
@@ -1072,7 +1083,10 @@ function disableAnimation() {
 
       // change banner height immediately when a link is clicked
       const bodyElement = document.querySelector("body");
-      const isHomePage = pathsEqual(visit.to.url, url("/"));
+			const destinationPath = new URL(visit.to.url, window.location.href).pathname;
+			const isHomePage =
+				pathsEqual(visit.to.url, url("/")) ||
+				/^\/(?:\d+|original(?:\/\d+)?)\/?$/.test(destinationPath);
 
       // 禁用 #main-grid 的过渡动画，防止 lg:is-home 切换时 transform 产生 700ms 动画
       const mainGrid = document.getElementById("main-grid");
@@ -1218,14 +1232,14 @@ function disableAnimation() {
 
       // 确保页面滚动到顶部，切页期间使用即时回顶，移动端不使用，避免出现闪烁
       const shouldUseSmoothScroll = window.innerWidth >= 768;
-      if (shouldUseSmoothScroll) {
+      if (shouldUseSmoothScroll && !preserveCategoryScroll) {
         window.scrollTo({
           top: 0,
           behavior: "auto",
         });
       }
     });
-    window.swup.hooks.on("page:view", () => {
+    window.swup.hooks.on("page:view", (visit: any) => {
       // 更新网格列数和侧边栏组件可见性
       updateMainGridCols();
       updateSidebarComponentsVisibility();
@@ -1335,6 +1349,15 @@ function disableAnimation() {
           );
         }
       }, 300);
+
+      const preservedCategoryScrollY = visit.meta?.categoryScrollY;
+      if (typeof preservedCategoryScrollY === "number") {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            window.scrollTo({ top: preservedCategoryScrollY, behavior: "auto" });
+          });
+        });
+      }
     });
     window.swup.hooks.on("visit:end", (_visit: { to: { url: string } }) => {
       // Finish progress bar

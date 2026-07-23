@@ -14,14 +14,21 @@ const { currentPostCategory } = Astro.props as Props;
 const categories = await getCategoryList();
 // 提取置顶分类并与其他分类分开
 const highlightNames = ["AI日报", "热门仓库"];
-const highlightedCategories = categories.filter(cat => highlightNames.includes(cat.name));
-const normalCategories = categories.filter(cat => !highlightNames.includes(cat.name));
+const highlightedCategories = categories.filter((cat) =>
+	highlightNames.includes(cat.name),
+);
+const normalCategories = categories.filter(
+	(cat) => !highlightNames.includes(cat.name),
+);
 
 // 按照 highlightNames 的顺序对置顶分类进行排序
-highlightedCategories.sort((a, b) => highlightNames.indexOf(a.name) - highlightNames.indexOf(b.name));
+highlightedCategories.sort(
+	(a, b) => highlightNames.indexOf(a.name) - highlightNames.indexOf(b.name),
+);
 
 const totalPosts = (await getSortedPostsList()).length;
 const homeUrl = url("/");
+const originalUrl = url("/original/");
 const archiveUrl = url("/archive/");
 ---
 
@@ -29,6 +36,7 @@ const archiveUrl = url("/archive/");
   class="card-base category-bar p-3 onload-animation"
   id="category-bar"
   data-home-path={homeUrl}
+  data-original-path={originalUrl}
   data-archive-path={archiveUrl}
   data-current-post-category={currentPostCategory || ""}
 >
@@ -214,39 +222,35 @@ const archiveUrl = url("/archive/");
   }
 </style>
 
-<style is:global>
-  body.filter-ai .post-card-item[data-is-ai="true"],
-  body.filter-ai .post-card-wrapper[data-is-ai="true"] {
-    display: none !important;
-  }
-</style>
-
-<script is:inline>
-  if (typeof localStorage !== 'undefined' && localStorage.getItem("filterAI") === "true") {
-    document.documentElement.classList.add("filter-ai");
-    // 也添加到 body 上，兼容不同的选择器习惯
-    if (document.body) {
-      document.body.classList.add("filter-ai");
-    } else {
-      document.addEventListener("DOMContentLoaded", () => {
-        document.body.classList.add("filter-ai");
-      });
-    }
-  }
-</script>
-
 <script>
   let delayedCategoryBarScrollTimer: number | undefined;
 
+  function normalizeListingPath(pathname: string) {
+    const normalized = pathname.replace(/\/+$/, "");
+    return normalized || "/";
+  }
+
+  function isPaginatedListingPath(pathname: string, listingPath: string) {
+    const normalizedPath = normalizeListingPath(pathname);
+    const normalizedListingPath = normalizeListingPath(listingPath);
+    if (normalizedPath === normalizedListingPath) return true;
+
+    const pageSuffix = normalizedPath.slice(normalizedListingPath === "/" ? 0 : normalizedListingPath.length);
+    return /^\/\d+$/.test(pageSuffix);
+  }
+
   function getCategoryBarState(bar: HTMLElement, currentUrl: URL) {
-    const pathname = currentUrl.pathname.replace(/\/$/, "");
-    const homePath = (bar.getAttribute("data-home-path") || "/").replace(/\/$/, "");
-    const archivePath = (bar.getAttribute("data-archive-path") || "/archive").replace(/\/$/, "");
-    const isHome = pathname === homePath || pathname === "" || pathname === "/" || pathname.startsWith("/page/");
+    const pathname = normalizeListingPath(currentUrl.pathname);
+    const homePath = bar.getAttribute("data-home-path") || "/";
+    const originalPath = bar.getAttribute("data-original-path") || "/original/";
+    const archivePath = normalizeListingPath(bar.getAttribute("data-archive-path") || "/archive/");
+    const isHome = isPaginatedListingPath(pathname, homePath);
+    const isOriginal = isPaginatedListingPath(pathname, originalPath);
     const isArchive = pathname === archivePath;
 
     return {
       isHome,
+      isOriginal,
       isArchive,
       activeCategory: currentUrl.searchParams.get("category") || "",
       hasTag: currentUrl.searchParams.has("tag"),
@@ -255,7 +259,7 @@ const archiveUrl = url("/archive/");
   }
 
   function setActiveCategory(bar: HTMLElement, currentUrl: URL) {
-    const { isHome, isArchive, activeCategory, hasTag, hasUncategorized } =
+    const { isHome, isOriginal, isArchive, activeCategory, hasTag, hasUncategorized } =
       getCategoryBarState(bar, currentUrl);
     const postCategory = (bar.getAttribute("data-current-post-category") || "").trim();
 
@@ -265,7 +269,7 @@ const archiveUrl = url("/archive/");
       pill.removeAttribute("data-soft-active");
     });
 
-    if (isHome) {
+    if (isHome || isOriginal) {
       bar.querySelector<HTMLAnchorElement>('.category-pill[data-category-name=""]')
         ?.setAttribute("data-active", "");
       return;
@@ -302,15 +306,27 @@ const archiveUrl = url("/archive/");
     const scroll = bar.querySelector<HTMLElement>(".category-scroll");
     if (!activePill || !scroll) return;
 
-    const scrollLeft = activePill.offsetLeft - scroll.offsetLeft - (scroll.clientWidth - activePill.offsetWidth) / 2;
-    scroll.scrollTo({ left: Math.max(0, scrollLeft), behavior });
+		// Only move when clipped. Centering every active pill pushed the first
+		// categories underneath the desktop fade even when there was enough room.
+		const scrollRect = scroll.getBoundingClientRect();
+		const pillRect = activePill.getBoundingClientRect();
+		const safeInset = 12;
+		let delta = 0;
+		if (pillRect.left < scrollRect.left + safeInset) {
+			delta = pillRect.left - scrollRect.left - safeInset;
+		} else if (pillRect.right > scrollRect.right - safeInset) {
+			delta = pillRect.right - scrollRect.right + safeInset;
+		}
+		if (Math.abs(delta) > 1) {
+			scroll.scrollBy({ left: delta, behavior });
+		}
   }
 
   function shouldDeferCategoryScroll(bar: HTMLElement, currentUrl: URL) {
-    const { isHome } = getCategoryBarState(bar, currentUrl);
+    const { isHome, isOriginal } = getCategoryBarState(bar, currentUrl);
     const isMobile = window.innerWidth < 1024;
     const isBannerMode = document.body.classList.contains("enable-banner");
-    return isMobile && isBannerMode && !isHome;
+    return isMobile && isBannerMode && !isHome && !isOriginal;
   }
 
   function updateCategoryBar(
@@ -457,14 +473,20 @@ const archiveUrl = url("/archive/");
     window.swup.hooks.on("visit:start", (visit: any) => {
       const bar = document.getElementById("category-bar");
       if (!bar) return;
+			const triggerElement = visit.trigger?.el;
+			const isCategoryNavigation =
+				triggerElement instanceof Element && !!triggerElement.closest("#category-bar");
+			if (isCategoryNavigation || visit.meta?.preserveCategoryScroll) {
+				visit.scroll.reset = false;
+			}
       const targetUrl = new URL(visit.to.url, window.location.href);
       setActiveCategory(bar, targetUrl);
       
       // 在页面跳转前提前触发过滤按钮的动画
       const wrap = document.getElementById("ai-filter-wrap");
       if (wrap) {
-        const isHome = targetUrl.pathname === "/" || targetUrl.pathname === "/index.html" || targetUrl.pathname.startsWith("/page/");
-        if (!isHome) {
+        const { isHome, isOriginal } = getCategoryBarState(bar, targetUrl);
+        if (!isHome && !isOriginal) {
           wrap.classList.add("hide-filter");
         } else {
           wrap.classList.remove("hide-filter");
@@ -484,59 +506,49 @@ const archiveUrl = url("/archive/");
     const wrap = document.getElementById("ai-filter-wrap");
     if (!btn || !wrap) return;
     
-    // 检查是否在首页，如果不在首页则向右滑动隐藏
-    const isHome = window.location.pathname === "/" || window.location.pathname === "/index.html" || window.location.pathname.startsWith("/page/");
+    const bar = document.getElementById("category-bar");
+    if (!bar) return;
+
+    // 首页和原创文章列表共享这组控制项。
+    const { isHome, isOriginal } = getCategoryBarState(bar, new URL(window.location.href));
     
-    if (!isHome) {
+    if (!isHome && !isOriginal) {
       wrap.classList.add("hide-filter");
     } else {
       wrap.classList.remove("hide-filter");
     }
 
+    function updateFilterState(filtered: boolean) {
+      if (filtered) {
+        btn?.setAttribute("data-active", "");
+        btn?.setAttribute("title", "显示全部文章");
+      } else {
+        btn?.removeAttribute("data-active");
+        btn?.setAttribute("title", "隐藏 AI 生成的文章");
+      }
+    }
+
+    // 清除旧版 CSS 过滤留下的偏好，改用独立的可分页原创列表。
+    localStorage.removeItem("filterAI");
+    document.documentElement.classList.remove("filter-ai");
+    document.body.classList.remove("filter-ai");
+    updateFilterState(isOriginal);
+
     if (btn.dataset.bound === "true") return;
     btn.dataset.bound = "true";
 
-    // 默认不过滤（false）
-    const isFiltered = localStorage.getItem("filterAI") === "true";
-    
-    function updateFilterState(filtered: boolean) {
-      if (filtered) {
-        document.documentElement.classList.add("filter-ai");
-        document.body.classList.add("filter-ai");
-        btn?.setAttribute("data-active", "");
-        btn?.setAttribute("title", "显示 AI 生成的文章");
-      } else {
-        document.documentElement.classList.remove("filter-ai");
-        document.body.classList.remove("filter-ai");
-        btn?.removeAttribute("data-active");
-        btn?.removeAttribute("title");
-        btn?.setAttribute("title", "隐藏 AI 生成的文章");
-      }
-      
-      // 触发 resize 事件以重新计算 Masonry 布局（如果有）
-      window.dispatchEvent(new Event("resize"));
-    }
-
-    // 初始化状态
-    updateFilterState(isFiltered);
-
     btn.addEventListener("click", () => {
-      const currentState = document.documentElement.classList.contains("filter-ai");
-      const newState = !currentState;
-      localStorage.setItem("filterAI", String(newState));
-      
-      // 平滑动画过滤
-      const container = document.getElementById("post-list-container");
-      if (container) {
-        container.classList.add("layout-switching");
-        setTimeout(() => {
-          updateFilterState(newState);
-          requestAnimationFrame(() => {
-            container.classList.remove("layout-switching");
-          });
-        }, 200); // 匹配 CSS 中的过渡时间
+      const currentState = getCategoryBarState(bar, new URL(window.location.href));
+      const destination = currentState.isOriginal
+        ? bar.getAttribute("data-home-path") || "/"
+        : bar.getAttribute("data-original-path") || "/original/";
+
+      if (window.swup?.navigate) {
+				window.swup.navigate(destination, {
+					meta: { preserveCategoryScroll: true },
+				});
       } else {
-        updateFilterState(newState);
+        window.location.assign(destination);
       }
     });
   }
