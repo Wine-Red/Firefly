@@ -9,6 +9,7 @@ import MusicManager from "@components/features/MusicManager.astro";
 import SakuraEffect from "@components/features/SakuraEffect.astro";
 import ConfigCarrier from "@components/layout/ConfigCarrier.astro";
 import ConstructivismDecor from "@components/layout/ConstructivismDecor.astro";
+import StarField from "@components/layout/StarField.astro";
 
 import {
 	backgroundWallpaper,
@@ -613,6 +614,9 @@ const siteLang = lang.replace("_", "-");
 
     <!-- 构成主义全局几何装饰层 -->
     <ConstructivismDecor />
+
+    <!-- 全局星空 Canvas -->
+    <StarField />
 
     <!-- 页面顶部渐变高光效果 - 只在full和semifull模式下显示 -->
     {shouldShowTopHighlight && <div class="top-gradient-highlight" />}

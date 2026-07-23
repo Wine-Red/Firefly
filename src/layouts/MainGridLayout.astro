@@ -12,6 +12,7 @@ import FloatingControls from "@/components/controls/FloatingControls.astro";
 import ScrollDownIndicator from "@/components/controls/ScrollDownIndicator.astro";
 import TypewriterText from "@/components/features/TypewriterText.astro";
 import CategoryBar from "@/components/layout/CategoryBar.astro";
+import ConstructivismHero from "@/components/layout/ConstructivismHero.astro";
 import {
 	backgroundWallpaper,
 	live2dModelConfig,
@@ -111,6 +112,11 @@ const shouldRenderGradient =
 
 // 检查是否为首页
 const isHomePageCheck = isHomePage(Astro.url.pathname);
+
+// 沉浸式构成主义 Hero：仅在站点根路径展示（分页 /2/ 等不展示）
+const heroBasePath = (import.meta.env.BASE_URL || "/").replace(/\/+$/, "") || "/";
+const heroPathname = Astro.url.pathname.replace(/\/+$/, "") || "/";
+const showConstructivismHero = heroPathname === heroBasePath;
 
 const shouldRenderCategoryBar = !!siteConfig.categoryBar;
 
@@ -931,6 +937,10 @@ const bannerCarouselInterval = Math.max(
 
 <!-- Main content -->
 <div class={`absolute w-full z-30 pointer-events-none ${mobileNonHomeBannerClass ? 'mobile-main-no-banner' : ''} ${!(isBannerMode && isBackgroundEnabled) ? 'no-banner-layout' : ''}`} style={isFullscreenMode ? 'top: 0;' : `top: ${finalMainPanelTop}`}>
+    {/* 沉浸式构成主义 Hero —— 仅站点根路径渲染；#hero-container 是 Swup 容器，切换页面时自动替换 */}
+    <div id="hero-container" class="transition-swup-fade">
+        {showConstructivismHero && <ConstructivismHero />}
+    </div>
     <!-- The pointer-events-none here prevent blocking the click event of the TOC -->
     <div class="relative w-full xl:w-[92vw] max-w-(--page-width) mx-auto pointer-events-auto">
         <div id="main-grid"

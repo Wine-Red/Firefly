@@ -1,0 +1,299 @@
+---
+// 全局星空 Canvas + 动效管理器
+// - 星空：细密星辰闪烁 + 偶发流星，纯原生 Canvas，无依赖
+// - 同时托管：Hero 鼠标 3D 倾斜、滚动视差退场、元素 reveal
+// 性能与体验：密度上限、离屏暂停、标签页隐藏暂停、
+// Swup 切换自动重扫、prefers-reduced-motion 静止、移动端降密度
+---
+
+<canvas
+	class="starfield starfield-global"
+	data-density="0.000055"
+	data-max-stars="150"
+	data-meteors="true"
+	aria-hidden="true"></canvas>
+
+<script>
+	(() => {
+		if ((window as any).__ch2Motion) return;
+
+		const REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)");
+		const FINE_POINTER = window.matchMedia("(pointer: fine)");
+
+		/* ---------------- 主题色 ---------------- */
+		const palette = { gold: "#C8A45D", cream: "#F1E9D6", vermilion: "#B3392C", ink: "#101218" };
+		function refreshPalette() {
+			const cs = getComputedStyle(document.documentElement);
+			palette.gold = cs.getPropertyValue("--gold").trim() || palette.gold;
+			palette.cream = cs.getPropertyValue("--cream").trim() || palette.cream;
+			palette.vermilion = cs.getPropertyValue("--vermilion").trim() || palette.vermilion;
+		}
+		function hexToRgba(hex: string, alpha: number) {
+			const h = hex.replace("#", "");
+			const v = h.length === 3 ? h.split("").map((c) => c + c).join("") : h;
+			const n = Number.parseInt(v, 16);
+			return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${alpha})`;
+		}
+		refreshPalette();
+		new MutationObserver(refreshPalette).observe(document.documentElement, {
+			attributes: true,
+			attributeFilter: ["class"],
+		});
+
+		/* ---------------- 星空 ---------------- */
+		interface Star { x: number; y: number; r: number; base: number; phase: number; speed: number; color: string; born: number }
+		interface Meteor { x: number; y: number; vx: number; vy: number; life: number; maxLife: number }
+
+		class StarCanvas {
+			canvas: HTMLCanvasElement;
+			ctx: CanvasRenderingContext2D;
+			stars: Star[] = [];
+			meteor: Meteor | null = null;
+			nextMeteorAt = 0;
+			visible = true;
+			w = 0; h = 0;
+			birth = performance.now();
+			ro: ResizeObserver;
+			io: IntersectionObserver;
+
+			constructor(canvas: HTMLCanvasElement) {
+				this.canvas = canvas;
+				this.ctx = canvas.getContext("2d")!;
+				this.resize();
+				this.spawn();
+				this.ro = new ResizeObserver(() => { this.resize(); this.spawn(); this.drawStatic(); });
+				this.ro.observe(canvas);
+				this.io = new IntersectionObserver(
+					(entries) => { this.visible = entries[0]?.isIntersecting ?? true; },
+					{ rootMargin: "120px" },
+				);
+				this.io.observe(canvas);
+				this.drawStatic();
+			}
+
+			get isMobile() { return window.innerWidth < 768; }
+
+			resize() {
+				const rect = this.canvas.getBoundingClientRect();
+				this.w = Math.max(1, rect.width);
+				this.h = Math.max(1, rect.height);
+				const dpr = Math.min(window.devicePixelRatio || 1, 2);
+				this.canvas.width = this.w * dpr;
+				this.canvas.height = this.h * dpr;
+				this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+			}
+
+			spawn() {
+				const density = Number.parseFloat(this.canvas.dataset.density || "0.00006");
+				const maxStars = Number.parseInt(this.canvas.dataset.maxStars || "150", 10);
+				const scale = this.isMobile ? 0.55 : 1;
+				const count = Math.max(10, Math.min(Math.round(this.w * this.h * density * scale), maxStars));
+				const colors = [palette.cream, palette.cream, palette.gold, palette.gold, palette.gold, palette.vermilion];
+				this.stars = [];
+				for (let i = 0; i < count; i++) {
+					this.stars.push({
+						x: Math.random() * this.w,
+						y: Math.random() * this.h,
+						r: 0.4 + Math.random() * 1.1,
+						base: 0.25 + Math.random() * 0.55,
+						phase: Math.random() * Math.PI * 2,
+						speed: 0.0006 + Math.random() * 0.0016,
+						color: colors[Math.floor(Math.random() * colors.length)],
+						born: this.birth + Math.random() * 1600,
+					});
+				}
+				this.nextMeteorAt = performance.now() + 3000 + Math.random() * 5000;
+			}
+
+			drawStatic() {
+				if (REDUCED.matches) this.draw(performance.now(), true);
+			}
+
+			draw(t: number, forceFull = false) {
+				const ctx = this.ctx;
+				ctx.clearRect(0, 0, this.w, this.h);
+				for (const s of this.stars) {
+					const fadeIn = forceFull ? 1 : Math.min(1, Math.max(0, (t - s.born) / 1200));
+					if (fadeIn <= 0) continue;
+					const tw = forceFull ? 1 : 0.55 + 0.45 * Math.sin(t * s.speed + s.phase);
+					ctx.fillStyle = hexToRgba(s.color, s.base * tw * fadeIn);
+					ctx.beginPath();
+					ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+					ctx.fill();
+				}
+				// 流星
+				if (!forceFull && this.canvas.dataset.meteors === "true" && !this.isMobile) {
+					if (!this.meteor && t >= this.nextMeteorAt) {
+						const fromLeft = Math.random() > 0.5;
+						const speed = 0.35 + Math.random() * 0.25;
+						this.meteor = {
+							x: fromLeft ? -40 : this.w + 40,
+							y: Math.random() * this.h * 0.45,
+							vx: (fromLeft ? 1 : -1) * speed,
+							vy: speed * (0.35 + Math.random() * 0.25),
+							life: 0,
+							maxLife: 900 + Math.random() * 500,
+						};
+					}
+					if (this.meteor) {
+						const m = this.meteor;
+						m.life += 16.7;
+						m.x += m.vx * 16.7;
+						m.y += m.vy * 16.7;
+						const progress = m.life / m.maxLife;
+						const alpha = progress < 0.2 ? progress / 0.2 : 1 - (progress - 0.2) / 0.8;
+						const tail = 90;
+						const grad = ctx.createLinearGradient(m.x, m.y, m.x - m.vx * tail, m.y - m.vy * tail);
+						grad.addColorStop(0, hexToRgba(palette.cream, Math.max(0, alpha * 0.85)));
+						grad.addColorStop(1, hexToRgba(palette.gold, 0));
+						ctx.strokeStyle = grad;
+						ctx.lineWidth = 1.2;
+						ctx.beginPath();
+						ctx.moveTo(m.x, m.y);
+						ctx.lineTo(m.x - m.vx * tail, m.y - m.vy * tail);
+						ctx.stroke();
+						if (m.life >= m.maxLife || m.x < -120 || m.x > this.w + 120 || m.y > this.h + 120) {
+							this.meteor = null;
+							this.nextMeteorAt = t + 5000 + Math.random() * 7000;
+						}
+					}
+				}
+			}
+
+			destroy() {
+				this.ro.disconnect();
+				this.io.disconnect();
+			}
+		}
+
+		const instances = new Map<HTMLCanvasElement, StarCanvas>();
+
+		function scanStarfields() {
+			document.querySelectorAll<HTMLCanvasElement>("canvas.starfield").forEach((canvas) => {
+				if (!instances.has(canvas)) {
+					instances.set(canvas, new StarCanvas(canvas));
+				}
+			});
+			// 清理被 Swup 移除的实例
+			for (const [canvas, inst] of instances) {
+				if (!canvas.isConnected) {
+					inst.destroy();
+					instances.delete(canvas);
+				}
+			}
+		}
+
+		if (!REDUCED.matches) {
+			const loop = (t: number) => {
+				if (!document.hidden) {
+					for (const inst of instances.values()) {
+						if (inst.visible) inst.draw(t);
+					}
+				}
+				requestAnimationFrame(loop);
+			};
+			requestAnimationFrame(loop);
+		}
+
+		/* ---------------- Hero 鼠标 3D 倾斜 ---------------- */
+		let tiltTarget: { rx: number; ry: number } | null = null;
+		let tiltCurrent: { rx: number; ry: number } = { rx: 0, ry: 0 };
+		let tiltRaf = 0;
+
+		function tiltLoop() {
+			if (!tiltTarget) { tiltRaf = 0; return; }
+			tiltCurrent.rx += (tiltTarget.rx - tiltCurrent.rx) * 0.08;
+			tiltCurrent.ry += (tiltTarget.ry - tiltCurrent.ry) * 0.08;
+			const hero = document.querySelector<HTMLElement>("[data-ch2-tilt]");
+			if (hero) {
+				hero.style.transform =
+					`rotateX(${tiltCurrent.rx.toFixed(3)}deg) rotateY(${tiltCurrent.ry.toFixed(3)}deg)`;
+			}
+			if (Math.abs(tiltTarget.rx - tiltCurrent.rx) > 0.01 || Math.abs(tiltTarget.ry - tiltCurrent.ry) > 0.01) {
+				tiltRaf = requestAnimationFrame(tiltLoop);
+			} else {
+				tiltRaf = 0;
+			}
+		}
+
+		if (FINE_POINTER.matches && !REDUCED.matches) {
+			document.addEventListener(
+				"pointermove",
+				(e) => {
+					const hero = document.querySelector<HTMLElement>("[data-ch2-hero]");
+					if (!hero) return;
+					const rect = hero.getBoundingClientRect();
+					if (rect.bottom < 0 || rect.top > window.innerHeight) {
+						if (tiltTarget) { tiltTarget = { rx: 0, ry: 0 }; if (!tiltRaf) tiltRaf = requestAnimationFrame(tiltLoop); }
+						return;
+					}
+					const px = (e.clientX - rect.left) / rect.width - 0.5;
+					const py = (e.clientY - rect.top) / rect.height - 0.5;
+					// 幅度克制：最大 ±1.8deg
+					tiltTarget = { rx: (-py * 3.6), ry: (px * 3.6) };
+					if (!tiltRaf) tiltRaf = requestAnimationFrame(tiltLoop);
+				},
+				{ passive: true },
+			);
+			document.addEventListener("pointerleave", () => {
+				tiltTarget = { rx: 0, ry: 0 };
+				if (!tiltRaf) tiltRaf = requestAnimationFrame(tiltLoop);
+			});
+		}
+
+		/* ---------------- Hero 滚动视差退场 ---------------- */
+		if (!REDUCED.matches) {
+			let scrollTicking = false;
+			const onScroll = () => {
+				if (scrollTicking) return;
+				scrollTicking = true;
+				requestAnimationFrame(() => {
+					document.documentElement.style.setProperty("--ch2-scroll", String(window.scrollY || 0));
+					scrollTicking = false;
+				});
+			};
+			window.addEventListener("scroll", onScroll, { passive: true });
+			onScroll();
+		}
+
+		/* ---------------- 滚动 reveal ---------------- */
+		const revealIO = new IntersectionObserver(
+			(entries) => {
+				for (const entry of entries) {
+					if (entry.isIntersecting) {
+						entry.target.classList.add("ch2-revealed");
+						revealIO.unobserve(entry.target);
+					}
+				}
+			},
+			{ rootMargin: "0px 0px -8% 0px", threshold: 0.05 },
+		);
+
+		function scanReveals() {
+			const targets = document.querySelectorAll<HTMLElement>(
+				"widget-layout:not(.onload-animation), [data-ch2-reveal]",
+			);
+			targets.forEach((el) => {
+				if (el.classList.contains("ch2-reveal") || el.classList.contains("ch2-revealed")) return;
+				if (REDUCED.matches) {
+					el.classList.add("ch2-revealed");
+					return;
+				}
+				el.classList.add("ch2-reveal");
+				revealIO.observe(el);
+			});
+		}
+
+		/* ---------------- 生命周期 ---------------- */
+		function rescan() {
+			scanStarfields();
+			scanReveals();
+		}
+
+		rescan();
+		document.addEventListener("astro:page-load", rescan);
+		document.addEventListener("swup:contentReplaced", () => setTimeout(rescan, 50));
+
+		(window as any).__ch2Motion = true;
+	})();
+</script>

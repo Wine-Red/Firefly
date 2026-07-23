@@ -1,7 +1,7 @@
 ---
-// 构成主义首页 Hero —— 纯 CSS/SVG 海报构图
-// 大圆「月亮」、斜切光束、垂直矩条、准线、标尺刻度、色票、✦、
-// 超宽字距标题与竖排副标题。数据源保持 backgroundWallpaper.common.homeText。
+// 构成主义首页沉浸式 Hero v2 —— 「月亮、星星与构成主义」
+// 接近 100vh 的展览海报：生成的月亮主视觉为底（深浅/移动三素材），
+// 星空 Canvas 叠加，标题直压画面，滚动视差退场，鼠标轻微 3D 倾斜。
 import TypewriterText from "@/components/features/TypewriterText.astro";
 import { backgroundWallpaper, siteConfig } from "@/config";
 
@@ -10,55 +10,105 @@ const heroTitle = homeText?.title || siteConfig.title;
 const heroSubtitle = homeText?.subtitle;
 const typewriter = homeText?.typewriter;
 
-// 与 MainGridLayout 相同的随机副标题逻辑（打字机关闭时）
 const randomSubtitle = Array.isArray(heroSubtitle)
 	? heroSubtitle[Math.floor(Math.random() * heroSubtitle.length)]
 	: heroSubtitle;
 
 const year = new Date().getFullYear();
+const titleChars = [...heroTitle];
 ---
 
-<section class="construct-hero" aria-label={siteConfig.title}>
-	<div class="ch-frame" aria-hidden="true">
-		<div class="ch-beam ch-beam-1"></div>
-		<div class="ch-beam ch-beam-2"></div>
-		<div class="ch-beam ch-beam-3"></div>
-		<div class="ch-moon"></div>
-		<div class="ch-moon-dot"></div>
-		<div class="ch-bars"><i></i><i></i><i></i><i></i><i></i></div>
-		<div class="ch-cross"></div>
-		<div class="ch-ruler"></div>
-		<div class="ch-star">✦</div>
-		<div class="ch-swatch"><i></i><i></i><i></i></div>
-		<div class="ch-no">Nº 001 — {year} · Personal Blog</div>
-		<div class="ch-vertical">{siteConfig.subtitle}</div>
-	</div>
-	<div class="ch-content">
-		<div class="ch-eyebrow">Constructivism · Exhibition of Notes</div>
-		<div class="ch-title">{heroTitle}</div>
-		<div class="ch-rule" aria-hidden="true"></div>
-		{
-			heroSubtitle && (
-				<div
-					class="ch-subtitle"
-					data-subtitles={
-						Array.isArray(heroSubtitle)
-							? JSON.stringify(heroSubtitle)
-							: undefined
-					}
-				>
-					{typewriter?.enable ? (
-						<TypewriterText
-							text={heroSubtitle}
-							speed={typewriter.speed}
-							deleteSpeed={typewriter.deleteSpeed}
-							pauseTime={typewriter.pauseTime}
-						/>
-					) : (
-						randomSubtitle
-					)}
-				</div>
-			)
-		}
+<section class="ch2-hero" aria-label={siteConfig.title} data-ch2-hero>
+	<div class="ch2-tilt" data-ch2-tilt>
+		<!-- 主视觉：按深浅色/移动端切换素材 -->
+		<div class="ch2-visual" data-ch2-visual>
+			<picture class="ch2-img ch2-img-light">
+				<img
+					src="/constructivism/moon-hero-light.webp"
+					alt=""
+					width="2048"
+					height="1071"
+					loading="eager"
+					fetchpriority="high"
+					decoding="async"
+				/>
+			</picture>
+			<picture class="ch2-img ch2-img-dark">
+				<source
+					media="(max-width: 767px)"
+					srcset="/constructivism/moon-hero-mobile.webp"
+					width="2160"
+					height="3667"
+				/>
+				<img
+					src="/constructivism/moon-hero-dark.webp"
+					alt=""
+					width="2048"
+					height="1071"
+					loading="eager"
+					fetchpriority="high"
+					decoding="async"
+				/>
+			</picture>
+			<!-- 星空 Canvas（Hero 高密度实例） -->
+			<canvas
+				class="starfield ch2-stars"
+				data-density="0.00012"
+				data-max-stars="220"
+				data-meteors="true"
+				data-hero="true"
+				aria-hidden="true"></canvas>
+			<!-- 底部渐隐 + 斜切金线过渡 -->
+			<div class="ch2-fade" aria-hidden="true"></div>
+			<div class="ch2-slant" aria-hidden="true"></div>
+		</div>
+
+		<!-- 海报文字层 -->
+		<div class="ch2-text" data-ch2-text>
+			<div class="ch2-no">Nº 001 — {year} · Personal Blog</div>
+			<div class="ch2-eyebrow">The Moon · The Stars · Constructivism</div>
+			<div class="ch2-title" aria-label={heroTitle}>
+				{
+					titleChars.map((ch, i) => (
+						<span class="ch2-char" style={`--i:${i}`} aria-hidden="true">
+							{ch === " " ? " " : ch}
+						</span>
+					))
+				}
+			</div>
+			<div class="ch2-rule" aria-hidden="true"></div>
+			{
+				heroSubtitle && (
+					<div class="ch2-subtitle">
+						{typewriter?.enable ? (
+							<TypewriterText
+								text={heroSubtitle}
+								speed={typewriter.speed}
+								deleteSpeed={typewriter.deleteSpeed}
+								pauseTime={typewriter.pauseTime}
+							/>
+						) : (
+							randomSubtitle
+						)}
+					</div>
+				)
+			}
+			<div class="ch2-meta-row" aria-hidden="true">
+				<span class="ch2-dot"></span>
+				<span>Exhibition of Notes</span>
+				<span class="ch2-star-sym">✦</span>
+			</div>
+		</div>
+
+		<!-- 边缘构成元素 -->
+		<div class="ch2-vertical" aria-hidden="true">{siteConfig.subtitle}</div>
+		<div class="ch2-crosshair" aria-hidden="true"></div>
+		<div class="ch2-swatch" aria-hidden="true"><i></i><i></i><i></i></div>
+
+		<!-- 向下滚动提示 -->
+		<a class="ch2-scrollcue" href="#swup-container" aria-label="Scroll to content">
+			<span class="ch2-scrollcue-text">Scroll</span>
+			<span class="ch2-scrollcue-line"></span>
+		</a>
 	</div>
 </section>
