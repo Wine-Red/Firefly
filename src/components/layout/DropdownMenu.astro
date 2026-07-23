@@ -36,6 +36,21 @@ const processedLink = {
 };
 
 const hasChildren = processedLink.children && processedLink.children.length > 0;
+
+// 当前页判断：用于朱红小圆点指示（悬浮气泡导航）
+const currentPath = Astro.url.pathname;
+const homeHref = url("/");
+const isCurrent = (href: string) =>
+	href === currentPath ||
+	(href !== homeHref &&
+		currentPath.startsWith(href.endsWith("/") ? href : `${href}/`));
+const linkHref = processedLink.external ? null : url(processedLink.url);
+const isActive = !hasChildren && linkHref ? isCurrent(linkHref) : false;
+const isChildActive = hasChildren
+	? (processedLink.children ?? []).some(
+			(child) => !child.external && isCurrent(url(child.url)),
+		)
+	: false;
 ---
 
 <div class:list={["dropdown-container", className]} data-dropdown>
@@ -51,6 +66,7 @@ const hasChildren = processedLink.children && processedLink.children.length > 0;
 				{processedLink.name}
 			</div>
 			<Icon name="material-symbols:keyboard-arrow-down-rounded" is:inline class="text-[1.2rem] transition-transform duration-200 dropdown-arrow absolute right-2.5 top-1/2 -translate-y-1/2" />
+			{isChildActive && <span class="nav-active-dot" aria-hidden="true"></span>}
 		</button>
 		<div class="dropdown-menu" data-dropdown-menu>
 			<DropdownPanel class="dropdown-content">
@@ -82,6 +98,7 @@ const hasChildren = processedLink.children && processedLink.children.length > 0;
 				{processedLink.name}
 				{processedLink.external && !processedLink.hideExternalIcon && <Icon name="fa7-solid:arrow-up-right-from-square" is:inline class="text-[0.875rem] transition -translate-y-px ml-1 text-black/20 dark:text-white/20" />}
 			</div>
+			{isActive && <span class="nav-active-dot" aria-hidden="true"></span>}
 		</a>
 	)}
 </div>
@@ -109,6 +126,19 @@ const hasChildren = processedLink.children && processedLink.children.length > 0;
 
 	.dropdown-content {
 		@apply min-w-[12rem];
+	}
+
+	/* 当前页朱红小圆点（悬浮气泡导航） */
+	.nav-active-dot {
+		position: absolute;
+		left: 50%;
+		bottom: 0;
+		width: 5px;
+		height: 5px;
+		border-radius: 9999px;
+		background: var(--vermilion);
+		transform: translateX(-50%);
+		pointer-events: none;
 	}
 
 	/* 移动端隐藏下拉菜单 */

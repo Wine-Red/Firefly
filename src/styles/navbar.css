@@ -302,3 +302,158 @@ body.wallpaper-transparent .float-panel {
         display: none !important;
     }
 }
+
+
+/* ============================================
+ * 悬浮导航气泡 —— 月亮、星星与构成主义
+ * --------------------------------------------
+ * 覆盖 constructivism.css 第 4 节的旧"贴顶横条"样式
+ * （该文件不可改，这里用更高优先级选择器 + !important 覆盖）。
+ * 设计：细金线描边胶囊 + 半透明毛玻璃 + 月亮图标 + 朱红当前页圆点。
+ * 状态：
+ *   - 首屏：气泡更舒展（更高、更透明）
+ *   - 滚动（.nav-condensed）：收缩紧凑（更矮、底色加深、模糊增强）
+ * ============================================ */
+
+/* 气泡脱离文档流悬浮：fixed 定位悬于星空背景之上，四周留白。
+ * 注意：不使用 transform 居中，避免改变内部 fixed 面板的包含块。 */
+body #top-row div#navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: min(100% - 1.5rem, var(--page-width));
+    margin: 0.9rem auto 0;
+    transition:
+        margin 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+        width 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* 气泡改为 fixed 后不再占据文档流高度，
+ * 给包装器补上原导航条高度，防止页面内容上移被气泡遮挡。 */
+body #top-row #navbar-wrapper {
+    min-height: 4.5rem;
+}
+
+@media (min-width: 1280px) {
+    body #top-row div#navbar {
+        width: min(92vw - 1.5rem, var(--page-width));
+    }
+}
+
+/* 胶囊气泡本体：细金线描边 + 奶油纸毛玻璃（亮色） */
+body div#navbar[data-transparent-mode] > div:not(.absolute) {
+    border: 1px solid color-mix(in srgb, var(--gold) 42%, transparent) !important;
+    border-radius: 999px !important;
+    background-color: color-mix(in srgb, var(--cream) 62%, transparent) !important;
+    backdrop-filter: blur(16px) saturate(1.05) !important;
+    box-shadow:
+        0 10px 30px -12px rgba(30, 29, 22, 0.28),
+        inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    transition:
+        height 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+        background-color 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+        border-color 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+        backdrop-filter 0.45s cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+
+/* 墨黑毛玻璃（暗色） */
+:root.dark body div#navbar[data-transparent-mode] > div:not(.absolute) {
+    background-color: color-mix(in srgb, var(--ink-soft) 66%, transparent) !important;
+    border-color: color-mix(in srgb, var(--gold) 38%, transparent) !important;
+    box-shadow:
+        0 12px 34px -12px rgba(0, 0, 0, 0.6),
+        inset 0 1px 0 rgba(241, 233, 214, 0.08);
+}
+
+/* 隐藏旧设计贴在 logo 前的朱红方块（由月亮图标取代） */
+body #navbar .grid > a:first-child::before {
+    display: none !important;
+}
+
+/* 月亮小图标：站点标题旁的小月相 */
+#navbar .nav-moon {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 0.45rem;
+    margin-bottom: 0.35rem;
+    color: var(--gold-deep);
+    opacity: 0.85;
+    transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.3s ease;
+    transform-origin: center;
+}
+
+:root.dark #navbar .nav-moon {
+    color: var(--gold);
+    filter: drop-shadow(0 0 4px rgba(200, 164, 93, 0.45));
+}
+
+#navbar .grid > a:first-child:hover .nav-moon {
+    transform: rotate(-24deg);
+    opacity: 1;
+}
+
+/* 滚动后：气泡收缩紧凑 —— 更矮、更窄、更贴近顶部、底色加深、模糊增强 */
+body #top-row div#navbar.nav-condensed {
+    margin-top: 0.5rem;
+}
+
+@media (min-width: 1280px) {
+    body #top-row div#navbar.nav-condensed {
+        width: min(92vw - 3rem, 76rem) !important;
+    }
+}
+
+/* 导航链接始终单行排列，避免气泡收缩时换行溢出 */
+body #navbar .dropdown-container > a,
+body #navbar .dropdown-container > button {
+    white-space: nowrap;
+}
+
+/* 收缩时链接字距略收，配合气泡变窄（覆盖 constructivism.css 的 0.12em） */
+body #navbar.nav-condensed .dropdown-container > a,
+body #navbar.nav-condensed .dropdown-container > button {
+    letter-spacing: 0.08em;
+    transition: letter-spacing 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+body div#navbar.nav-condensed[data-transparent-mode] > div:not(.absolute) {
+    height: 3.25rem !important;
+    background-color: color-mix(in srgb, var(--cream) 86%, transparent) !important;
+    backdrop-filter: blur(22px) saturate(1.1) !important;
+    box-shadow:
+        0 14px 36px -14px rgba(30, 29, 22, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+:root.dark body div#navbar.nav-condensed[data-transparent-mode] > div:not(.absolute) {
+    background-color: color-mix(in srgb, var(--ink-deep) 86%, transparent) !important;
+    border-color: color-mix(in srgb, var(--gold) 48%, transparent) !important;
+    box-shadow:
+        0 14px 38px -14px rgba(0, 0, 0, 0.7),
+        inset 0 1px 0 rgba(241, 233, 214, 0.1);
+}
+
+/* 收缩时 logo 链接随之收紧（原 h-[3.5rem]） */
+body #navbar.nav-condensed .grid > a:first-child {
+    height: 2.75rem !important;
+}
+
+/* 移动端：气泡留白收紧，避免遮挡内容 */
+@media (max-width: 1023px) {
+    body #top-row div#navbar {
+        width: calc(100% - 1rem);
+        margin-top: 0.6rem;
+    }
+
+    body #top-row div#navbar.nav-condensed {
+        margin-top: 0.35rem;
+    }
+}
+
+/* Swup 页面切换期间不做高度/背景过渡，避免闪烁 */
+.is-page-transitioning body div#navbar[data-transparent-mode] > div:not(.absolute),
+.is-page-transitioning body #top-row div#navbar {
+    transition: none !important;
+}

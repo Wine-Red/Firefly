@@ -112,13 +112,15 @@
 			draw(t: number, forceFull = false) {
 				const ctx = this.ctx;
 				ctx.clearRect(0, 0, this.w, this.h);
+				// 星辰随页面滚动缓慢斜向漂移（相对下坠的月亮反向运动）
+				const drift = forceFull ? 0 : (window.scrollY || 0) * 0.06;
 				for (const s of this.stars) {
 					const fadeIn = forceFull ? 1 : Math.min(1, Math.max(0, (t - s.born) / 1200));
 					if (fadeIn <= 0) continue;
 					const tw = forceFull ? 1 : 0.55 + 0.45 * Math.sin(t * s.speed + s.phase);
 					ctx.fillStyle = hexToRgba(s.color, s.base * tw * fadeIn);
 					ctx.beginPath();
-					ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+					ctx.arc(s.x + drift * 0.35, s.y - drift, s.r, 0, Math.PI * 2);
 					ctx.fill();
 				}
 				// 流星
@@ -183,9 +185,57 @@
 			}
 		}
 
+		/* ---------------- 滚动编舞 ----------------
+		   月亮下坠沉没、装饰层差速剥离、文字先行淡出。
+		   全部为 scrollY 的纯函数，滚回顶部自然复位。 */
+		interface DriftLayer { el: HTMLElement; yRate: number; xRate: number; fadeLen: number }
+		let driftLayers: DriftLayer[] = [];
+		let moonEl: HTMLElement | null = null;
+		let lastChoreoScroll = -1;
+
+		function scanChoreo() {
+			driftLayers = [];
+			moonEl = document.querySelector<HTMLElement>("[data-ch3-moon]");
+			document.querySelectorAll<HTMLElement>("[data-ch3-drift]").forEach((el) => {
+				const [y, f, x] = (el.dataset.ch3Drift || "0 1 0").split(/\s+/).map(Number);
+				driftLayers.push({ el, yRate: y || 0, fadeLen: f || 1, xRate: x || 0 });
+			});
+			lastChoreoScroll = -1; // 强制下一帧重算
+		}
+
+		function updateChoreo() {
+			const s = window.scrollY || 0;
+			if (s === lastChoreoScroll) return;
+			lastChoreoScroll = s;
+			const vh = window.innerHeight || 1;
+			if (moonEl) {
+				if (!moonEl.isConnected) {
+					moonEl = null;
+				} else {
+					// 月落：下坠 + 微缩 + 微旋 + 渐隐，最终沉入地平线
+					const fall = s * 0.62;
+					const scale = 1 - Math.min(s / (vh * 1.5), 0.22);
+					const fade = 1 - Math.min(Math.max((s - vh * 0.22) / (vh * 0.46), 0), 1);
+					const rot = s * 0.008;
+					moonEl.style.transform =
+						`translate3d(0, ${fall.toFixed(1)}px, 0) scale(${scale.toFixed(4)}) rotate(${rot.toFixed(2)}deg)`;
+					moonEl.style.opacity = fade.toFixed(3);
+				}
+			}
+			for (const layer of driftLayers) {
+				if (!layer.el.isConnected) continue;
+				const ty = s * layer.yRate;
+				const tx = s * layer.xRate;
+				const fade = layer.fadeLen > 0 ? 1 - Math.min(s / (vh * layer.fadeLen), 1) : 1;
+				layer.el.style.transform = `translate3d(${tx.toFixed(1)}px, ${ty.toFixed(1)}px, 0)`;
+				layer.el.style.opacity = fade.toFixed(3);
+			}
+		}
+
 		if (!REDUCED.matches) {
 			const loop = (t: number) => {
 				if (!document.hidden) {
+					updateChoreo();
 					for (const inst of instances.values()) {
 						if (inst.visible) inst.draw(t);
 					}
@@ -204,7 +254,7 @@
 			if (!tiltTarget) { tiltRaf = 0; return; }
 			tiltCurrent.rx += (tiltTarget.rx - tiltCurrent.rx) * 0.08;
 			tiltCurrent.ry += (tiltTarget.ry - tiltCurrent.ry) * 0.08;
-			const hero = document.querySelector<HTMLElement>("[data-ch2-tilt]");
+			const hero = document.querySelector<HTMLElement>("[data-ch3-tilt]");
 			if (hero) {
 				hero.style.transform =
 					`rotateX(${tiltCurrent.rx.toFixed(3)}deg) rotateY(${tiltCurrent.ry.toFixed(3)}deg)`;
@@ -220,7 +270,7 @@
 			document.addEventListener(
 				"pointermove",
 				(e) => {
-					const hero = document.querySelector<HTMLElement>("[data-ch2-hero]");
+					const hero = document.querySelector<HTMLElement>("[data-ch3-hero]");
 					if (!hero) return;
 					const rect = hero.getBoundingClientRect();
 					if (rect.bottom < 0 || rect.top > window.innerHeight) {
@@ -241,27 +291,12 @@
 			});
 		}
 
-		/* ---------------- Hero 滚动视差退场 ---------------- */
-		if (!REDUCED.matches) {
-			let scrollTicking = false;
-			const onScroll = () => {
-				if (scrollTicking) return;
-				scrollTicking = true;
-				requestAnimationFrame(() => {
-					document.documentElement.style.setProperty("--ch2-scroll", String(window.scrollY || 0));
-					scrollTicking = false;
-				});
-			};
-			window.addEventListener("scroll", onScroll, { passive: true });
-			onScroll();
-		}
-
 		/* ---------------- 滚动 reveal ---------------- */
 		const revealIO = new IntersectionObserver(
 			(entries) => {
 				for (const entry of entries) {
 					if (entry.isIntersecting) {
-						entry.target.classList.add("ch2-revealed");
+						entry.target.classList.add("ch3-revealed");
 						revealIO.unobserve(entry.target);
 					}
 				}
@@ -271,15 +306,15 @@
 
 		function scanReveals() {
 			const targets = document.querySelectorAll<HTMLElement>(
-				"widget-layout:not(.onload-animation), [data-ch2-reveal]",
+				"widget-layout:not(.onload-animation), [data-ch3-reveal]",
 			);
 			targets.forEach((el) => {
-				if (el.classList.contains("ch2-reveal") || el.classList.contains("ch2-revealed")) return;
+				if (el.classList.contains("ch3-reveal") || el.classList.contains("ch3-revealed")) return;
 				if (REDUCED.matches) {
-					el.classList.add("ch2-revealed");
+					el.classList.add("ch3-revealed");
 					return;
 				}
-				el.classList.add("ch2-reveal");
+				el.classList.add("ch3-reveal");
 				revealIO.observe(el);
 			});
 		}
@@ -287,6 +322,7 @@
 		/* ---------------- 生命周期 ---------------- */
 		function rescan() {
 			scanStarfields();
+			scanChoreo();
 			scanReveals();
 		}
 

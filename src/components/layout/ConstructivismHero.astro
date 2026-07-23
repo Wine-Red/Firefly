@@ -1,7 +1,9 @@
 ---
-// 构成主义首页沉浸式 Hero v2 —— 「月亮、星星与构成主义」
-// 接近 100vh 的展览海报：生成的月亮主视觉为底（深浅/移动三素材），
-// 星空 Canvas 叠加，标题直压画面，滚动视差退场，鼠标轻微 3D 倾斜。
+// 构成主义首页 Hero v3 —— 「月亮、星星与构成主义」分层天空
+// 不再是一张整图：月亮/日蚀、光束、竖条、刻度、文字全部是独立图层，
+// 页面背景即天幕（深色夜空 / 浅色纸面，同一构图的一体两面）。
+// 滚动编舞由 StarField 管理器驱动：月亮下坠沉没、各层差速剥离、
+// 文字先行淡出；数据属性声明运动参数，滚回顶部自然复位。
 import TypewriterText from "@/components/features/TypewriterText.astro";
 import { backgroundWallpaper, siteConfig } from "@/config";
 
@@ -18,68 +20,78 @@ const year = new Date().getFullYear();
 const titleChars = [...heroTitle];
 ---
 
-<section class="ch2-hero" aria-label={siteConfig.title} data-ch2-hero>
-	<div class="ch2-tilt" data-ch2-tilt>
-		<!-- 主视觉：按深浅色/移动端切换素材 -->
-		<div class="ch2-visual" data-ch2-visual>
-			<picture class="ch2-img ch2-img-light">
-				<img
-					src="/constructivism/moon-hero-light.webp"
-					alt=""
-					width="2048"
-					height="1071"
-					loading="eager"
-					fetchpriority="high"
-					decoding="async"
-				/>
-			</picture>
-			<picture class="ch2-img ch2-img-dark">
-				<source
-					media="(max-width: 767px)"
-					srcset="/constructivism/moon-hero-mobile.webp"
-					width="2160"
-					height="3667"
-				/>
-				<img
-					src="/constructivism/moon-hero-dark.webp"
-					alt=""
-					width="2048"
-					height="1071"
-					loading="eager"
-					fetchpriority="high"
-					decoding="async"
-				/>
-			</picture>
-			<!-- 星空 Canvas（Hero 高密度实例） -->
-			<canvas
-				class="starfield ch2-stars"
-				data-density="0.00012"
-				data-max-stars="220"
-				data-meteors="true"
-				data-hero="true"
-				aria-hidden="true"></canvas>
-			<!-- 底部渐隐 + 斜切金线过渡 -->
-			<div class="ch2-fade" aria-hidden="true"></div>
-			<div class="ch2-slant" aria-hidden="true"></div>
+<section class="ch3-hero" aria-label={siteConfig.title} data-ch3-hero>
+	<!-- 首屏加密星空（全局星空之上再叠一层，滚出即随文档离开） -->
+	<canvas
+		class="starfield ch3-stars"
+		data-density="0.0001"
+		data-max-stars="180"
+		data-meteors="true"
+		aria-hidden="true"></canvas>
+
+	<!-- 透视舞台：鼠标轻微 3D 倾斜的载体，各层 translateZ 营造景深 -->
+	<div class="ch3-stage" data-ch3-tilt>
+		<!-- 远景：主光束（左下 → 右上，穿月而过） -->
+		<div class="ch3-layer ch3-beam" data-ch3-drift="-0.18 0.85 0" aria-hidden="true">
+			<div class="ch3-beam-core"></div>
+			<div class="ch3-beam-edge"></div>
 		</div>
 
-		<!-- 海报文字层 -->
-		<div class="ch2-text" data-ch2-text>
-			<div class="ch2-no">Nº 001 — {year} · Personal Blog</div>
-			<div class="ch2-eyebrow">The Moon · The Stars · Constructivism</div>
-			<div class="ch2-title" aria-label={heroTitle}>
+		<!-- 刻度尺：左右缘，慢速剥离 -->
+		<div class="ch3-layer ch3-ruler ch3-ruler-l" data-ch3-drift="-0.12 1.1 0" aria-hidden="true"></div>
+		<div class="ch3-layer ch3-ruler ch3-ruler-r" data-ch3-drift="-0.12 1.1 0" aria-hidden="true"></div>
+
+		<!-- 准星：月亮左侧的观测标记 -->
+		<div class="ch3-layer ch3-cross" data-ch3-drift="-0.22 0.95 0" aria-hidden="true"></div>
+
+		<!-- 月亮（深色）/ 日蚀（浅色）：同一位置、同一编舞的主角 -->
+		<div class="ch3-layer ch3-moon" data-ch3-moon aria-hidden="true">
+			<img
+				class="ch3-moon-art ch3-moon-for-dark"
+				src="/constructivism/moon.webp"
+				alt=""
+				width="1024"
+				height="1024"
+				loading="eager"
+				fetchpriority="high"
+				decoding="async"
+			/>
+			<img
+				class="ch3-moon-art ch3-moon-for-light"
+				src="/constructivism/eclipse.webp"
+				alt=""
+				width="1024"
+				height="1024"
+				loading="eager"
+				fetchpriority="high"
+				decoding="async"
+			/>
+		</div>
+
+		<!-- 竖条群：右侧三色立柱，较快剥离 -->
+		<div class="ch3-layer ch3-bars" data-ch3-drift="-0.32 0.7 0" aria-hidden="true">
+			<i class="ch3-bar ch3-bar-gold"></i>
+			<i class="ch3-bar ch3-bar-red"></i>
+			<i class="ch3-bar ch3-bar-ink"></i>
+		</div>
+
+		<!-- 海报文字层：先行上移淡出 -->
+		<div class="ch3-layer ch3-text" data-ch3-drift="-0.35 0.42 0">
+			<div class="ch3-no">Nº 001 — {year} · Personal Blog</div>
+			<div class="ch3-eyebrow">The Moon · The Stars · Constructivism</div>
+			<div class="ch3-title" aria-label={heroTitle}>
 				{
 					titleChars.map((ch, i) => (
-						<span class="ch2-char" style={`--i:${i}`} aria-hidden="true">
-							{ch === " " ? " " : ch}
+						<span class="ch3-char" style={`--i:${i}`} aria-hidden="true">
+							{ch === " " ? " " : ch}
 						</span>
 					))
 				}
 			</div>
-			<div class="ch2-rule" aria-hidden="true"></div>
+			<div class="ch3-rule" aria-hidden="true"></div>
 			{
 				heroSubtitle && (
-					<div class="ch2-subtitle">
+					<div class="ch3-subtitle">
 						{typewriter?.enable ? (
 							<TypewriterText
 								text={heroSubtitle}
@@ -93,22 +105,27 @@ const titleChars = [...heroTitle];
 					</div>
 				)
 			}
-			<div class="ch2-meta-row" aria-hidden="true">
-				<span class="ch2-dot"></span>
+			<div class="ch3-meta-row" aria-hidden="true">
+				<span class="ch3-dot"></span>
 				<span>Exhibition of Notes</span>
-				<span class="ch2-star-sym">✦</span>
+				<span class="ch3-star-sym">✦</span>
 			</div>
 		</div>
 
 		<!-- 边缘构成元素 -->
-		<div class="ch2-vertical" aria-hidden="true">{siteConfig.subtitle}</div>
-		<div class="ch2-crosshair" aria-hidden="true"></div>
-		<div class="ch2-swatch" aria-hidden="true"><i></i><i></i><i></i></div>
-
-		<!-- 向下滚动提示 -->
-		<a class="ch2-scrollcue" href="#swup-container" aria-label="Scroll to content">
-			<span class="ch2-scrollcue-text">Scroll</span>
-			<span class="ch2-scrollcue-line"></span>
-		</a>
+		<div class="ch3-layer ch3-vertical" data-ch3-drift="-0.22 0.9 0" aria-hidden="true">{siteConfig.subtitle}</div>
+		<div class="ch3-layer ch3-swatch" data-ch3-drift="-0.26 0.9 0" aria-hidden="true"><i></i><i></i><i></i></div>
 	</div>
+
+	<!-- 地平线：月亮沉没处——一条横贯的金色细线 + 极轻光晕，替代任何卡片边界 -->
+	<div class="ch3-horizon" aria-hidden="true">
+		<span class="ch3-horizon-glow"></span>
+		<span class="ch3-horizon-line"></span>
+	</div>
+
+	<!-- 向下滚动提示 -->
+	<a class="ch3-scrollcue" href="#swup-container" aria-label="Scroll to content">
+		<span class="ch3-scrollcue-text">Scroll</span>
+		<span class="ch3-scrollcue-line"></span>
+	</a>
 </section>
