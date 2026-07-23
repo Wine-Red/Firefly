@@ -1,0 +1,1014 @@
+/* ==========================================================================
+   构成主义（Constructivism）主题重构
+   --------------------------------------------------------------------------
+   设计语言：
+   - 墨黑 / 奶油纸 / 哑光金 / 朱红 四色构成
+   - 大圆、斜切光束、垂直矩条、准线刻度、色票、✦ 星形
+   - 超宽字距、细字重、编号目录感、细金线分隔
+   全部装饰为纯 CSS 实现，pointer-events: none，不遮挡内容。
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   0. 通用构成主义小工具
+   -------------------------------------------------------------------------- */
+
+.ch-tracking {
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    font-weight: 300;
+}
+
+/* 极轻纸张颗粒（SVG feTurbulence，data URI，平铺细噪点） */
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.028;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+:root.dark body::after {
+    opacity: 0.05;
+}
+
+/* --------------------------------------------------------------------------
+   1. 全局几何装饰层（fixed，置于内容之下）
+   -------------------------------------------------------------------------- */
+
+.construct-decor {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+    --cd-gold-line: color-mix(in srgb, var(--gold) 38%, transparent);
+}
+
+.construct-decor > * {
+    position: absolute;
+}
+
+/* 大圆环（月亮的回声）—— 右上方 */
+.cd-ring {
+    top: -18vmin;
+    right: -14vmin;
+    width: 56vmin;
+    height: 56vmin;
+    border-radius: 50%;
+    border: 1px solid var(--cd-gold-line);
+    transform: translateY(calc(var(--cd-scroll, 0) * -0.03px));
+}
+
+.cd-ring::after {
+    content: "";
+    position: absolute;
+    inset: 12%;
+    border-radius: 50%;
+    border: 1px solid color-mix(in srgb, var(--gold) 18%, transparent);
+}
+
+/* 实心奶油小圆 —— 左下方 */
+.cd-disc {
+    left: -6vmin;
+    bottom: 8vh;
+    width: 22vmin;
+    height: 22vmin;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--cream) 9%, transparent);
+    transform: translateY(calc(var(--cd-scroll, 0) * 0.05px));
+}
+
+/* 斜切光束 */
+.cd-beam {
+    width: 150vw;
+    left: -25vw;
+    transform-origin: left center;
+}
+
+.cd-beam-a {
+    top: 22vh;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--cd-gold-line) 30%, var(--cd-gold-line) 70%, transparent);
+    transform: rotate(-18deg) translateY(calc(var(--cd-scroll, 0) * -0.02px));
+}
+
+.cd-beam-b {
+    top: 78vh;
+    height: 9vh;
+    background: color-mix(in srgb, var(--cream) 4.5%, transparent);
+    transform: rotate(-18deg) translateY(calc(var(--cd-scroll, 0) * 0.035px));
+}
+
+/* 垂直矩条 */
+.cd-vbar-a {
+    right: 6vw;
+    top: 30vh;
+    width: 6px;
+    height: 26vh;
+    background: color-mix(in srgb, var(--gold) 55%, transparent);
+    transform: translateY(calc(var(--cd-scroll, 0) * -0.06px));
+}
+
+.cd-vbar-b {
+    right: calc(6vw + 14px);
+    top: 38vh;
+    width: 6px;
+    height: 12vh;
+    background: color-mix(in srgb, var(--vermilion) 75%, transparent);
+    transform: translateY(calc(var(--cd-scroll, 0) * -0.06px));
+}
+
+/* 十字准线 + 刻度（左边缘） */
+.cd-crosshair {
+    left: 1.4rem;
+    top: 34vh;
+    width: 26px;
+    height: 26px;
+    transform: translateY(calc(var(--cd-scroll, 0) * 0.04px));
+}
+
+.cd-crosshair::before,
+.cd-crosshair::after {
+    content: "";
+    position: absolute;
+    background: var(--cd-gold-line);
+}
+
+.cd-crosshair::before {
+    left: 50%;
+    top: -8px;
+    bottom: -8px;
+    width: 1px;
+}
+
+.cd-crosshair::after {
+    top: 50%;
+    left: -8px;
+    right: -8px;
+    height: 1px;
+}
+
+/* 标尺刻度（左边缘竖尺） */
+.cd-ruler {
+    left: 1.4rem;
+    top: 42vh;
+    width: 8px;
+    height: 34vh;
+    background: repeating-linear-gradient(
+        to bottom,
+        color-mix(in srgb, var(--gold) 42%, transparent) 0 1px,
+        transparent 1px 14px
+    );
+}
+
+/* ✦ 星形 */
+.cd-star {
+    right: 5.4vw;
+    top: 24vh;
+    font-size: 1.1rem;
+    color: color-mix(in srgb, var(--gold) 80%, transparent);
+    transform: translateY(calc(var(--cd-scroll, 0) * -0.05px));
+}
+
+/* 色票列 */
+.cd-swatches {
+    left: 1.4rem;
+    bottom: 10vh;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.cd-swatches i {
+    width: 10px;
+    height: 10px;
+    display: block;
+}
+
+.cd-swatches i:nth-child(1) { background: var(--cream); }
+.cd-swatches i:nth-child(2) { background: var(--gold); }
+.cd-swatches i:nth-child(3) { background: var(--vermilion); }
+
+:root:not(.dark) .cd-swatches i:nth-child(1) { background: var(--ink); }
+
+/* 竖排边缘注释 */
+.cd-vertical {
+    right: 0.9rem;
+    bottom: 12vh;
+    writing-mode: vertical-rl;
+    font-size: 0.62rem;
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+    font-weight: 300;
+    color: color-mix(in srgb, var(--gold) 55%, transparent);
+}
+
+/* 装饰层入场动画 */
+@keyframes cd-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.construct-decor {
+    animation: cd-fade-in 1.2s ease-out both;
+}
+
+/* 移动端：装饰层简化 */
+@media (max-width: 767px) {
+    .cd-beam-b,
+    .cd-vbar-a,
+    .cd-vbar-b,
+    .cd-crosshair,
+    .cd-ruler,
+    .cd-swatches,
+    .cd-vertical,
+    .cd-star {
+        display: none;
+    }
+
+    .cd-ring {
+        opacity: 0.6;
+    }
+
+    .cd-disc {
+        opacity: 0.6;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1279px) {
+    .cd-vertical,
+    .cd-ruler,
+    .cd-crosshair,
+    .cd-swatches {
+        display: none;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   2. 首页构成主义 Hero（海报构图）
+   -------------------------------------------------------------------------- */
+
+.construct-hero {
+    position: relative;
+    height: clamp(23rem, 58vh, 33rem);
+    margin-bottom: 1.25rem;
+    overflow: hidden;
+    background: var(--ink-deep);
+    border: 1px solid color-mix(in srgb, var(--gold) 55%, transparent);
+}
+
+/* 内框细线 */
+.construct-hero::after {
+    content: "";
+    position: absolute;
+    inset: 10px;
+    border: 1px solid color-mix(in srgb, var(--gold) 22%, transparent);
+    pointer-events: none;
+}
+
+.ch-frame,
+.ch-frame > * {
+    position: absolute;
+    pointer-events: none;
+}
+
+.ch-frame {
+    inset: 0;
+}
+
+/* 月亮：奶油大圆（左缘渐隐入墨色，保证标题区底色纯净） */
+.ch-moon {
+    width: min(30rem, 62%);
+    aspect-ratio: 1;
+    right: -7%;
+    top: 50%;
+    border-radius: 50%;
+    background: var(--cream);
+    transform: translateY(-50%);
+    -webkit-mask-image: linear-gradient(100deg, transparent 0%, black 42%);
+    mask-image: linear-gradient(100deg, transparent 0%, black 42%);
+}
+
+/* 月亮外圈金环 */
+.ch-moon::after {
+    content: "";
+    position: absolute;
+    inset: -1.4rem;
+    border-radius: 50%;
+    border: 1px solid color-mix(in srgb, var(--gold) 65%, transparent);
+}
+
+/* 月亮旁的朱红小圆（构成主义红点） */
+.ch-moon-dot {
+    right: 17%;
+    top: 24%;
+    width: 2.4rem;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--vermilion);
+}
+
+/* 斜切光束（奶油，低透明） */
+.ch-beam {
+    left: -18%;
+    width: 140%;
+    transform: rotate(-16deg);
+}
+
+.ch-beam-1 {
+    top: 16%;
+    height: 15%;
+    background: color-mix(in srgb, var(--cream) 9%, transparent);
+}
+
+.ch-beam-2 {
+    top: 44%;
+    height: 1px;
+    background: linear-gradient(90deg, var(--gold), transparent 75%);
+}
+
+.ch-beam-3 {
+    bottom: 12%;
+    height: 7%;
+    background: color-mix(in srgb, var(--gold) 12%, transparent);
+}
+
+/* 左侧垂直矩条组 */
+.ch-bars {
+    left: 7%;
+    bottom: 12%;
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    height: 34%;
+}
+
+.ch-bars i {
+    display: block;
+    width: 7px;
+    height: 100%;
+    transform-origin: bottom;
+}
+
+.ch-bars i:nth-child(1) { height: 100%; background: var(--cream); }
+.ch-bars i:nth-child(2) { height: 72%; background: var(--gold); }
+.ch-bars i:nth-child(3) { height: 88%; background: color-mix(in srgb, var(--cream) 40%, transparent); }
+.ch-bars i:nth-child(4) { height: 55%; background: var(--vermilion); }
+.ch-bars i:nth-child(5) { height: 80%; background: color-mix(in srgb, var(--gold) 55%, transparent); }
+
+/* 十字准线（画面焦点） */
+.ch-cross {
+    left: 38%;
+    top: 24%;
+    width: 34px;
+    height: 34px;
+}
+
+.ch-cross::before,
+.ch-cross::after {
+    content: "";
+    position: absolute;
+    background: color-mix(in srgb, var(--gold) 80%, transparent);
+}
+
+.ch-cross::before { left: 50%; top: -10px; bottom: -10px; width: 1px; }
+.ch-cross::after { top: 50%; left: -10px; right: -10px; height: 1px; }
+
+/* 底部标尺刻度 */
+.ch-ruler {
+    left: 0;
+    right: 0;
+    bottom: 2.2rem;
+    height: 7px;
+    background: repeating-linear-gradient(
+        to right,
+        color-mix(in srgb, var(--gold) 55%, transparent) 0 1px,
+        transparent 1px 22px
+    );
+    opacity: 0.75;
+}
+
+/* ✦ 星形 */
+.ch-star {
+    left: 35%;
+    top: 58%;
+    font-size: 1.4rem;
+    color: var(--gold);
+}
+
+/* 色票 */
+.ch-swatch {
+    right: 5%;
+    bottom: 8%;
+    display: flex;
+    gap: 8px;
+}
+
+.ch-swatch i {
+    width: 12px;
+    height: 12px;
+    display: block;
+}
+
+.ch-swatch i:nth-child(1) { background: var(--cream); }
+.ch-swatch i:nth-child(2) { background: var(--gold); }
+.ch-swatch i:nth-child(3) { background: var(--vermilion); }
+
+/* 竖排副标题（右缘） */
+.ch-vertical {
+    right: 2.2%;
+    top: 50%;
+    transform: translateY(-50%);
+    writing-mode: vertical-rl;
+    font-size: 0.72rem;
+    letter-spacing: 0.5em;
+    font-weight: 300;
+    color: color-mix(in srgb, var(--cream) 65%, transparent);
+    max-height: 70%;
+    overflow: hidden;
+}
+
+/* 编号标签（左上） */
+.ch-no {
+    left: 7%;
+    top: 7%;
+    font-size: 0.66rem;
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+    font-weight: 300;
+    color: color-mix(in srgb, var(--gold) 85%, transparent);
+}
+
+/* Hero 文字内容 */
+.ch-content {
+    position: absolute;
+    left: 7%;
+    top: 50%;
+    transform: translateY(-52%);
+    max-width: 62%;
+    z-index: 2;
+}
+
+.ch-eyebrow {
+    font-size: 0.68rem;
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+    font-weight: 300;
+    color: var(--gold);
+    margin-bottom: 1.1rem;
+}
+
+.ch-title {
+    font-size: clamp(2.1rem, 5.6vw, 4.2rem);
+    line-height: 1.12;
+    font-weight: 300;
+    letter-spacing: 0.22em;
+    color: var(--cream);
+    overflow-wrap: break-word;
+    /* 奶油文字压在奶油月亮上时反相为墨色，形成海报式叠印 */
+    mix-blend-mode: difference;
+}
+
+/* 标题下细金线 */
+.ch-rule {
+    width: 7.5rem;
+    height: 1px;
+    margin: 1.3rem 0 1.1rem;
+    background: linear-gradient(90deg, var(--gold), transparent);
+    transform-origin: left;
+}
+
+.ch-subtitle {
+    font-size: 0.95rem;
+    letter-spacing: 0.14em;
+    font-weight: 300;
+    color: color-mix(in srgb, var(--cream) 78%, transparent);
+    min-height: 1.5em;
+}
+
+.ch-subtitle .typewriter {
+    color: inherit;
+    letter-spacing: inherit;
+}
+
+/* Hero 入场动画（GPU 友好的 transform / opacity） */
+@keyframes ch-moon-in {
+    from { opacity: 0; transform: translateY(-50%) scale(0.72); }
+    to { opacity: 1; transform: translateY(-50%) scale(1); }
+}
+
+@keyframes ch-beam-in {
+    from { opacity: 0; transform: rotate(-16deg) translateX(-24%); }
+    to { opacity: 1; transform: rotate(-16deg) translateX(0); }
+}
+
+@keyframes ch-bar-in {
+    from { transform: scaleY(0); }
+    to { transform: scaleY(1); }
+}
+
+@keyframes ch-fade-up {
+    from { opacity: 0; transform: translateY(1.4rem); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes ch-rule-in {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+}
+
+@keyframes ch-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.construct-hero .ch-moon { animation: ch-moon-in 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.05s both; }
+.construct-hero .ch-beam-1 { animation: ch-beam-in 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.2s both; }
+.construct-hero .ch-beam-2 { animation: ch-beam-in 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.35s both; }
+.construct-hero .ch-beam-3 { animation: ch-beam-in 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.28s both; }
+.construct-hero .ch-bars i { animation: ch-bar-in 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) both; }
+.construct-hero .ch-bars i:nth-child(1) { animation-delay: 0.30s; }
+.construct-hero .ch-bars i:nth-child(2) { animation-delay: 0.38s; }
+.construct-hero .ch-bars i:nth-child(3) { animation-delay: 0.46s; }
+.construct-hero .ch-bars i:nth-child(4) { animation-delay: 0.54s; }
+.construct-hero .ch-bars i:nth-child(5) { animation-delay: 0.62s; }
+.construct-hero .ch-eyebrow { animation: ch-fade-up 0.7s ease-out 0.35s both; }
+.construct-hero .ch-title { animation: ch-fade-up 0.8s ease-out 0.5s both; }
+.construct-hero .ch-rule { animation: ch-rule-in 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.85s both; }
+.construct-hero .ch-subtitle { animation: ch-fade-up 0.7s ease-out 0.95s both; }
+.construct-hero .ch-cross,
+.construct-hero .ch-star,
+.construct-hero .ch-ruler,
+.construct-hero .ch-swatch,
+.construct-hero .ch-no,
+.construct-hero .ch-moon-dot,
+.construct-hero .ch-vertical { animation: ch-fade-in 0.9s ease-out 0.7s both; }
+
+/* Hero 移动端简化 */
+@media (max-width: 767px) {
+    .construct-hero {
+        height: 21rem;
+    }
+
+    .ch-moon {
+        width: 78%;
+        right: -24%;
+        opacity: 0.9;
+    }
+
+    .ch-content {
+        max-width: 78%;
+    }
+
+    .ch-title {
+        letter-spacing: 0.14em;
+    }
+
+    .ch-eyebrow {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+    }
+
+    .ch-vertical,
+    .ch-beam-3,
+    .ch-star,
+    .ch-cross {
+        display: none;
+    }
+
+    .ch-bars {
+        height: 22%;
+        gap: 7px;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   3. 导航栏 —— 细金线底边、宽字距、朱红 hover
+   -------------------------------------------------------------------------- */
+
+#navbar .dropdown-container > a,
+#navbar .dropdown-container > button {
+    letter-spacing: 0.12em;
+    font-weight: 600;
+    position: relative;
+}
+
+/* 链接下金线展开 */
+#navbar .dropdown-container > a::after,
+#navbar .dropdown-container > button::after {
+    content: "";
+    position: absolute;
+    left: 1rem;
+    right: 1rem;
+    bottom: 4px;
+    height: 1px;
+    background: var(--primary);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    pointer-events: none;
+}
+
+#navbar .dropdown-container:hover > a::after,
+#navbar .dropdown-container:hover > button::after {
+    transform: scaleX(1);
+}
+
+/* 朱红 hover 态 */
+#navbar .dropdown-container > a:hover,
+#navbar .dropdown-container > button:hover {
+    color: var(--vermilion) !important;
+}
+
+/* 站点标题宽字距 */
+#navbar a[href] .text-xl,
+#navbar a .text-xl {
+    letter-spacing: 0.22em;
+    font-weight: 600;
+}
+
+/* 导航栏表面：墨色/奶油半透明 + 金线底边，直角 */
+#navbar > div {
+    border-radius: 0 !important;
+    border-bottom: 1px solid color-mix(in srgb, var(--primary) 45%, transparent) !important;
+    background-color: color-mix(in srgb, var(--page-bg) 88%, transparent) !important;
+    backdrop-filter: blur(14px);
+}
+
+/* 品牌左侧小几何标记 */
+#navbar .grid > a:first-child::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    background: var(--vermilion);
+    align-self: center;
+    margin-right: 2px;
+    flex-shrink: 0;
+}
+
+/* --------------------------------------------------------------------------
+   4. 卡片系统 —— 直角细边、编号、金线悬停
+   -------------------------------------------------------------------------- */
+
+/* 文章序号 */
+#post-list-container {
+    counter-reset: ch-post;
+}
+
+#post-list-container .post-card-item {
+    counter-increment: ch-post;
+}
+
+#post-list-container .post-card-content::after {
+    content: "№ " counter(ch-post, decimal-leading-zero);
+    position: absolute;
+    right: 1.1rem;
+    bottom: 0.85rem;
+    font-size: 0.62rem;
+    letter-spacing: 0.28em;
+    font-weight: 300;
+    color: var(--primary);
+    opacity: 0.85;
+    pointer-events: none;
+}
+
+/* 悬停：底部金线自左展开 */
+.post-card-wrapper::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 2px;
+    width: 100%;
+    background: linear-gradient(90deg, var(--gold) 0%, var(--gold) 55%, transparent 100%);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    z-index: 20;
+    pointer-events: none;
+}
+
+.post-card-wrapper:hover::before {
+    transform: scaleX(1);
+    animation: none;
+}
+
+/* 悬停：左上朱红小块滑入 */
+.post-card-wrapper::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 1.1rem;
+    width: 4px;
+    height: 2rem;
+    background: var(--vermilion);
+    transform: translateX(-100%);
+    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    z-index: 20;
+    pointer-events: none;
+}
+
+.post-card-wrapper:hover::after {
+    transform: translateX(0);
+}
+
+/* 标题左侧标记：方形金块 */
+.post-card-title::before {
+    border-radius: 0 !important;
+    width: 3px !important;
+}
+
+/* 标签：直角、细边 */
+.post-card-wrapper .stats a {
+    border-radius: 2px !important;
+    letter-spacing: 0.08em;
+}
+
+/* 进入按钮：直角 */
+.post-card-enter-btn {
+    border-radius: 2px !important;
+}
+
+/* 封面图直角化 */
+.post-card-image {
+    border-radius: 2px !important;
+}
+
+/* Widget 卡片标题：方形金标记 + 细金线 */
+widget-layout .widget-title {
+    letter-spacing: 0.14em;
+    font-weight: 600;
+}
+
+widget-layout .widget-title::before {
+    border-radius: 0 !important;
+    width: 6px !important;
+    height: 6px !important;
+    top: 50% !important;
+    transform: translateY(-50%);
+}
+
+widget-layout .widget-title::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 1rem;
+    bottom: -6px;
+    height: 1px;
+    background: linear-gradient(90deg, color-mix(in srgb, var(--primary) 55%, transparent), transparent 80%);
+}
+
+/* --------------------------------------------------------------------------
+   5. 分类栏 / 分页 / 按钮 —— 直角化与金色化
+   -------------------------------------------------------------------------- */
+
+.category-bar .category-pill {
+    border-radius: 2px !important;
+    letter-spacing: 0.06em;
+}
+
+.category-bar .highlight-pill > div.absolute {
+    background: none !important;
+}
+
+.category-bar .highlight-pill span {
+    color: var(--primary) !important;
+}
+
+:root:not(.dark) .category-bar .highlight-pill {
+    background: color-mix(in srgb, var(--gold) 18%, transparent) !important;
+}
+
+:root.dark .category-bar .highlight-pill {
+    background: color-mix(in srgb, var(--gold) 14%, transparent) !important;
+}
+
+/* 分页按钮直角 */
+[role="navigation"] .btn-card,
+[role="navigation"] [aria-current="page"] {
+    border-radius: 2px !important;
+}
+
+[role="navigation"] [aria-current="page"] {
+    letter-spacing: 0.05em;
+}
+
+/* 标签按钮（文章页标签等） */
+.btn-regular {
+    border-radius: 2px;
+    letter-spacing: 0.05em;
+}
+
+/* --------------------------------------------------------------------------
+   6. 文章页 —— 标题金线、meta 宽字距、引用/分割线风格化
+   -------------------------------------------------------------------------- */
+
+/* 文章标题：方形金标记 + 标题下细金线 */
+#post-container [data-pagefind-meta="title"] {
+    letter-spacing: 0.04em;
+}
+
+#post-container [data-pagefind-meta="title"]::before {
+    border-radius: 0 !important;
+    width: 3px !important;
+}
+
+#post-container [data-pagefind-meta="title"]::after {
+    content: "";
+    display: block;
+    width: 6rem;
+    height: 1px;
+    margin-top: 0.9rem;
+    background: linear-gradient(90deg, var(--gold), transparent);
+}
+
+/* 字数/阅读时长行：宽字距小字 */
+#post-container > div:first-of-type .text-sm {
+    letter-spacing: 0.1em;
+    font-size: 0.72rem;
+}
+
+/* meta 图标：方形描边 */
+.meta-icon {
+    border-radius: 2px !important;
+    background: transparent !important;
+    border: 1px solid color-mix(in srgb, var(--primary) 40%, transparent);
+    color: var(--primary) !important;
+}
+
+/* meta 文字宽字距 */
+.post-meta-root {
+    letter-spacing: 0.08em;
+    font-size: 0.85em;
+}
+
+/* 置顶标记直角 */
+.pinned-btn {
+    border-radius: 2px !important;
+    letter-spacing: 0.12em;
+}
+
+/* 引用块：方形金线 */
+.custom-md blockquote::before {
+    border-radius: 0 !important;
+    width: 3px !important;
+    background: var(--primary) !important;
+}
+
+/* 分割线：细金线 + 中央 ✦ */
+.custom-md hr {
+    border: none !important;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--gold) 60%, transparent), transparent);
+    position: relative;
+    margin: 2.2rem 0;
+    overflow: visible;
+}
+
+.custom-md hr::after {
+    content: "✦";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: var(--card-bg);
+    padding: 0 0.8em;
+}
+
+/* 正文二级标题：下置细线 */
+.custom-md h2 {
+    border-bottom: 1px solid color-mix(in srgb, var(--primary) 22%, transparent);
+    padding-bottom: 0.35em;
+    letter-spacing: 0.05em;
+}
+
+/* 行内代码：直角 */
+.custom-md code {
+    border-radius: 2px !important;
+}
+
+/* 文章封面：直角 */
+#post-cover,
+#post-cover img {
+    border-radius: 2px !important;
+}
+
+/* 许可块直角 */
+#post-container .bg-\(--license-block-bg\) {
+    border-radius: 2px !important;
+    border: 1px solid var(--line-divider);
+}
+
+/* --------------------------------------------------------------------------
+   7. 归档页 —— 海报目录
+   -------------------------------------------------------------------------- */
+
+/* 年份：大号宽字距金色 */
+.card-base:has(.dash-line) .text-2xl {
+    letter-spacing: 0.22em;
+    font-weight: 300;
+    color: var(--primary);
+}
+
+/* 时间轴虚线 → 细金实线 */
+.card-base:has(.dash-line) .dash-line::before {
+    border-left: 1px solid color-mix(in srgb, var(--gold) 38%, transparent) !important;
+    border-right: none;
+}
+
+/* 年份节点：方形描金 */
+.card-base:has(.dash-line) .rounded-full {
+    border-radius: 0 !important;
+    outline-color: var(--gold) !important;
+}
+
+/* 条目圆点 → 方形金点 */
+.card-base:has(.dash-line) a .rounded {
+    border-radius: 0 !important;
+    background: var(--primary) !important;
+}
+
+/* 条目：细线分隔 */
+.card-base:has(.dash-line) a.group {
+    border-bottom: 1px solid color-mix(in srgb, var(--primary) 10%, transparent);
+    border-radius: 0 !important;
+}
+
+/* 日期列宽字距 */
+.card-base:has(.dash-line) a .text-sm.text-right {
+    letter-spacing: 0.14em;
+    font-weight: 300;
+}
+
+/* --------------------------------------------------------------------------
+   8. 页脚 —— 细金线、宽字距、色票
+   -------------------------------------------------------------------------- */
+
+.footer {
+    letter-spacing: 0.14em;
+}
+
+.footer a.link {
+    letter-spacing: 0.18em;
+}
+
+.footer .footer-swatch {
+    display: inline-flex;
+    gap: 6px;
+    margin-bottom: 0.9rem;
+}
+
+.footer .footer-swatch i {
+    width: 9px;
+    height: 9px;
+    display: block;
+}
+
+.footer .footer-swatch i:nth-child(1) { background: var(--vermilion); }
+.footer .footer-swatch i:nth-child(2) { background: var(--gold); }
+.footer .footer-swatch i:nth-child(3) { background: var(--cream); }
+
+:root:not(.dark) .footer .footer-swatch i:nth-child(3) { background: var(--ink); }
+
+/* --------------------------------------------------------------------------
+   9. 动效克制：尊重 prefers-reduced-motion
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+    .construct-decor,
+    .construct-hero .ch-moon,
+    .construct-hero .ch-beam-1,
+    .construct-hero .ch-beam-2,
+    .construct-hero .ch-beam-3,
+    .construct-hero .ch-bars i,
+    .construct-hero .ch-eyebrow,
+    .construct-hero .ch-title,
+    .construct-hero .ch-rule,
+    .construct-hero .ch-subtitle,
+    .construct-hero .ch-cross,
+    .construct-hero .ch-star,
+    .construct-hero .ch-ruler,
+    .construct-hero .ch-swatch,
+    .construct-hero .ch-no,
+    .construct-hero .ch-moon-dot,
+    .construct-hero .ch-vertical {
+        animation: none !important;
+    }
+
+    .construct-decor > * {
+        transform: none !important;
+    }
+
+    .post-card-wrapper::before,
+    .post-card-wrapper::after,
+    #navbar .dropdown-container > a::after,
+    #navbar .dropdown-container > button::after {
+        transition: none !important;
+    }
+}

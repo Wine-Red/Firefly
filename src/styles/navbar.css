@@ -33,10 +33,11 @@
  * 适用: 所有模式，所有设备
  * ============================================ */
 #navbar>div {
-    background-color: var(--card-bg);
+    background-color: color-mix(in srgb, var(--page-bg) 88%, transparent);
     border: 1px solid transparent;
-    border-radius: 0 0 0.75rem 0.75rem;
-    backdrop-filter: blur(0);
+    border-bottom: 1px solid color-mix(in srgb, var(--primary) 45%, transparent);
+    border-radius: 0;
+    backdrop-filter: blur(14px);
     @apply navbar-surface-transition;
 }
 
