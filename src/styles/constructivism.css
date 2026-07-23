@@ -335,14 +335,14 @@ body::after {
     background: color-mix(in srgb, var(--gold) 12%, transparent);
 }
 
-/* 左侧垂直矩条组 */
+/* 垂直矩条组（右下，与月亮下缘交叠，避开左侧文字栏） */
 .ch-bars {
-    left: 7%;
+    right: 16%;
     bottom: 12%;
     display: flex;
     align-items: flex-end;
     gap: 10px;
-    height: 34%;
+    height: 30%;
 }
 
 .ch-bars i {
@@ -576,13 +576,9 @@ body::after {
     .ch-vertical,
     .ch-beam-3,
     .ch-star,
-    .ch-cross {
-        display: none;
-    }
-
+    .ch-cross,
     .ch-bars {
-        height: 22%;
-        gap: 7px;
+        display: none;
     }
 }
 
