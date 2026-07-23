@@ -920,6 +920,24 @@ widget-layout .widget-title::after {
     line-height: 1.1;
     color: transparent;
     -webkit-text-stroke: 1px color-mix(in srgb, var(--gold) 80%, transparent);
+    /* 年份列改为自适应宽度，避免放大后溢出与文章数重叠 */
+    width: auto !important;
+    flex: none;
+    text-align: left;
+    padding-right: 1.25rem;
+}
+
+/* 年份行放开固定行高，容纳超大空心字 */
+.card-base:has(.dash-line) .h-15 {
+    height: auto;
+    min-height: 3.75rem;
+    padding: 0.85rem 0;
+}
+
+/* 圆点列随年份自适应后保持居中间距（年份行第二列） */
+.card-base:has(.dash-line) .h-15 > div:nth-child(2) {
+    width: 3rem;
+    flex: none;
 }
 
 .card-base:has(.dash-line) .dash-line::before {
