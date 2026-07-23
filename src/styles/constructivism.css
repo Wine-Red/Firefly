@@ -65,6 +65,11 @@ body::after {
     margin-bottom: 2rem;
     perspective: 1400px;
     pointer-events: none;
+    /* 横向裁切出血装饰（光束 135% 宽、轨道环越右缘）——
+       元凶即本层子元素，在此就地裁切而非 body 级掩盖；
+       clip 不创建滚动容器、不压平 preserve-3d，垂直方向保持
+       visible 以容纳月落/视差滞后的向下 bleed */
+    overflow-x: clip;
 }
 
 :root.dark .ch3-hero {

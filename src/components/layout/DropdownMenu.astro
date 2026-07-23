@@ -40,10 +40,14 @@ const hasChildren = processedLink.children && processedLink.children.length > 0;
 // 当前页判断：用于朱红小圆点指示（悬浮气泡导航）
 const currentPath = Astro.url.pathname;
 const homeHref = url("/");
-const isCurrent = (href: string) =>
-	href === currentPath ||
-	(href !== homeHref &&
-		currentPath.startsWith(href.endsWith("/") ? href : `${href}/`));
+const isCurrent = (href: string) => {
+	const path = href.split("#")[0];
+	return (
+		path === currentPath ||
+		(path !== homeHref &&
+			currentPath.startsWith(path.endsWith("/") ? path : `${path}/`))
+	);
+};
 const linkHref = processedLink.external ? null : url(processedLink.url);
 const isActive = !hasChildren && linkHref ? isCurrent(linkHref) : false;
 const isChildActive = hasChildren

@@ -60,7 +60,13 @@ const hasDisplaySettings =
 let links: NavBarLink[] = navBarConfig.links.map(
 	(item: NavBarLink | LinkPreset): NavBarLink => {
 		if (typeof item === "number") {
-			return LinkPresets[item];
+			const preset = LinkPresets[item];
+			// 主页 tab：定位到首页文章列表主体（Hero 之下的 #swup-container），
+			// 平滑滚动 / 跨页导航逻辑在下方客户端脚本中处理
+			if (item === LinkPreset.Home) {
+				return { ...preset, url: "/#swup-container" };
+			}
+			return preset;
 		}
 		return item;
 	},
@@ -95,7 +101,7 @@ if (isLocalSrcLogo) {
         "overflow-visible! h-18 px-4"
     ]}>
         <div class="mx-auto h-full w-full max-w-(--page-width) grid grid-cols-[auto_minmax(0,1fr)_auto] items-center">
-            <a href={url('/')} class="btn-plain scale-animation rounded-lg h-[3.5rem] px-4 font-bold active:scale-95">
+            <a href={url('/')} id="nav-logo-link" data-nav-scroll="top" class="btn-plain scale-animation rounded-lg h-[3.5rem] px-4 font-bold active:scale-95">
                 <div class:list={[
                     "flex flex-row items-center text-xl",
                     siteConfig.navbar.followTheme ? "text-(--primary)" : "dark:text-white text-black"
@@ -375,6 +381,124 @@ function updateNavActiveDots() {
 navBubbleGlobal.updateNavActiveDots = updateNavActiveDots;
 document.addEventListener('swup:contentReplaced', updateNavActiveDots);
 document.addEventListener('astro:page-load', updateNavActiveDots);
+
+// 导航定位逻辑：
+// - 点击 logo（data-nav-scroll="top"）回到首页并滚动到页面最顶部（大屏 Hero）
+// - 点击"主页"tab（href 指向 homePath + #swup-container）回到首页并滚动到文章列表主体
+// 跨页面点击时通过 sessionStorage 标记，在首页加载 / Swup 无刷新切换后执行滚动。
+const NAV_SCROLL_FLAG = 'firefly:nav-scroll-target';
+
+function navPrefersReducedMotion() {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+function getNavHomePath() {
+    const logo = document.getElementById('nav-logo-link');
+    if (!logo) return '/';
+    return new URL(logo.getAttribute('href'), window.location.origin).pathname;
+}
+
+function isOnNavHome() {
+    return window.location.pathname === getNavHomePath();
+}
+
+function navScrollToTop() {
+    window.scrollTo({ top: 0, behavior: navPrefersReducedMotion() ? 'auto' : 'smooth' });
+}
+
+function navScrollToMain() {
+    const target = document.getElementById('swup-container') || document.getElementById('content-wrapper');
+    if (!target) return;
+    target.scrollIntoView({ behavior: navPrefersReducedMotion() ? 'auto' : 'smooth', block: 'start' });
+}
+
+function applyPendingNavScroll() {
+    const pending = sessionStorage.getItem(NAV_SCROLL_FLAG);
+    if (!pending || !isOnNavHome()) return;
+    sessionStorage.removeItem(NAV_SCROLL_FLAG);
+    const isSettled = () => {
+        if (pending === 'top') return (window.pageYOffset || document.documentElement.scrollTop) < 2;
+        const target = document.getElementById('swup-container') || document.getElementById('content-wrapper');
+        return target ? Math.abs(target.getBoundingClientRect().top) < 8 : true;
+    };
+    // Swup / 浏览器原生锚点跳转可能在加载后重置滚动位置，
+    // 在最长 2 秒的窗口内轮询滚动，直到目标就位
+    let attempts = 0;
+    const tick = () => {
+        if (pending === 'main') navScrollToMain();
+        else navScrollToTop();
+        attempts += 1;
+        if (attempts < 8 && !isSettled()) {
+            setTimeout(tick, 250);
+        }
+    };
+    tick();
+}
+
+function initNavScrollBehavior() {
+    const navbar = document.getElementById('navbar');
+    if (!navbar || navbar.dataset.navScrollBound === 'true') return;
+    navbar.dataset.navScrollBound = 'true';
+    const homePath = getNavHomePath();
+
+    navbar.addEventListener('click', (event) => {
+        const anchor = event.target instanceof Element ? event.target.closest('a[href]') : null;
+        if (!anchor || !navbar.contains(anchor)) return;
+
+        const closeMobilePanel = () => {
+            document.getElementById('nav-menu-panel')?.classList.add('float-panel-closed');
+        };
+
+        // Logo：回到首页并滚动到最顶部 Hero
+        if (anchor.dataset.navScroll === 'top') {
+            if (isOnNavHome()) {
+                event.preventDefault();
+                closeMobilePanel();
+                navScrollToTop();
+            } else {
+                sessionStorage.setItem(NAV_SCROLL_FLAG, 'top');
+            }
+            return;
+        }
+
+        // "主页"类入口：href 指向 homePath + #swup-container，定位到文章列表主体
+        let parsed;
+        try {
+            parsed = new URL(anchor.getAttribute('href'), window.location.origin);
+        } catch {
+            return;
+        }
+        if (parsed.pathname === homePath && parsed.hash === '#swup-container') {
+            if (isOnNavHome()) {
+                event.preventDefault();
+                closeMobilePanel();
+                history.replaceState(null, '', parsed.pathname + parsed.hash);
+                navScrollToMain();
+            } else {
+                // Swup 默认忽略带 hash 的链接，这里手动导航：
+                // 优先走 Swup 无刷新切换，否则整页跳转；首页加载后由 applyPendingNavScroll 滚动
+                event.preventDefault();
+                sessionStorage.setItem(NAV_SCROLL_FLAG, 'main');
+                const swup = navBubbleGlobal.swup;
+                if (swup && typeof swup.navigate === 'function') {
+                    swup.navigate(parsed.pathname);
+                } else {
+                    window.location.href = parsed.pathname + parsed.hash;
+                }
+            }
+        }
+    }, true);
+
+    applyPendingNavScroll();
+}
+
+document.addEventListener('swup:contentReplaced', applyPendingNavScroll);
+document.addEventListener('astro:page-load', initNavScrollBehavior);
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initNavScrollBehavior);
+} else {
+    initNavScrollBehavior();
+}
 
 
 if (document.readyState === 'loading') {

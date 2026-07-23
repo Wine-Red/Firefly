@@ -1,8 +1,9 @@
 ---
-// 构成主义首页 Hero v4 —— 「月亮、星星与构成主义」分层天空
-// v4：月亮单摆阻尼入场（屏外右侧沿圆周摆入，JS 物理模拟）、
-// 断绳式自由落体月落、更丰富的构成元素（轨道环/细光束/天文坐标/
-// 俄文竖排/星团）。图层运动全部由 StarField 管理器驱动。
+// 构成主义首页 Hero v5 —— 「月亮、星星与构成主义」分层天空
+// v5：经典视差模型——滚动时 Hero 各层与正文一起向上，但按深度滞后
+// （drift y 为正值 = 向下补偿量，表观速度 = 1 − y；正文 1× 最快，
+// 海报文字同为 1×，装饰层 0.5~0.8×，月亮 0.58× 滞后 + 断绳坠落）。
+// 月亮单摆阻尼入场（JS 物理模拟）；图层运动全部由 StarField 管理器驱动。
 import TypewriterText from "@/components/features/TypewriterText.astro";
 import { backgroundWallpaper, siteConfig } from "@/config";
 
@@ -23,46 +24,50 @@ const titleChars = [...heroTitle];
 	<!-- no-JS 兜底：CSS 默认隐藏月亮防单摆闪现，无脚本时强制现身 -->
 	<noscript><style>.ch3-moon { opacity: 1 !important; }</style></noscript>
 
-	<!-- 首屏加密星空（全局星空之上再叠一层，滚出即随文档离开） -->
+	<!-- 首屏加密星空（全局星空之上再叠一层；data-scroll-rate 为视差速率：
+	     负值 = 向下补偿（绝对定位层滞后于文档），本层表观 0.6×） -->
 	<canvas
 		class="starfield ch3-stars"
 		data-density="0.0001"
 		data-max-stars="180"
 		data-meteors="true"
+		data-scroll-rate="-0.4"
 		aria-hidden="true"></canvas>
 
-	<!-- 透视舞台：鼠标轻微 3D 倾斜的载体 -->
+	<!-- 透视舞台：鼠标轻微 3D 倾斜的载体
+	     drift 语义（v5 视差）：y>0 = 向下补偿量，表观上移速度 = 1−y；
+	     值越大越"远"（越滞后）。格式："y 淡出窗口(vh) x" -->
 	<div class="ch3-stage" data-ch3-tilt>
-		<!-- 远景：主光束（左下 → 右上，穿月而过） -->
-		<div class="ch3-layer ch3-beam" data-ch3-drift="-0.18 0.85 0" aria-hidden="true">
+		<!-- 远景：主光束（左下 → 右上，穿月而过），最远最慢 0.5× -->
+		<div class="ch3-layer ch3-beam" data-ch3-drift="0.5 0.85 0" aria-hidden="true">
 			<div class="ch3-beam-core"></div>
 			<div class="ch3-beam-edge"></div>
 		</div>
 
-		<!-- 第二条细光束：不同角度、更慢剥离 -->
-		<div class="ch3-layer ch3-beam-thin" data-ch3-drift="-0.24 0.95 0" aria-hidden="true"></div>
+		<!-- 第二条细光束：远景 0.55× -->
+		<div class="ch3-layer ch3-beam-thin" data-ch3-drift="0.45 0.95 0" aria-hidden="true"></div>
 
-		<!-- 轨道环：天空的坐标系，不随月亮摆入/坠落，仅慢速漂移 -->
-		<div class="ch3-layer ch3-orbits" data-ch3-drift="-0.08 1.15 0" aria-hidden="true">
+		<!-- 轨道环：天空的坐标系，远景 0.58× -->
+		<div class="ch3-layer ch3-orbits" data-ch3-drift="0.42 1.15 0" aria-hidden="true">
 			<i class="ch3-orbit ch3-orbit-a"></i>
 			<i class="ch3-orbit ch3-orbit-b"></i>
 		</div>
 
-		<!-- 刻度尺：左右缘，慢速剥离 -->
-		<div class="ch3-layer ch3-ruler ch3-ruler-l" data-ch3-drift="-0.12 1.1 0" aria-hidden="true"></div>
-		<div class="ch3-layer ch3-ruler ch3-ruler-r" data-ch3-drift="-0.12 1.1 0" aria-hidden="true"></div>
+		<!-- 刻度尺：左右缘，中景 0.65× -->
+		<div class="ch3-layer ch3-ruler ch3-ruler-l" data-ch3-drift="0.35 1.1 0" aria-hidden="true"></div>
+		<div class="ch3-layer ch3-ruler ch3-ruler-r" data-ch3-drift="0.35 1.1 0" aria-hidden="true"></div>
 
-		<!-- 准星：月亮左侧的观测标记 -->
-		<div class="ch3-layer ch3-cross" data-ch3-drift="-0.22 0.95 0" aria-hidden="true"></div>
+		<!-- 准星：月亮左侧的观测标记，中近景 0.7× -->
+		<div class="ch3-layer ch3-cross" data-ch3-drift="0.3 0.95 0" aria-hidden="true"></div>
 
-		<!-- 天文坐标标注：准星下方的观测数据 -->
-		<div class="ch3-layer ch3-coords" data-ch3-drift="-0.22 0.95 0" aria-hidden="true">
+		<!-- 天文坐标标注：准星下方的观测数据，中近景 0.7× -->
+		<div class="ch3-layer ch3-coords" data-ch3-drift="0.3 0.95 0" aria-hidden="true">
 			<span>RA 05h 35m</span>
 			<span>DEC −05° 23′</span>
 		</div>
 
-		<!-- 远处星团：左上小星群 -->
-		<div class="ch3-layer ch3-cluster" data-ch3-drift="-0.1 1.2 0" aria-hidden="true">
+		<!-- 远处星团：左上小星群，远景 0.55× -->
+		<div class="ch3-layer ch3-cluster" data-ch3-drift="0.45 1.2 0" aria-hidden="true">
 			<i></i><i></i><i></i><i></i><i></i>
 		</div>
 
@@ -92,15 +97,15 @@ const titleChars = [...heroTitle];
 			/>
 		</div>
 
-		<!-- 竖条群：右侧三色立柱，较快剥离 -->
-		<div class="ch3-layer ch3-bars" data-ch3-drift="-0.32 0.7 0" aria-hidden="true">
+		<!-- 竖条群：右侧三色立柱，近景 0.8× -->
+		<div class="ch3-layer ch3-bars" data-ch3-drift="0.2 0.7 0" aria-hidden="true">
 			<i class="ch3-bar ch3-bar-gold"></i>
 			<i class="ch3-bar ch3-bar-red"></i>
 			<i class="ch3-bar ch3-bar-ink"></i>
 		</div>
 
-		<!-- 海报文字层：先行上移淡出 -->
-		<div class="ch3-layer ch3-text" data-ch3-drift="-0.35 0.42 0">
+		<!-- 海报文字层：与正文同速（1×，无补偿），随衔接段先行淡出 -->
+		<div class="ch3-layer ch3-text" data-ch3-drift="0 0.42 0">
 			<div class="ch3-no">Nº 001 — {year} · Personal Blog</div>
 			<div class="ch3-eyebrow">The Moon · The Stars · Constructivism</div>
 			<div class="ch3-title" aria-label={heroTitle}>
@@ -136,10 +141,10 @@ const titleChars = [...heroTitle];
 			</div>
 		</div>
 
-		<!-- 边缘构成元素：右缘竖排 + 左缘俄文竖排 -->
-		<div class="ch3-layer ch3-vertical" data-ch3-drift="-0.22 0.9 0" aria-hidden="true">{siteConfig.subtitle}</div>
-		<div class="ch3-layer ch3-vertical-l" data-ch3-drift="-0.16 1.05 0" aria-hidden="true">Луна · Звёзды · Конструктивизм</div>
-		<div class="ch3-layer ch3-swatch" data-ch3-drift="-0.26 0.9 0" aria-hidden="true"><i></i><i></i><i></i></div>
+		<!-- 边缘构成元素：右缘竖排 + 左缘俄文竖排，中近景 -->
+		<div class="ch3-layer ch3-vertical" data-ch3-drift="0.28 0.9 0" aria-hidden="true">{siteConfig.subtitle}</div>
+		<div class="ch3-layer ch3-vertical-l" data-ch3-drift="0.3 1.05 0" aria-hidden="true">Луна · Звёзды · Конструктивизм</div>
+		<div class="ch3-layer ch3-swatch" data-ch3-drift="0.25 0.9 0" aria-hidden="true"><i></i><i></i><i></i></div>
 	</div>
 
 	<!-- 地平线：月亮沉没处——一条横贯的金色细线 + 极轻光晕 -->

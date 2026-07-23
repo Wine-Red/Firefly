@@ -11,7 +11,8 @@ import { siteConfig } from "./siteConfig";
 const getDynamicNavBarConfig = (): NavBarConfig => {
 	// 基础导航栏链接
 	const links: (NavBarLink | LinkPreset)[] = [
-		// 主页
+		// 主页（锚点改写为 #swup-container 在 Navbar.astro 渲染时进行，
+		// 这里不能 import LinkPresets —— 该模块使用 @ 别名，会在 Astro 配置加载阶段失败）
 		LinkPreset.Home,
 
 		// 归档
@@ -28,14 +29,14 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 		links.push(LinkPreset.Guestbook);
 	}
 
-	// 游戏入口
-	if (siteConfig.pages.bangumi) {
-		links.push({
-			name: "游戏",
-			url: "/bangumi/",
-			icon: "material-symbols:stadia-controller",
-		});
-	}
+	// 游戏入口（暂时隐藏：2025 导航重构，恢复时取消注释即可）
+	// if (siteConfig.pages.bangumi) {
+	// 	links.push({
+	// 		name: "游戏",
+	// 		url: "/bangumi/",
+	// 		icon: "material-symbols:stadia-controller",
+	// 	});
+	// }
 
 	// 关于及其子菜单
 	links.push({
