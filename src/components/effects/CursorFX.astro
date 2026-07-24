@@ -37,7 +37,6 @@
 </style>
 
 <script>
-	interface Node { x: number; y: number; vx: number; vy: number; r: number; temp: number }
 	interface Ring { x: number; y: number; t: number }
 	interface Meteor { x: number; y: number; vx: number; vy: number; t: number; life: number; len: number; gold: boolean }
 
@@ -82,16 +81,17 @@
 				: { head: "16,18,24", tail: "16,18,24", tail2: "150,112,48" };
 
 		/* ---------------- 星座节点场 ----------------
-		   节点围绕鼠标漂移：速度随机游走 + 超出轨道半径时弹簧回拉，
-		   鼠标移动时节点被轻柔裹挟跟随；近距节点连线，节点与指针连线。 */
-		const NODE_COUNT = 16;
-		const ORBIT_R = 170;      // 环绕半径
-		const LINK_NN = 115;      // 节点-节点连线阈值
-		const LINK_NC = 150;      // 节点-指针连线阈值
-		let nodes: Node[] = [];
+		   锚点轨道模型：每个节点拥有自己的轨道半径与角速度，绕指针匀速
+		   公转（附带缓慢径向呼吸），位置向目标点 lerp 逼近——
+		   严格跟手、永远在动、沿轨道自然散开不堆积。 */
+		interface Orbital { x: number; y: number; orbitR: number; ang: number; angVel: number; wob: number; wobSpeed: number; r: number }
+		const NODE_COUNT = 11;
+		const LINK_NN = 150;      // 节点-节点连线阈值
+		const LINK_NC = 210;      // 节点-指针连线阈值
+		let nodes: Orbital[] = [];
+		let sparks: { x: number; y: number; vx: number; vy: number; t: number; life: number }[] = [];
 		let rings: Ring[] = [];
 		let mx = window.innerWidth / 2, my = window.innerHeight / 2;
-		let pmx = mx, pmy = my, mvx = 0, mvy = 0; // 指针速度（裹挟用）
 		let seen = false;
 
 		window.addEventListener("pointermove", (e) => {
@@ -99,71 +99,50 @@
 			mx = e.clientX; my = e.clientY; seen = true;
 		}, { passive: true });
 
-		function spawnNode(x: number, y: number, sp = 0): Node {
-			const a = Math.random() * Math.PI * 2;
+		function spawnOrbital(): Orbital {
 			return {
-				x, y,
-				vx: Math.cos(a) * sp, vy: Math.sin(a) * sp,
-				r: 1.4 + Math.random() * 1.6,
-				temp: 0,
+				x: mx, y: my,
+				orbitR: 45 + Math.random() * 95,           // 轨道半径 45~140，分层散开
+				ang: Math.random() * Math.PI * 2,
+				angVel: (0.0012 + Math.random() * 0.0022) * (Math.random() < 0.5 ? 1 : -1),
+				wob: Math.random() * Math.PI * 2,
+				wobSpeed: 0.0008 + Math.random() * 0.0016,
+				r: 1.8 + Math.random() * 1.4,
 			};
 		}
 
-		/* 点击：星点迸发（减速后归入星场）+ 同色细环 */
+		/* 点击：星尘迸发散去（不留在场里，节点数恒定）+ 同色细环 */
 		window.addEventListener("pointerdown", (e) => {
 			if (e.pointerType !== "mouse" || e.button !== 0) return;
-			rings.push({ x: e.clientX, y: e.clientY, t: performance.now() });
-			for (let i = 0; i < 5; i++) {
-				const a = Math.random() * Math.PI * 2;
-				const n = spawnNode(e.clientX, e.clientY, 0);
-				n.vx = Math.cos(a) * (1.8 + Math.random() * 1.6);
-				n.vy = Math.sin(a) * (1.8 + Math.random() * 1.6);
-				n.temp = 1; // 迸发节点：先飞散，随后被轨道弹簧收编
-				nodes.push(n);
-			}
-			// 超编时移除最老的临时节点
-			while (nodes.length > NODE_COUNT + 8) {
-				const idx = nodes.findIndex((n) => n.temp);
-				nodes.splice(idx < 0 ? 0 : idx, 1);
+			const now = performance.now();
+			rings.push({ x: e.clientX, y: e.clientY, t: now });
+			for (let i = 0; i < 6; i++) {
+				const a = (i / 6) * Math.PI * 2 + Math.random() * 0.5;
+				const sp = 2 + Math.random() * 2;
+				sparks.push({ x: e.clientX, y: e.clientY, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, t: now, life: 600 + Math.random() * 300 });
 			}
 		}, { passive: true });
 
-		function stepNodes() {
-			// 指针速度（衰减更新）
-			mvx += (mx - pmx - mvx) * 0.2;
-			mvy += (my - pmy - mvy) * 0.2;
-			pmx = mx; pmy = my;
-
-			if (nodes.length < NODE_COUNT && seen) {
-				const a = Math.random() * Math.PI * 2;
-				const d = 40 + Math.random() * ORBIT_R * 0.8;
-				nodes.push(spawnNode(mx + Math.cos(a) * d, my + Math.sin(a) * d));
-			}
+		function stepNodes(t: number) {
+			while (nodes.length < NODE_COUNT) nodes.push(spawnOrbital());
 			for (const n of nodes) {
-				// 随机游走
-				n.vx += (Math.random() - 0.5) * 0.03;
-				n.vy += (Math.random() - 0.5) * 0.03;
-				// 轨道弹簧：超出半径回拉，内部自由漂移
-				const dx = mx - n.x, dy = my - n.y;
-				const d = Math.hypot(dx, dy) || 1;
-				if (d > ORBIT_R) {
-					const pull = (d - ORBIT_R) * 0.0022;
-					n.vx += (dx / d) * pull;
-					n.vy += (dy / d) * pull;
-				}
-				// 指针裹挟：节点沾上一点指针速度
-				n.vx += mvx * 0.012;
-				n.vy += mvy * 0.012;
-				// 阻尼限速
-				n.vx *= 0.965; n.vy *= 0.965;
-				const sp = Math.hypot(n.vx, n.vy);
-				const maxSp = n.temp ? 4 : 0.9;
-				if (sp > maxSp) { n.vx = (n.vx / sp) * maxSp; n.vy = (n.vy / sp) * maxSp; }
-				n.x += n.vx; n.y += n.vy;
+				n.ang += n.angVel;
+				n.wob += n.wobSpeed * 16.7;
+				const rad = n.orbitR * (1 + 0.18 * Math.sin(n.wob));
+				const tx = mx + Math.cos(n.ang) * rad;
+				const ty = my + Math.sin(n.ang) * rad;
+				// lerp 逼近：跟手但带惯性，不瞬移
+				n.x += (tx - n.x) * 0.18;
+				n.y += (ty - n.y) * 0.18;
+			}
+			sparks = sparks.filter((s) => t - s.t < s.life);
+			for (const s of sparks) {
+				s.vx *= 0.94; s.vy *= 0.94;
+				s.x += s.vx; s.y += s.vy;
 			}
 		}
 
-		function drawConstellation() {
+		function drawConstellation(t: number) {
 			const W = window.innerWidth, H = window.innerHeight;
 			cctx.clearRect(0, 0, W, H);
 			if (!seen) return;
@@ -175,7 +154,7 @@
 					const b = nodes[j];
 					const d = Math.hypot(a.x - b.x, a.y - b.y);
 					if (d < LINK_NN) {
-						cctx.strokeStyle = `rgba(${rgb},${((1 - d / LINK_NN) * 0.55).toFixed(3)})`;
+						cctx.strokeStyle = `rgba(${rgb},${((1 - d / LINK_NN) * 0.7).toFixed(3)})`;
 						cctx.lineWidth = 0.8;
 						cctx.beginPath(); cctx.moveTo(a.x, a.y); cctx.lineTo(b.x, b.y); cctx.stroke();
 					}
@@ -183,7 +162,7 @@
 				// 节点-指针连线
 				const dc = Math.hypot(a.x - mx, a.y - my);
 				if (dc < LINK_NC) {
-					cctx.strokeStyle = `rgba(${rgb},${((1 - dc / LINK_NC) * 0.7).toFixed(3)})`;
+					cctx.strokeStyle = `rgba(${rgb},${((1 - dc / LINK_NC) * 0.85).toFixed(3)})`;
 					cctx.lineWidth = 0.9;
 					cctx.beginPath(); cctx.moveTo(a.x, a.y); cctx.lineTo(mx, my); cctx.stroke();
 				}
@@ -196,12 +175,25 @@
 			// 指针本点：稍亮的星核
 			cctx.fillStyle = `rgba(${rgb},0.95)`;
 			cctx.beginPath(); cctx.arc(mx, my, 2.2, 0, Math.PI * 2); cctx.fill();
-
+			// 点击星尘
+			for (const s of sparks) {
+				const age = (t - s.t) / s.life;
+				cctx.fillStyle = `rgba(${rgb},${((1 - age) * 0.9).toFixed(3)})`;
+				cctx.beginPath(); cctx.arc(s.x, s.y, 1.6 * (1 - age * 0.5), 0, Math.PI * 2); cctx.fill();
+				// 星尘与附近节点短暂连线，保持星座语言
+				for (const n of nodes) {
+					const d = Math.hypot(s.x - n.x, s.y - n.y);
+					if (d < 90) {
+						cctx.strokeStyle = `rgba(${rgb},${((1 - age) * (1 - d / 90) * 0.4).toFixed(3)})`;
+						cctx.lineWidth = 0.7;
+						cctx.beginPath(); cctx.moveTo(s.x, s.y); cctx.lineTo(n.x, n.y); cctx.stroke();
+					}
+				}
+			}
 			// 点击细环
-			const now = performance.now();
-			rings = rings.filter((r) => now - r.t < 550);
+			rings = rings.filter((r) => t - r.t < 550);
 			for (const r of rings) {
-				const age = (now - r.t) / 550;
+				const age = (t - r.t) / 550;
 				cctx.strokeStyle = `rgba(${rgb},${((1 - age) * 0.6).toFixed(3)})`;
 				cctx.lineWidth = 1.2 * (1 - age) + 0.3;
 				cctx.beginPath(); cctx.arc(r.x, r.y, 8 + age * 52, 0, Math.PI * 2); cctx.stroke();
@@ -303,8 +295,8 @@
 
 		/* ---------------- 主循环 ---------------- */
 		const loop = (t: number) => {
-			stepNodes();
-			drawConstellation();
+			stepNodes(t);
+			drawConstellation(t);
 			drawMeteors(t);
 			requestAnimationFrame(loop);
 		};
