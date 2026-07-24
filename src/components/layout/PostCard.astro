@@ -295,9 +295,7 @@ const descriptionText = description || remarkPluginFrontmatter.excerpt || "";
       top: 0 !important;
       bottom: 0 !important;
       right: 0 !important;
-      /* 封面元素铺满整个条目，静止时左缘斜切遮住左段只露右侧，
-         hover 时斜切缘横扫至全条目宽度露出完整封面 */
-      width: 100% !important;
+      /* 封面宽度与斜切横扫交互见下方「构成主义」区块 */
       border-radius: 0 !important;
     }
 
@@ -397,7 +395,8 @@ const descriptionText = description || remarkPluginFrontmatter.excerpt || "";
     transform: scale(1.03);
   }
 
-  /* 封面左缘渐变融入条目底色（去容器化） */
+  /* 封面左缘渐变融入条目底色（去容器化）；hover 时保留 0.45 透明度，
+     让滑开的封面左缘继续柔和消融在文本之上，而不是生硬切除 */
   .post-card-image .cover-blend {
     background: linear-gradient(
       100deg,
@@ -410,29 +409,31 @@ const descriptionText = description || remarkPluginFrontmatter.excerpt || "";
   }
 
   .post-card-wrapper:hover .post-card-image .cover-blend {
-    opacity: 0;
+    opacity: 0.45;
   }
 
   /* 桌面列表模式：封面斜切 bleeding 到条目右缘 + 金色细描边 */
-  /* 封面元素铺满整个条目（宽 100%），静止时左缘斜切（上 73.5% / 下 70%）
-     只露出右侧约 30%；hover 时金色分界线携封面迅速向左横扫——
-     上端点 73.5%→0（移动 -73.5），下端点 70%→20%（移动 -50），
-     像一扇绕底部虚拟支点被推开的斜门，封面几乎完整展示（z-index 25）。
-     同时文本层以更快的 fade-out（0.18s）优雅退场，避免被硬切遮挡；
-     鼠标离开后封面复位，文本延迟 0.25s 再淡回。 */
+  /* 封面容器锚定右缘，静止宽 30%、左缘斜切；hover 时容器宽度 30%→62%
+     （接近常见封面的自然宽高比，完整展示不裁切），斜切缘携金色
+     hairline 整体向左滑开，像一扇被推开的斜门。文本层不淡出——
+     被封面覆盖的部分由 cover-blend 渐变柔和消融，左侧保持可读。 */
   @media (min-width: 768px) {
     :global(.list-mode) .post-card-image {
       z-index: 25;
-      clip-path: polygon(73.5% 0, 100% 0, 100% 100%, 70% 100%) !important;
-      transition: clip-path 0.45s cubic-bezier(0.16, 1, 0.3, 1) !important;
-      will-change: clip-path;
+      width: var(--coverWidth) !important;
+      clip-path: polygon(18% 0, 100% 0, 100% 100%, 0 100%) !important;
+      transition:
+        width 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+        clip-path 0.45s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      will-change: width, clip-path;
     }
 
     :global(.list-mode) .post-card-wrapper:hover .post-card-image {
-      clip-path: polygon(0 0, 100% 0, 100% 100%, 20% 100%) !important;
+      width: 62% !important;
+      clip-path: polygon(10% 0, 100% 0, 100% 100%, 0 100%) !important;
     }
 
-    /* 沿斜切缘的金色 hairline（与封面同步横扫的窄条） */
+    /* 沿斜切缘的金色 hairline（与封面同步滑动的窄条） */
     :global(.list-mode) .post-card-image::before {
       content: "";
       position: absolute;
@@ -444,47 +445,27 @@ const descriptionText = description || remarkPluginFrontmatter.excerpt || "";
         var(--gold) 0%,
         color-mix(in srgb, var(--gold) 55%, transparent) 100%
       );
-      clip-path: polygon(73.5% 0, calc(73.5% + 1.5px) 0, calc(70% + 1.5px) 100%, 70% 100%);
+      clip-path: polygon(18% 0, calc(18% + 1.5px) 0, 1.5px 100%, 0 100%);
       transition: clip-path 0.45s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     :global(.list-mode) .post-card-wrapper:hover .post-card-image::before {
-      clip-path: polygon(
-        0 0,
-        1.5px 0,
-        calc(20% + 1.5px) 100%,
-        20% 100%
-      );
-    }
-
-    /* 文本层：hover 时快速淡出（比封面横扫快），离开后延迟淡回 */
-    :global(.list-mode) .post-card-content {
-      transition: opacity 0.3s ease-in 0.25s;
-    }
-
-    :global(.list-mode) .post-card-wrapper:hover .post-card-content {
-      opacity: 0;
-      transition: opacity 0.18s ease-out 0s;
+      clip-path: polygon(10% 0, calc(10% + 1.5px) 0, 1.5px 100%, 0 100%);
     }
   }
 
-  /* prefers-reduced-motion：静态，不横扫 */
+  /* prefers-reduced-motion：静态，不滑动 */
   @media (min-width: 768px) and (prefers-reduced-motion: reduce) {
     :global(.list-mode) .post-card-image,
     :global(.list-mode) .post-card-wrapper:hover .post-card-image {
-      clip-path: polygon(73.5% 0, 100% 0, 100% 100%, 70% 100%) !important;
+      width: var(--coverWidth) !important;
+      clip-path: polygon(18% 0, 100% 0, 100% 100%, 0 100%) !important;
       transition: none !important;
     }
 
     :global(.list-mode) .post-card-image::before,
     :global(.list-mode) .post-card-wrapper:hover .post-card-image::before {
-      clip-path: polygon(73.5% 0, calc(73.5% + 1.5px) 0, calc(70% + 1.5px) 100%, 70% 100%);
-      transition: none;
-    }
-
-    :global(.list-mode) .post-card-content,
-    :global(.list-mode) .post-card-wrapper:hover .post-card-content {
-      opacity: 1;
+      clip-path: polygon(18% 0, calc(18% + 1.5px) 0, 1.5px 100%, 0 100%);
       transition: none;
     }
 
