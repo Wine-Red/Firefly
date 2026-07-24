@@ -88,9 +88,9 @@
 		interface Frag { x: number; y: number; vx: number; vy: number; t: number; life: number; r: number; swirl: number }
 		const LINK_NN = 50;       // 节点-节点连线阈值（短而碎）
 		const LINK_NC = 85;       // 节点-指针连线阈值
-		const MAX_FRAGS = 30;
+		const MAX_FRAGS = 25;
 		const SWIRL_R = 60;      // 涡旋力场半径
-		const ORBIT_D = 20;       // 盘旋的偏好轨道半径
+		const ORBIT_D = 25;       // 盘旋的偏好轨道半径
 		let nodes: Frag[] = [];
 		let sparks: { x: number; y: number; vx: number; vy: number; t: number; life: number }[] = [];
 		let rings: Ring[] = [];
@@ -123,7 +123,7 @@
 		}, { passive: true });
 
 		let lastDropAt = 0;
-		const IDLE_KEEP = 12; // 静止时涵养的星点数量
+		const IDLE_KEEP = 14; // 静止时涵养的星点数量
 
 		function spawnOne(x: number, y: number, now: number) {
 			nodes.push({
