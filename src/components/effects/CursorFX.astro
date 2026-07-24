@@ -105,17 +105,8 @@
 			if (Math.hypot(mx - lastDropX, my - lastDropY) > 11) {
 				lastDropX = mx; lastDropY = my;
 				const now = performance.now();
-				nodes.push({
-					x: mx + (Math.random() - 0.5) * 10,
-					y: my + (Math.random() - 0.5) * 10,
-					vx: (Math.random() - 0.5) * 0.6,
-					vy: (Math.random() - 0.5) * 0.6,
-					t: now,
-					life: 700 + Math.random() * 500,   // 生灭快
-					r: 0.9 + Math.random() * 1.1,      // 小而细
-					swirl: Math.random() < 0.5 ? 1 : -1, // 每颗固定的盘旋方向
-				});
-				if (nodes.length > MAX_FRAGS) nodes.shift();
+				lastDropAt = now;
+				spawnOne(mx + (Math.random() - 0.5) * 10, my + (Math.random() - 0.5) * 10, now);
 			}
 		}, { passive: true });
 
@@ -131,8 +122,31 @@
 			}
 		}, { passive: true });
 
+		let lastDropAt = 0;
+		const IDLE_KEEP = 22; // 静止时涵养的星点数量
+
+		function spawnOne(x: number, y: number, now: number) {
+			nodes.push({
+				x, y,
+				vx: (Math.random() - 0.5) * 0.6,
+				vy: (Math.random() - 0.5) * 0.6,
+				t: now,
+				life: 700 + Math.random() * 500,   // 生灭快
+				r: 0.9 + Math.random() * 1.1,      // 小而细
+				swirl: Math.random() < 0.5 ? 1 : -1, // 每颗固定的盘旋方向
+			});
+			if (nodes.length > MAX_FRAGS) nodes.shift();
+		}
+
 		function stepNodes(t: number) {
 			nodes = nodes.filter((n) => t - n.t < n.life);
+			// 静止涵养：指针不动时，在周围轨道上持续诞生星点，
+			// 保持一团永远盘旋的活星云（直到数量达标）
+			if (seen && t - lastDropAt > 140 && nodes.length < IDLE_KEEP && Math.random() < 0.35) {
+				const a = Math.random() * Math.PI * 2;
+				const d = 35 + Math.random() * 85;
+				spawnOne(mx + Math.cos(a) * d, my + Math.sin(a) * d, t);
+			}
 			for (const n of nodes) {
 				const dx = mx - n.x, dy = my - n.y;
 				const d = Math.hypot(dx, dy) || 1;
