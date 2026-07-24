@@ -80,60 +80,58 @@
 				? { head: "255,244,214", tail: "212,175,106", tail2: "240,235,220" }
 				: { head: "16,18,24", tail: "16,18,24", tail2: "150,112,48" };
 
-		/* ---------------- 星座节点场 ----------------
-		   锚点轨道模型：每个节点拥有自己的轨道半径与角速度，绕指针匀速
-		   公转（附带缓慢径向呼吸），位置向目标点 lerp 逼近——
-		   严格跟手、永远在动、沿轨道自然散开不堆积。 */
-		interface Orbital { x: number; y: number; orbitR: number; ang: number; angVel: number; wob: number; wobSpeed: number; r: number }
-		const NODE_COUNT = 11;
-		const LINK_NN = 150;      // 节点-节点连线阈值
-		const LINK_NC = 210;      // 节点-指针连线阈值
-		let nodes: Orbital[] = [];
+		/* ---------------- 星座尾迹 ----------------
+		   沿鼠标轨迹撒落细碎星点，近距相连成网；星点生命周期很短，
+		   随指针前进去留——身后的网不断消逝，身前的网不断重建。
+		   碎（点多而细）、小（短线小点）、快（生灭敏捷）。 */
+		interface Frag { x: number; y: number; vx: number; vy: number; t: number; life: number; r: number }
+		const LINK_NN = 85;       // 节点-节点连线阈值（短而碎）
+		const LINK_NC = 110;      // 节点-指针连线阈值
+		const MAX_FRAGS = 70;
+		let nodes: Frag[] = [];
 		let sparks: { x: number; y: number; vx: number; vy: number; t: number; life: number }[] = [];
 		let rings: Ring[] = [];
 		let mx = window.innerWidth / 2, my = window.innerHeight / 2;
+		let lastDropX = mx, lastDropY = my;
 		let seen = false;
 
 		window.addEventListener("pointermove", (e) => {
 			if (e.pointerType !== "mouse") return;
 			mx = e.clientX; my = e.clientY; seen = true;
+			// 按移动距离撒点：每 ~11px 落一颗，轨迹连贯成链
+			if (Math.hypot(mx - lastDropX, my - lastDropY) > 11) {
+				lastDropX = mx; lastDropY = my;
+				const now = performance.now();
+				nodes.push({
+					x: mx + (Math.random() - 0.5) * 10,
+					y: my + (Math.random() - 0.5) * 10,
+					vx: (Math.random() - 0.5) * 0.35,
+					vy: (Math.random() - 0.5) * 0.35,
+					t: now,
+					life: 700 + Math.random() * 500,   // 生灭快
+					r: 0.9 + Math.random() * 1.1,      // 小而细
+				});
+				if (nodes.length > MAX_FRAGS) nodes.shift();
+			}
 		}, { passive: true });
 
-		function spawnOrbital(): Orbital {
-			return {
-				x: mx, y: my,
-				orbitR: 45 + Math.random() * 95,           // 轨道半径 45~140，分层散开
-				ang: Math.random() * Math.PI * 2,
-				angVel: (0.0012 + Math.random() * 0.0022) * (Math.random() < 0.5 ? 1 : -1),
-				wob: Math.random() * Math.PI * 2,
-				wobSpeed: 0.0008 + Math.random() * 0.0016,
-				r: 1.8 + Math.random() * 1.4,
-			};
-		}
-
-		/* 点击：星尘迸发散去（不留在场里，节点数恒定）+ 同色细环 */
+		/* 点击：一撮细碎星尘迸散 + 同色细环 */
 		window.addEventListener("pointerdown", (e) => {
 			if (e.pointerType !== "mouse" || e.button !== 0) return;
 			const now = performance.now();
 			rings.push({ x: e.clientX, y: e.clientY, t: now });
-			for (let i = 0; i < 6; i++) {
-				const a = (i / 6) * Math.PI * 2 + Math.random() * 0.5;
-				const sp = 2 + Math.random() * 2;
-				sparks.push({ x: e.clientX, y: e.clientY, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, t: now, life: 600 + Math.random() * 300 });
+			for (let i = 0; i < 8; i++) {
+				const a = (i / 8) * Math.PI * 2 + Math.random() * 0.5;
+				const sp = 1.6 + Math.random() * 2;
+				sparks.push({ x: e.clientX, y: e.clientY, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, t: now, life: 450 + Math.random() * 250 });
 			}
 		}, { passive: true });
 
 		function stepNodes(t: number) {
-			while (nodes.length < NODE_COUNT) nodes.push(spawnOrbital());
+			nodes = nodes.filter((n) => t - n.t < n.life);
 			for (const n of nodes) {
-				n.ang += n.angVel;
-				n.wob += n.wobSpeed * 16.7;
-				const rad = n.orbitR * (1 + 0.18 * Math.sin(n.wob));
-				const tx = mx + Math.cos(n.ang) * rad;
-				const ty = my + Math.sin(n.ang) * rad;
-				// lerp 逼近：跟手但带惯性，不瞬移
-				n.x += (tx - n.x) * 0.18;
-				n.y += (ty - n.y) * 0.18;
+				n.vx *= 0.985; n.vy *= 0.985;
+				n.x += n.vx; n.y += n.vy;
 			}
 			sparks = sparks.filter((s) => t - s.t < s.life);
 			for (const s of sparks) {
@@ -147,56 +145,57 @@
 			cctx.clearRect(0, 0, W, H);
 			if (!seen) return;
 			const rgb = fxRgb();
-			// 节点-节点连线
+			const life01 = (n: Frag) => 1 - (t - n.t) / n.life;
+			// 节点-节点连线（透明度取两端剩余寿命的较小值，同步消逝）
 			for (let i = 0; i < nodes.length; i++) {
 				const a = nodes[i];
 				for (let j = i + 1; j < nodes.length; j++) {
 					const b = nodes[j];
 					const d = Math.hypot(a.x - b.x, a.y - b.y);
 					if (d < LINK_NN) {
-						cctx.strokeStyle = `rgba(${rgb},${((1 - d / LINK_NN) * 0.7).toFixed(3)})`;
-						cctx.lineWidth = 0.8;
+						const al = Math.min(life01(a), life01(b));
+						cctx.strokeStyle = `rgba(${rgb},${((1 - d / LINK_NN) * al * 0.75).toFixed(3)})`;
+						cctx.lineWidth = 0.7;
 						cctx.beginPath(); cctx.moveTo(a.x, a.y); cctx.lineTo(b.x, b.y); cctx.stroke();
 					}
 				}
 				// 节点-指针连线
 				const dc = Math.hypot(a.x - mx, a.y - my);
 				if (dc < LINK_NC) {
-					cctx.strokeStyle = `rgba(${rgb},${((1 - dc / LINK_NC) * 0.85).toFixed(3)})`;
-					cctx.lineWidth = 0.9;
+					cctx.strokeStyle = `rgba(${rgb},${((1 - dc / LINK_NC) * life01(a) * 0.85).toFixed(3)})`;
+					cctx.lineWidth = 0.8;
 					cctx.beginPath(); cctx.moveTo(a.x, a.y); cctx.lineTo(mx, my); cctx.stroke();
 				}
 			}
-			// 节点
+			// 节点（细碎星点）
 			for (const n of nodes) {
-				cctx.fillStyle = `rgba(${rgb},0.9)`;
+				cctx.fillStyle = `rgba(${rgb},${(life01(n) * 0.9).toFixed(3)})`;
 				cctx.beginPath(); cctx.arc(n.x, n.y, n.r, 0, Math.PI * 2); cctx.fill();
 			}
 			// 指针本点：稍亮的星核
 			cctx.fillStyle = `rgba(${rgb},0.95)`;
-			cctx.beginPath(); cctx.arc(mx, my, 2.2, 0, Math.PI * 2); cctx.fill();
-			// 点击星尘
+			cctx.beginPath(); cctx.arc(mx, my, 2, 0, Math.PI * 2); cctx.fill();
+			// 点击星尘：与附近节点短暂连线，保持星座语言
 			for (const s of sparks) {
 				const age = (t - s.t) / s.life;
 				cctx.fillStyle = `rgba(${rgb},${((1 - age) * 0.9).toFixed(3)})`;
-				cctx.beginPath(); cctx.arc(s.x, s.y, 1.6 * (1 - age * 0.5), 0, Math.PI * 2); cctx.fill();
-				// 星尘与附近节点短暂连线，保持星座语言
+				cctx.beginPath(); cctx.arc(s.x, s.y, 1.3 * (1 - age * 0.5), 0, Math.PI * 2); cctx.fill();
 				for (const n of nodes) {
 					const d = Math.hypot(s.x - n.x, s.y - n.y);
-					if (d < 90) {
-						cctx.strokeStyle = `rgba(${rgb},${((1 - age) * (1 - d / 90) * 0.4).toFixed(3)})`;
-						cctx.lineWidth = 0.7;
+					if (d < 70) {
+						cctx.strokeStyle = `rgba(${rgb},${((1 - age) * (1 - d / 70) * 0.4).toFixed(3)})`;
+						cctx.lineWidth = 0.6;
 						cctx.beginPath(); cctx.moveTo(s.x, s.y); cctx.lineTo(n.x, n.y); cctx.stroke();
 					}
 				}
 			}
 			// 点击细环
-			rings = rings.filter((r) => t - r.t < 550);
+			rings = rings.filter((r) => t - r.t < 450);
 			for (const r of rings) {
-				const age = (t - r.t) / 550;
+				const age = (t - r.t) / 450;
 				cctx.strokeStyle = `rgba(${rgb},${((1 - age) * 0.6).toFixed(3)})`;
-				cctx.lineWidth = 1.2 * (1 - age) + 0.3;
-				cctx.beginPath(); cctx.arc(r.x, r.y, 8 + age * 52, 0, Math.PI * 2); cctx.stroke();
+				cctx.lineWidth = (1 - age) + 0.3;
+				cctx.beginPath(); cctx.arc(r.x, r.y, 6 + age * 40, 0, Math.PI * 2); cctx.stroke();
 			}
 		}
 
