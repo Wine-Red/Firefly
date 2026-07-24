@@ -823,15 +823,8 @@ body::after {
     letter-spacing: 0.07em;
 }
 
-/* 封面：hover 几何斜切 */
-#post-list-container .post-card-image {
-    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
-    transition: clip-path 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-#post-list-container .post-card-wrapper:hover .post-card-image {
-    clip-path: polygon(5% 0, 100% 0, 95% 100%, 0 100%);
-}
+/* 封面几何斜切为列表模式专属（见 PostCard.astro scoped 样式），
+   网格模式封面在顶部完整展示，不做斜切 */
 
 /* 网格模式：序号收敛为小角标 */
 #post-list-container.grid-mode .post-card-content {

@@ -395,11 +395,11 @@ const descriptionText = description || remarkPluginFrontmatter.excerpt || "";
     transform: scale(1.03);
   }
 
-  /* 封面左缘沿斜角溶解进页面底色（去容器化）。
+  /* 封面左缘沿斜角溶解进页面底色（去容器化）——仅列表模式。
      静止时柔化斜切角边缘；hover 时封面左半完全溶解——
      文字层浮在已溶解的区域上，干净可读，图像向右渐渐显现，
      像油墨在纸面上晕开，而不是被什么东西压住 */
-  .post-card-image .cover-blend {
+  :global(.list-mode) .post-card-image .cover-blend {
     background: linear-gradient(
       100deg,
       var(--card-bg) 0%,
@@ -411,8 +411,13 @@ const descriptionText = description || remarkPluginFrontmatter.excerpt || "";
     transition: opacity 0.35s ease-out;
   }
 
-  .post-card-wrapper:hover .post-card-image .cover-blend {
+  :global(.list-mode) .post-card-wrapper:hover .post-card-image .cover-blend {
     opacity: 1;
+  }
+
+  /* 网格模式：封面在顶部完整展示，不需要溶解/斜切等列表模式专属效果 */
+  :global(.grid-mode) .post-card-image .cover-blend {
+    display: none;
   }
 
   /* 桌面列表模式：封面斜切 bleeding 到条目右缘 + 金色细描边 */
