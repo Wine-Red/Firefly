@@ -217,6 +217,12 @@
 		const PEND_C = 0.9; // 阻尼系数（轻度欠阻尼，过冲 2~3 次）
 		const PEND_THETA0 = 1.35;
 		let moonArts: HTMLElement[] = [];
+		/* 摆入结束时的残余偏移（dx/dy/rot），由编舞指数衰减到零——
+		   无论阻尼稳定（残余 ~8px）还是提前滚动强制接管（残余可达数百 px），
+		   月亮都平滑滑到编舞位置，杜绝瞬移与生硬切换。
+		   tau 随残余量自适应：小残余快速消散（0.22s），大残余给足时间，
+		   初速度被封顶在 ~1500px/s（≈摆动本身的速度），视觉上是一次自然的滑翔 */
+		let moonResidual: { dx: number; dy: number; rot: number; t0: number; tau: number } | null = null;
 
 		/* 月落淡出：滚动值的纯函数（0.3vh 起淡，0.72vh 全隐）。
 		   摆入与月落共用同一函数——任何滚动路径、任何互斥状态下，
@@ -255,9 +261,26 @@
 		}
 
 		function finishPendulum() {
+			// 捕获残余偏移交给编舞衰减，而不是硬切到纯滚动函数位置
+			if (pendulum && moonEl) {
+				const swayNow = Math.sin(performance.now() * 0.0008) * 0.6;
+				const dx = pendulum.L * Math.sin(pendulum.theta);
+				const dy = pendulum.L * (Math.cos(pendulum.theta) - 1);
+				const mag = Math.hypot(dx, dy);
+				moonResidual = {
+					dx,
+					dy,
+					// 摆入时旋转写在 moonArts 上，接管后旋转写在 moonEl 上（含呼吸微摆），
+					// 扣除当前 sway 使接管帧角度严格连续
+					rot: pendulum.theta * 0.28 * 57.2958 - swayNow,
+					t0: performance.now(),
+					// 自适应时间常数：0.22s~0.9s，残余越大消散越慢（初速度封顶）
+					tau: Math.min(Math.max(mag / 1.5, 220), 900),
+				};
+			}
 			pendulum = null;
 			for (const art of moonArts) art.style.transform = "";
-			lastWritten = -1; // 强制编舞下一帧把月亮写到精确最终位，避免跳变
+			lastWritten = -1; // 强制编舞下一帧重写月亮（含残余），避免跳变
 		}
 
 		function stepPendulum(dt: number) {
@@ -306,6 +329,7 @@
 			});
 			sSmooth = -1; // 强制下一帧重算
 			lastWritten = -1;
+			moonResidual = null; // 换页后丢弃上一页的残余状态
 		}
 
 		function updateChoreo(t: number) {
@@ -313,8 +337,8 @@
 			if (sSmooth < 0) sSmooth = s;
 			sSmooth += (s - sSmooth) * 0.14;
 			if (Math.abs(s - sSmooth) < 0.1) sSmooth = s;
-			// 短路：滚动值稳定且摆入不活跃时无需重写
-			if (!pendulum && sSmooth === lastWritten) return;
+			// 短路：滚动值稳定、摆入不活跃且无残余衰减时无需重写
+			if (!pendulum && !moonResidual && sSmooth === lastWritten) return;
 			lastWritten = sSmooth;
 			const sS = sSmooth;
 			const vh = window.innerHeight || 1;
@@ -337,8 +361,22 @@
 					const fade = moonFadeAt(s, vh);
 					// 悬挂时的呼吸微摆（随坠落渐隐）
 					const sway = Math.sin(t * 0.0008) * 0.6 * fade;
+					// 摆入残余偏移指数衰减（时间常数 220ms），平滑并入编舞位置
+					let rx = 0, ry = 0, rr = 0;
+					if (moonResidual) {
+						// 注意：finishPendulum 与编舞在同一帧内先后执行，
+						// performance.now() 可能比 rAF 时间戳大几 ms，须 clamp 而非丢弃
+						const k = Math.min(1, Math.exp(-(t - moonResidual.t0) / moonResidual.tau));
+						if (k < 0.02) {
+							moonResidual = null;
+						} else {
+							rx = moonResidual.dx * k;
+							ry = moonResidual.dy * k;
+							rr = moonResidual.rot * k;
+						}
+					}
 					moonEl.style.transform =
-						`translate3d(${driftX.toFixed(1)}px, ${(lagY + fall).toFixed(1)}px, 0) rotate(${(rot + sway).toFixed(2)}deg)`;
+						`translate3d(${(driftX + rx).toFixed(1)}px, ${(lagY + fall + ry).toFixed(1)}px, 0) rotate(${(rot + sway + rr).toFixed(2)}deg)`;
 					moonEl.style.opacity = fade.toFixed(3);
 				}
 			}
