@@ -1,0 +1,295 @@
+---
+/**
+ * CursorFX —— 星辰指针特效 + 长按流星雨
+ * 1. 鼠标轨迹化作星辰：轨迹点连成星座线，随时间消逝；点击迸发出星尘与光环
+ * 2. 空白处长按（>450ms）：背景升起流星雨，松开即渐渐停歇
+ * 双模式配色：深色用哑光金/奶油，浅色用深金/朱红；reduced-motion 不启用
+ */
+---
+
+<canvas id="cursor-fx" aria-hidden="true"></canvas>
+<canvas id="meteor-fx" aria-hidden="true"></canvas>
+
+<style>
+	#cursor-fx {
+		position: fixed;
+		inset: 0;
+		z-index: 9999;
+		pointer-events: none;
+	}
+	#meteor-fx {
+		position: fixed;
+		inset: 0;
+		z-index: 1;
+		pointer-events: none;
+		opacity: 0;
+		transition: opacity 0.8s ease;
+	}
+	#meteor-fx.active {
+		opacity: 1;
+		transition: opacity 0.5s ease;
+	}
+	:global(html.meteor-holding) {
+		user-select: none;
+	}
+</style>
+
+<script>
+	interface TrailPt { x: number; y: number; t: number }
+	interface Spark { x: number; y: number; vx: number; vy: number; t: number; life: number; size: number; hue: number }
+	interface Ring { x: number; y: number; t: number }
+	interface Meteor { x: number; y: number; vx: number; vy: number; t: number; life: number; len: number; gold: boolean }
+
+	const REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)");
+	if (!REDUCED.matches && !(window as any).__cursorFXInit) {
+		(window as any).__cursorFXInit = true;
+
+		const cursorCv = document.getElementById("cursor-fx") as HTMLCanvasElement;
+		const meteorCv = document.getElementById("meteor-fx") as HTMLCanvasElement;
+		const cctx = cursorCv.getContext("2d")!;
+		const mctx = meteorCv.getContext("2d")!;
+		const DPR = Math.min(window.devicePixelRatio || 1, 2);
+
+		function resize() {
+			for (const cv of [cursorCv, meteorCv]) {
+				cv.width = Math.floor(window.innerWidth * DPR);
+				cv.height = Math.floor(window.innerHeight * DPR);
+				cv.style.width = window.innerWidth + "px";
+				cv.style.height = window.innerHeight + "px";
+			}
+			cctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+			mctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+		}
+		resize();
+		window.addEventListener("resize", resize);
+
+		/* 主题配色：跟随 <html class="dark"> 实时切换 */
+		let dark = document.documentElement.classList.contains("dark");
+		new MutationObserver(() => {
+			dark = document.documentElement.classList.contains("dark");
+		}).observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+
+		const palette = () =>
+			dark
+				? { star: "212,175,106", starDim: "240,235,220", meteorHead: "255,244,214", meteorTail: "212,175,106", meteorTail2: "240,235,220" }
+				: { star: "150,112,48", starDim: "60,56,50", meteorHead: "120,88,32", meteorTail: "150,112,48", meteorTail2: "178,58,42" };
+
+		/* ---------------- 星辰轨迹与星座连线 ---------------- */
+		const TRAIL_LIFE = 850;
+		const LINK_DIST = 95;
+		let trail: TrailPt[] = [];
+		let sparks: Spark[] = [];
+		let rings: Ring[] = [];
+		let lastSpawn = 0;
+
+		window.addEventListener("pointermove", (e) => {
+			if (e.pointerType !== "mouse") return;
+			const now = performance.now();
+			trail.push({ x: e.clientX, y: e.clientY, t: now });
+			if (trail.length > 40) trail.shift();
+			// 移动时偶尔撒出缓慢飘落的星尘
+			if (now - lastSpawn > 90 && Math.random() < 0.5) {
+				lastSpawn = now;
+				sparks.push({
+					x: e.clientX + (Math.random() - 0.5) * 14,
+					y: e.clientY + (Math.random() - 0.5) * 14,
+					vx: (Math.random() - 0.5) * 0.25,
+					vy: 0.15 + Math.random() * 0.3,
+					t: now,
+					life: 900 + Math.random() * 500,
+					size: 1 + Math.random() * 1.6,
+					hue: Math.random(),
+				});
+			}
+		}, { passive: true });
+
+		/* 点击：星尘迸发 + 扩散光环 */
+		window.addEventListener("pointerdown", (e) => {
+			if (e.pointerType !== "mouse" || e.button !== 0) return;
+			const now = performance.now();
+			rings.push({ x: e.clientX, y: e.clientY, t: now });
+			const n = 12;
+			for (let i = 0; i < n; i++) {
+				const a = (i / n) * Math.PI * 2 + Math.random() * 0.4;
+				const sp = 1.6 + Math.random() * 2.4;
+				sparks.push({
+					x: e.clientX,
+					y: e.clientY,
+					vx: Math.cos(a) * sp,
+					vy: Math.sin(a) * sp,
+					t: now,
+					life: 650 + Math.random() * 350,
+					size: 1.2 + Math.random() * 2,
+					hue: Math.random(),
+				});
+			}
+		}, { passive: true });
+
+		function drawStar4(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, alpha: number, rgb: string) {
+			// 四芒星：主题之星
+			ctx.strokeStyle = `rgba(${rgb},${alpha})`;
+			ctx.lineWidth = 1;
+			ctx.beginPath();
+			ctx.moveTo(x - r, y); ctx.lineTo(x + r, y);
+			ctx.moveTo(x, y - r); ctx.lineTo(x, y + r);
+			ctx.stroke();
+			ctx.fillStyle = `rgba(${rgb},${alpha * 0.9})`;
+			ctx.beginPath();
+			ctx.arc(x, y, r * 0.28, 0, Math.PI * 2);
+			ctx.fill();
+		}
+
+		/* ---------------- 空白处长按：流星雨 ---------------- */
+		let meteors: Meteor[] = [];
+		let holding = false;
+		let showerOn = false;
+		let holdTimer = 0;
+		let downPos = { x: 0, y: 0 };
+		let nextMeteorAt = 0;
+
+		const INTERACTIVE = "a,button,input,textarea,select,label,img,video,iframe,[role='button'],[contenteditable],nav,.post-card-wrapper,.float-panel,.ch3-scrollcue";
+
+		window.addEventListener("pointerdown", (e) => {
+			if (e.pointerType !== "mouse" || e.button !== 0) return;
+			if ((e.target as HTMLElement).closest(INTERACTIVE)) return;
+			holding = true;
+			downPos = { x: e.clientX, y: e.clientY };
+			holdTimer = window.setTimeout(() => {
+				if (!holding) return;
+				showerOn = true;
+				meteorCv.classList.add("active");
+				document.documentElement.classList.add("meteor-holding");
+				nextMeteorAt = performance.now();
+			}, 450);
+		}, { passive: true });
+
+		const endHold = () => {
+			holding = false;
+			showerOn = false;
+			clearTimeout(holdTimer);
+			meteorCv.classList.remove("active");
+			document.documentElement.classList.remove("meteor-holding");
+		};
+		window.addEventListener("pointerup", endHold, { passive: true });
+		window.addEventListener("pointercancel", endHold, { passive: true });
+		window.addEventListener("blur", endHold);
+		window.addEventListener("pointermove", (e) => {
+			if (holding && Math.hypot(e.clientX - downPos.x, e.clientY - downPos.y) > 12) endHold();
+		}, { passive: true });
+
+		function spawnMeteor(now: number, W: number) {
+			// 从顶部偏右区域出发，向左下坠落——呼应断绳月落的方向
+			const x = W * 0.25 + Math.random() * W * 0.85;
+			const speed = 7 + Math.random() * 5;
+			const ang = Math.PI * (0.62 + Math.random() * 0.1); // 左下
+			meteors.push({
+				x,
+				y: -20 - Math.random() * 40,
+				vx: Math.cos(ang) * speed,
+				vy: Math.sin(ang) * speed * 0.9,
+				t: now,
+				life: 1400 + Math.random() * 900,
+				len: 90 + Math.random() * 110,
+				gold: Math.random() < 0.65,
+			});
+		}
+
+		/* ---------------- 主循环 ---------------- */
+		let mx = -100, my = -100;
+		window.addEventListener("pointermove", (e) => { mx = e.clientX; my = e.clientY; }, { passive: true });
+
+		const loop = (t: number) => {
+			const W = window.innerWidth, H = window.innerHeight;
+			const pal = palette();
+
+			/* ---- 指针层 ---- */
+			cctx.clearRect(0, 0, W, H);
+			trail = trail.filter((p) => t - p.t < TRAIL_LIFE);
+
+			// 星座连线：相邻轨迹点 + 近距点互联
+			if (trail.length > 1) {
+				for (let i = 0; i < trail.length; i++) {
+					const p = trail[i];
+					const age = 1 - (t - p.t) / TRAIL_LIFE;
+					for (let j = i + 1; j < trail.length; j++) {
+						const q = trail[j];
+						const d = Math.hypot(p.x - q.x, p.y - q.y);
+						if (d < LINK_DIST) {
+							const a = age * (1 - d / LINK_DIST) * 0.55;
+							cctx.strokeStyle = `rgba(${pal.star},${a.toFixed(3)})`;
+							cctx.lineWidth = 0.8;
+							cctx.beginPath();
+							cctx.moveTo(p.x, p.y);
+							cctx.lineTo(q.x, q.y);
+							cctx.stroke();
+						}
+					}
+				}
+				for (const p of trail) {
+					const age = 1 - (t - p.t) / TRAIL_LIFE;
+					drawStar4(cctx, p.x, p.y, 2.2 + age * 2.2, age * 0.85, pal.star);
+				}
+			}
+
+			// 星尘
+			sparks = sparks.filter((s) => t - s.t < s.life);
+			for (const s of sparks) {
+				const age = (t - s.t) / s.life;
+				s.x += s.vx;
+				s.y += s.vy + age * 0.5; // 微弱下坠
+				const tw = 0.7 + 0.3 * Math.sin(t * 0.02 + s.hue * 20);
+				drawStar4(cctx, s.x, s.y, s.size * (1 - age * 0.5), (1 - age) * tw * 0.9, s.hue < 0.7 ? pal.star : pal.starDim);
+			}
+
+			// 点击光环
+			rings = rings.filter((r) => t - r.t < 500);
+			for (const r of rings) {
+				const age = (t - r.t) / 500;
+				const rad = 6 + age * 46;
+				cctx.strokeStyle = `rgba(${pal.star},${((1 - age) * 0.7).toFixed(3)})`;
+				cctx.lineWidth = 1.4 * (1 - age) + 0.3;
+				cctx.beginPath();
+				cctx.arc(r.x, r.y, rad, 0, Math.PI * 2);
+				cctx.stroke();
+			}
+
+			/* ---- 流星雨层 ---- */
+			mctx.clearRect(0, 0, W, H);
+			if (showerOn && t >= nextMeteorAt) {
+				spawnMeteor(t, W);
+				// 稀疏节奏：280~620ms 一颗
+				nextMeteorAt = t + 280 + Math.random() * 340;
+			}
+			meteors = meteors.filter((m) => t - m.t < m.life && m.y < H + 80 && m.x > -120);
+			for (const m of meteors) {
+				m.x += m.vx;
+				m.y += m.vy;
+				const age = (t - m.t) / m.life;
+				const fadeIn = Math.min(age / 0.12, 1);
+				const fadeOut = 1 - Math.max((age - 0.7) / 0.3, 0);
+				const a = fadeIn * fadeOut;
+				if (a <= 0) continue;
+				const tailRgb = m.gold ? pal.meteorTail : pal.meteorTail2;
+				// 渐变尾迹
+				const tx = m.x - (m.vx / Math.hypot(m.vx, m.vy)) * m.len;
+				const ty = m.y - (m.vy / Math.hypot(m.vx, m.vy)) * m.len;
+				const g = mctx.createLinearGradient(m.x, m.y, tx, ty);
+				g.addColorStop(0, `rgba(${pal.meteorHead},${(a * 0.95).toFixed(3)})`);
+				g.addColorStop(0.25, `rgba(${tailRgb},${(a * 0.6).toFixed(3)})`);
+				g.addColorStop(1, `rgba(${tailRgb},0)`);
+				mctx.strokeStyle = g;
+				mctx.lineWidth = 1.6;
+				mctx.lineCap = "round";
+				mctx.beginPath();
+				mctx.moveTo(m.x, m.y);
+				mctx.lineTo(tx, ty);
+				mctx.stroke();
+				// 头部星点
+				drawStar4(mctx, m.x, m.y, 2.6, a * 0.9, pal.meteorHead);
+			}
+
+			requestAnimationFrame(loop);
+		};
+		requestAnimationFrame(loop);
+	}
+</script>
