@@ -395,21 +395,24 @@ const descriptionText = description || remarkPluginFrontmatter.excerpt || "";
     transform: scale(1.03);
   }
 
-  /* 封面左缘渐变融入条目底色（去容器化）；hover 时保留 0.45 透明度，
-     让滑开的封面左缘继续柔和消融在文本之上，而不是生硬切除 */
+  /* 封面左缘沿斜角溶解进页面底色（去容器化）。
+     静止时柔化斜切角边缘；hover 时封面左半完全溶解——
+     文字层浮在已溶解的区域上，干净可读，图像向右渐渐显现，
+     像油墨在纸面上晕开，而不是被什么东西压住 */
   .post-card-image .cover-blend {
     background: linear-gradient(
       100deg,
       var(--card-bg) 0%,
-      color-mix(in srgb, var(--card-bg) 55%, transparent) 38%,
-      transparent 70%
+      color-mix(in srgb, var(--card-bg) 88%, transparent) 26%,
+      color-mix(in srgb, var(--card-bg) 45%, transparent) 42%,
+      transparent 58%
     );
-    opacity: 1;
+    opacity: 0.9;
     transition: opacity 0.35s ease-out;
   }
 
   .post-card-wrapper:hover .post-card-image .cover-blend {
-    opacity: 0.45;
+    opacity: 1;
   }
 
   /* 桌面列表模式：封面斜切 bleeding 到条目右缘 + 金色细描边 */
@@ -433,53 +436,14 @@ const descriptionText = description || remarkPluginFrontmatter.excerpt || "";
       transform: translateX(0);
     }
 
-    /* hover 时文字层提到封面之上，完整标题可读。
-       不垫实底纱幕（会产生卡片感），改用：
-       ① 沿金色分界线斜角（100deg）的低峰值渐变，只在与图像交叠的
-          中段轻轻压暗，两端全透明，没有可辨的边界；
-       ② 文字本身带卡片底色光晕（text-shadow），字形浮在图像上
-          自然可读，视觉上完全"去容器化"。 */
+    /* hover 时文字层提到封面之上（干净浮起，不加光晕、不垫纱幕），
+       可读性由封面自身的 cover-blend 溶解保证 */
     :global(.list-mode) .has-cover .post-card-content {
       position: relative;
     }
 
-    :global(.list-mode) .has-cover .post-card-content::after {
-      content: "";
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      left: -2rem;
-      right: -50%;
-      z-index: -1;
-      pointer-events: none;
-      background: linear-gradient(
-        100deg,
-        transparent 30%,
-        color-mix(in srgb, var(--card-bg) 50%, transparent) 48%,
-        color-mix(in srgb, var(--card-bg) 72%, transparent) 62%,
-        color-mix(in srgb, var(--card-bg) 45%, transparent) 76%,
-        transparent 92%
-      );
-      opacity: 0;
-      transition: opacity 0.4s ease 0.05s;
-    }
-
     :global(.list-mode) .post-card-wrapper:hover .post-card-content {
       z-index: 30;
-    }
-
-    :global(.list-mode) .post-card-wrapper:hover .post-card-content::after {
-      opacity: 1;
-    }
-
-    /* 文字光晕：只在 hover 压图时加上，离开即无（无色硬边） */
-    :global(.list-mode) .post-card-wrapper:hover .post-card-title,
-    :global(.list-mode) .post-card-wrapper:hover .post-card-content .description,
-    :global(.list-mode) .post-card-wrapper:hover .post-card-content .post-meta {
-      text-shadow:
-        0 0 10px var(--card-bg),
-        0 0 22px var(--card-bg),
-        0 1px 4px var(--card-bg);
     }
 
     /* 沿斜切缘的金色 hairline（随封面一起平移，无需自身动画） */
