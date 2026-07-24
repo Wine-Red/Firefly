@@ -29,13 +29,23 @@
 		const FINE_POINTER = window.matchMedia("(pointer: fine)");
 
 		/* ---------------- 主题色 ---------------- */
-		const palette = { gold: "#C8A45D", cream: "#F1E9D6", vermilion: "#B3392C", ink: "#101218" };
+		const palette = { gold: "#C8A45D", cream: "#F1E9D6", vermilion: "#B3392C", ink: "#101218", isDark: true };
 		function refreshPalette() {
 			const cs = getComputedStyle(document.documentElement);
 			palette.gold = cs.getPropertyValue("--gold").trim() || palette.gold;
 			palette.cream = cs.getPropertyValue("--cream").trim() || palette.cream;
 			palette.vermilion = cs.getPropertyValue("--vermilion").trim() || palette.vermilion;
+			palette.isDark = document.documentElement.classList.contains("dark");
 		}
+		/* 星点配色按模式动态切换：深色用奶油/金/朱红，
+		   浅色奶油纸底色上奶油星不可见——改为墨黑为主、金/朱红点缀 */
+		function starColors() {
+			return palette.isDark
+				? [palette.cream, palette.cream, palette.gold, palette.gold, palette.gold, palette.vermilion]
+				: [palette.ink, palette.ink, palette.ink, palette.gold, palette.vermilion, palette.ink];
+		}
+		/* 流星配色同理：浅色模式头部用墨黑 */
+		function meteorHead() { return palette.isDark ? palette.cream : palette.ink; }
 		function hexToRgba(hex: string, alpha: number) {
 			const h = hex.replace("#", "");
 			const v = h.length === 3 ? h.split("").map((c) => c + c).join("") : h;
@@ -49,7 +59,7 @@
 		});
 
 		/* ---------------- 星空 ---------------- */
-		interface Star { x: number; y: number; r: number; base: number; phase: number; speed: number; color: string; born: number }
+		interface Star { x: number; y: number; r: number; base: number; phase: number; speed: number; role: number; born: number }
 		interface Meteor { x: number; y: number; vx: number; vy: number; life: number; maxLife: number; tail: number; bright: number }
 
 		const METEOR_SLOTS = 2;
@@ -102,7 +112,7 @@
 				const maxStars = Number.parseInt(this.canvas.dataset.maxStars || "150", 10);
 				const scale = this.isMobile ? 0.55 : 1;
 				const count = Math.max(10, Math.min(Math.round(this.w * this.h * density * scale), maxStars));
-				const colors = [palette.cream, palette.cream, palette.gold, palette.gold, palette.gold, palette.vermilion];
+				const roles = starColors().length;
 				this.stars = [];
 				for (let i = 0; i < count; i++) {
 					this.stars.push({
@@ -112,7 +122,7 @@
 						base: 0.25 + Math.random() * 0.55,
 						phase: Math.random() * Math.PI * 2,
 						speed: 0.0006 + Math.random() * 0.0016,
-						color: colors[Math.floor(Math.random() * colors.length)],
+						role: Math.floor(Math.random() * roles), // 配色角色，绘制时按当前模式取色
 						born: this.birth + Math.random() * 1600,
 					});
 				}
@@ -136,7 +146,7 @@
 					const fadeIn = forceFull ? 1 : Math.min(1, Math.max(0, (t - s.born) / 1200));
 					if (fadeIn <= 0) continue;
 					const tw = forceFull ? 1 : 0.55 + 0.45 * Math.sin(t * s.speed + s.phase);
-					ctx.fillStyle = hexToRgba(s.color, s.base * tw * fadeIn);
+					ctx.fillStyle = hexToRgba(starColors()[s.role], s.base * tw * fadeIn);
 					ctx.beginPath();
 					ctx.arc(s.x + drift * 0.35, s.y - drift, s.r, 0, Math.PI * 2);
 					ctx.fill();
@@ -166,8 +176,8 @@
 							const progress = m.life / m.maxLife;
 							const alpha = (progress < 0.2 ? progress / 0.2 : 1 - (progress - 0.2) / 0.8) * m.bright;
 							const grad = ctx.createLinearGradient(m.x, m.y, m.x - m.vx * m.tail, m.y - m.vy * m.tail);
-							grad.addColorStop(0, hexToRgba(palette.cream, Math.max(0, alpha * 0.85)));
-							grad.addColorStop(1, hexToRgba(palette.gold, 0));
+							grad.addColorStop(0, hexToRgba(meteorHead(), Math.max(0, alpha * 0.85)));
+							grad.addColorStop(1, hexToRgba(palette.isDark ? palette.gold : palette.ink, 0));
 							ctx.strokeStyle = grad;
 							ctx.lineWidth = 1.2;
 							ctx.beginPath();
