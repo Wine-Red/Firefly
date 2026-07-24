@@ -35,21 +35,216 @@ const { class: className, style } = Astro.props;
         </div>
     </div>
 
-    <!-- 动态风景图区 -->
-    <div class="w-full h-36 relative overflow-hidden time-image-container">
-        <div class="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 opacity-0 time-image"></div>
-        <!-- 叠加一层极淡的渐变让图片与卡片底部融合得更好 -->
-        <div class="absolute inset-0 bg-gradient-to-t from-(--card-bg) via-transparent to-transparent opacity-60"></div>
+    <!-- NASA 每日星空图区：构成主义处理 -->
+    <div class="apod-frame mx-5 mb-5 mt-1">
+        <!-- 金线描边外框（偏移构成感） -->
+        <div class="apod-frame-line" aria-hidden="true"></div>
+        <div class="apod-clip relative h-36 overflow-hidden time-image-container">
+            <div class="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 opacity-0 time-image"></div>
+            <!-- 渐变融合层：顶部与卡片底色衔接，底部压暗托出文字 -->
+            <div class="absolute inset-0 apod-veil" aria-hidden="true"></div>
+            <!-- 金线扫过（hover） -->
+            <div class="apod-sweep" aria-hidden="true"></div>
+            <!-- 顶部标注 -->
+            <div class="apod-label-top" aria-hidden="true">
+                <span class="apod-star">✦</span>
+                <span class="apod-label-text">NASA · APOD</span>
+                <span class="apod-label-date apod-date">—</span>
+            </div>
+            <!-- 底部标题条 -->
+            <div class="apod-caption">
+                <span class="apod-caption-bar" aria-hidden="true"></span>
+                <span class="apod-caption-text apod-title">Astronomy Picture of the Day</span>
+            </div>
+            <!-- 右下角构成主义色票 -->
+            <div class="apod-swatch" aria-hidden="true"></div>
+        </div>
     </div>
 </div>
+
+<style>
+    /* —— NASA APOD 构成主义图区 —— */
+    .apod-frame {
+        position: relative;
+    }
+    /* 偏移金线外框：直角细金线，构成主义错位感 */
+    .apod-frame-line {
+        position: absolute;
+        inset: 0;
+        transform: translate(5px, 5px);
+        border: 1px solid color-mix(in srgb, var(--primary) 55%, transparent);
+        pointer-events: none;
+        z-index: 0;
+    }
+    .apod-clip {
+        z-index: 1;
+        background: color-mix(in srgb, var(--primary) 6%, transparent);
+        /* 斜切右上角，呼应构成主义几何 */
+        clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%);
+        transition: clip-path 0.4s ease;
+    }
+    .apod-clip .time-image {
+        transition: opacity 1s ease, transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .apod-frame:hover .time-image {
+        transform: scale(1.045);
+    }
+    /* 融合渐变：顶部融进卡片底色，底部暗色托字 */
+    .apod-veil {
+        background:
+            linear-gradient(to bottom,
+                var(--card-bg) 0%,
+                transparent 26%),
+            linear-gradient(to top,
+                rgba(10, 10, 14, 0.72) 0%,
+                rgba(10, 10, 14, 0.28) 34%,
+                transparent 58%);
+    }
+    /* hover 金线扫过 */
+    .apod-sweep {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 1px;
+        left: -2px;
+        background: linear-gradient(to bottom, transparent, var(--primary), transparent);
+        opacity: 0;
+        pointer-events: none;
+    }
+    .apod-frame:hover .apod-sweep {
+        animation: apod-sweep 1.1s ease forwards;
+    }
+    @keyframes apod-sweep {
+        0%   { left: -2px; opacity: 0; }
+        15%  { opacity: 0.9; }
+        85%  { opacity: 0.9; }
+        100% { left: calc(100% + 2px); opacity: 0; }
+    }
+    /* 顶部标注：宽字距小字 */
+    .apod-label-top {
+        position: absolute;
+        top: 0.55rem;
+        left: 0.7rem;
+        right: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+        color: #f3ead8;
+        opacity: 0.92;
+        pointer-events: none;
+    }
+    .apod-star {
+        font-size: 0.6rem;
+        color: var(--primary);
+        line-height: 1;
+    }
+    .apod-label-text {
+        font-size: 0.6rem;
+        font-weight: 700;
+        letter-spacing: 0.32em;
+        text-transform: uppercase;
+    }
+    .apod-label-date {
+        margin-left: auto;
+        font-size: 0.6rem;
+        letter-spacing: 0.2em;
+        opacity: 0.75;
+        font-variant-numeric: tabular-nums;
+    }
+    /* 底部标题条：朱红色块 + 宽字距标题 */
+    .apod-caption {
+        position: absolute;
+        left: 0.7rem;
+        right: 0.7rem;
+        bottom: 0.6rem;
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+        pointer-events: none;
+    }
+    .apod-caption-bar {
+        flex: none;
+        width: 3px;
+        height: 1.5rem;
+        background: var(--primary);
+    }
+    .apod-caption-text {
+        color: #f3ead8;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        line-height: 1.35;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
+    }
+    /* 右下角构成主义色票：哑光金 + 朱红叠块 */
+    .apod-swatch {
+        position: absolute;
+        right: 0.65rem;
+        top: 0.55rem;
+        width: 9px;
+        height: 9px;
+        background: var(--primary);
+        pointer-events: none;
+    }
+    .apod-swatch::after {
+        content: "";
+        position: absolute;
+        left: -5px;
+        top: 5px;
+        width: 5px;
+        height: 5px;
+        border: 1px solid color-mix(in srgb, var(--primary) 70%, transparent);
+    }
+</style>
 
 <script is:inline>
   const weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   
-  // 在本次会话中固定一张随机图片，避免 SPA 切页时图片频繁闪烁切换
-  // 加上时间戳参数防止浏览器缓存重定向结果，确保每次打开网页都是新图
-  if (!window.timeGreetingImage) {
-      window.timeGreetingImage = `https://random-api.czl.net/pic/fj?t=${new Date().getTime()}`;
+  // —— NASA 每日星空图（APOD）数据源 ——
+  // 会话内缓存（window 级），避免 Swup 切页闪切；失败降级到随机风景图兜底
+  const NASA_API = 'https://api.t1qq.com/api/v1/tool/nasasky';
+  const NASA_KEY = 'xva4fsjlXbw7HXCeWJKonUyEtk';
+  const FALLBACK_IMG = `https://random-api.czl.net/pic/fj?t=${new Date().getTime()}`;
+
+  function todayKey() {
+    const n = new Date();
+    return `${n.getFullYear()}${(n.getMonth() + 1).toString().padStart(2, '0')}${n.getDate().toString().padStart(2, '0')}`;
+  }
+
+  function getApodData() {
+    const key = todayKey();
+    if (window.nasaApodData && window.nasaApodData.date === key) {
+      return Promise.resolve(window.nasaApodData);
+    }
+    if (window.nasaApodPromise) return window.nasaApodPromise;
+    window.nasaApodPromise = fetch(`${NASA_API}?key=${NASA_KEY}&date=${key}`)
+      .then(r => r.json())
+      .then(d => {
+        if (d && d.code === 200 && d.media_url && d.media_type === 'image') {
+          // 取 Explanation: 之后的首句作为标题
+          let caption = '';
+          const m = /Explanation:\s*(.+)/s.exec(d.explanation || '');
+          if (m) {
+            const specific = m[1].replace(/\s+/g, ' ').trim();
+            const sent = specific.split(/(?<=[.!?])\s/)[0] || specific;
+            caption = sent.length > 140 ? sent.slice(0, 140).trim() + '…' : sent;
+          }
+          window.nasaApodData = { date: key, img: d.media_url, caption, source: 'apod' };
+        } else {
+          window.nasaApodData = { date: key, img: FALLBACK_IMG, caption: '', source: 'fallback' };
+        }
+        return window.nasaApodData;
+      })
+      .catch(() => {
+        window.nasaApodData = { date: key, img: FALLBACK_IMG, caption: '', source: 'fallback' };
+        return window.nasaApodData;
+      })
+      .finally(() => { window.nasaApodPromise = null; });
+    return window.nasaApodPromise;
   }
 
   function updateTimeGreeting() {
@@ -116,16 +311,28 @@ const { class: className, style } = Astro.props;
         });
     });
 
-    // 更新背景图片
+    // 更新星空图（会话内已应用则直接复用，避免闪烁）
     imageContainers.forEach(el => {
         if (el.getAttribute('data-image-set') !== 'true') {
-            el.style.backgroundImage = `url('${window.timeGreetingImage}')`;
-            el.setAttribute('data-image-set', 'true');
-            // 简单的淡入效果
-            setTimeout(() => {
-                el.classList.remove('opacity-0');
-                el.classList.add('opacity-100');
-            }, 50);
+            getApodData().then(apod => {
+                // 若其他实例已先写入，则以缓存为准保持全页一致
+                el.style.backgroundImage = `url('${apod.img}')`;
+                el.setAttribute('data-image-set', 'true');
+                const scope = el.closest('#time-greeting') || document;
+                const titleEl = scope.querySelector('.apod-title');
+                if (titleEl && apod.caption) titleEl.textContent = apod.caption;
+                const dateEl = scope.querySelector('.apod-date');
+                if (dateEl) {
+                    dateEl.textContent = apod.source === 'apod'
+                        ? `${apod.date.slice(0, 4)}.${apod.date.slice(4, 6)}.${apod.date.slice(6, 8)}`
+                        : 'DAILY VIEW';
+                }
+                // 简单的淡入效果
+                setTimeout(() => {
+                    el.classList.remove('opacity-0');
+                    el.classList.add('opacity-100');
+                }, 50);
+            });
         }
     });
   }

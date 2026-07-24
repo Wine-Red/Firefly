@@ -295,7 +295,9 @@ const descriptionText = description || remarkPluginFrontmatter.excerpt || "";
       top: 0 !important;
       bottom: 0 !important;
       right: 0 !important;
-      width: var(--coverWidth) !important;
+      /* 封面元素加宽到 1.6 倍，静止时左缘斜切遮住多余部分，
+         hover 时斜切缘横扫露出完整封面 */
+      width: calc(var(--coverWidth) * 1.6) !important;
       border-radius: 0 !important;
     }
 
@@ -404,24 +406,31 @@ const descriptionText = description || remarkPluginFrontmatter.excerpt || "";
       transparent 70%
     );
     opacity: 1;
+    transition: opacity 0.35s ease-out;
   }
 
   .post-card-wrapper:hover .post-card-image .cover-blend {
-    opacity: 0.25;
+    opacity: 0;
   }
 
   /* 桌面列表模式：封面斜切 bleeding 到条目右缘 + 金色细描边 */
+  /* 封面元素宽 1.6×coverWidth，静止时左缘斜切（上 45% / 下 37.5%）只露出右段；
+     hover 时金色分界线携封面迅速向左横扫——上端点 45%→2%（移动 43），
+     下端点 37.5%→30%（移动 7.5），像一扇绕底部虚拟支点被推开的斜门，
+     封面从文字上方盖过（z-index 25） */
   @media (min-width: 768px) {
     :global(.list-mode) .post-card-image {
-      clip-path: polygon(12% 0, 100% 0, 100% 100%, 0 100%) !important;
-      transition: clip-path 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+      z-index: 25;
+      clip-path: polygon(45% 0, 100% 0, 100% 100%, 37.5% 100%) !important;
+      transition: clip-path 0.42s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      will-change: clip-path;
     }
 
     :global(.list-mode) .post-card-wrapper:hover .post-card-image {
-      clip-path: polygon(6% 0, 100% 0, 100% 100%, 0 100%) !important;
+      clip-path: polygon(2% 0, 100% 0, 100% 100%, 30% 100%) !important;
     }
 
-    /* 沿斜切缘的金色 hairline（与封面同步斜切的窄条） */
+    /* 沿斜切缘的金色 hairline（与封面同步横扫的窄条） */
     :global(.list-mode) .post-card-image::before {
       content: "";
       position: absolute;
@@ -433,12 +442,44 @@ const descriptionText = description || remarkPluginFrontmatter.excerpt || "";
         var(--gold) 0%,
         color-mix(in srgb, var(--gold) 55%, transparent) 100%
       );
-      clip-path: polygon(12% 0, calc(12% + 1.5px) 0, 1.5px 100%, 0 100%);
-      transition: clip-path 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      clip-path: polygon(45% 0, calc(45% + 1.5px) 0, calc(37.5% + 1.5px) 100%, 37.5% 100%);
+      transition: clip-path 0.42s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     :global(.list-mode) .post-card-wrapper:hover .post-card-image::before {
-      clip-path: polygon(6% 0, calc(6% + 1.5px) 0, 1.5px 100%, 0 100%);
+      clip-path: polygon(
+        2% 0,
+        calc(2% + 1.5px) 0,
+        calc(30% + 1.5px) 100%,
+        30% 100%
+      );
+    }
+  }
+
+  /* prefers-reduced-motion：静态，不横扫 */
+  @media (min-width: 768px) and (prefers-reduced-motion: reduce) {
+    :global(.list-mode) .post-card-image,
+    :global(.list-mode) .post-card-wrapper:hover .post-card-image {
+      clip-path: polygon(45% 0, 100% 0, 100% 100%, 37.5% 100%) !important;
+      transition: none !important;
+    }
+
+    :global(.list-mode) .post-card-image::before,
+    :global(.list-mode) .post-card-wrapper:hover .post-card-image::before {
+      clip-path: polygon(45% 0, calc(45% + 1.5px) 0, calc(37.5% + 1.5px) 100%, 37.5% 100%);
+      transition: none;
+    }
+
+    .post-card-image .cover-blend,
+    .post-card-wrapper:hover .post-card-image .cover-blend {
+      opacity: 1;
+      transition: none;
+    }
+
+    .post-card-title,
+    .post-card-wrapper:hover .post-card-title {
+      transform: none;
+      transition: color 0.3s ease !important;
     }
   }
 </style>
