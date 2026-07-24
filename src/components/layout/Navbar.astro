@@ -412,27 +412,66 @@ function navScrollToMain() {
     target.scrollIntoView({ behavior: navPrefersReducedMotion() ? 'auto' : 'smooth', block: 'start' });
 }
 
-function applyPendingNavScroll() {
-    const pending = sessionStorage.getItem(NAV_SCROLL_FLAG);
-    if (!pending || !isOnNavHome()) return;
-    sessionStorage.removeItem(NAV_SCROLL_FLAG);
-    const isSettled = () => {
-        if (pending === 'top') return (window.pageYOffset || document.documentElement.scrollTop) < 2;
-        const target = document.getElementById('swup-container') || document.getElementById('content-wrapper');
-        return target ? Math.abs(target.getBoundingClientRect().top) < 8 : true;
-    };
-    // Swup / 浏览器原生锚点跳转可能在加载后重置滚动位置，
-    // 在最长 2 秒的窗口内轮询滚动，直到目标就位
-    let attempts = 0;
-    const tick = () => {
-        if (pending === 'main') navScrollToMain();
-        else navScrollToTop();
-        attempts += 1;
-        if (attempts < 8 && !isSettled()) {
-            setTimeout(tick, 250);
+// 跨页竞态修复（v6）：
+// 旧实现 applyPendingNavScroll 在事件触发瞬间判断 isOnNavHome()，
+// Swup 下 astro:page-load / contentReplaced 触发时 location.pathname 可能尚未更新，
+// 导致提前 return 且标记永远不被消费。现改为：
+// - 触发时只"启动 watcher"，不在事件瞬间做 pathname 判断；
+// - watcher 轮询读取当前 location（最长 5 秒），确认到达首页后才消费标记并滚动；
+// - 滚动落位同样轮询确认（Swup / 原生锚点可能重置滚动位置）；
+// - watcher 幂等，重复触发不会叠加定时器。
+let navScrollWatcherRunning = false;
+
+function runNavScrollWatcher() {
+    if (navScrollWatcherRunning) return;
+    if (!sessionStorage.getItem(NAV_SCROLL_FLAG)) return;
+    navScrollWatcherRunning = true;
+
+    const startedAt = Date.now();
+    const waitForHome = () => {
+        const pending = sessionStorage.getItem(NAV_SCROLL_FLAG);
+        if (!pending) {
+            navScrollWatcherRunning = false;
+            return;
         }
+        if (!isOnNavHome()) {
+            // 尚未到达首页（pathname 未更新 / 仍在旧页），继续等待
+            const elapsed = Date.now() - startedAt;
+            if (elapsed > 2500) {
+                // 导航兜底：swup.navigate 偶发静默失效（实测其 SwupScriptsPlugin
+                // 在首页抛未捕获异常），超时后强制整页跳转，确保可靠到达
+                const homePath = getNavHomePath();
+                window.location.href = pending === 'main' ? homePath + '#swup-container' : homePath;
+                navScrollWatcherRunning = false;
+                return;
+            }
+            setTimeout(waitForHome, 100);
+            return;
+        }
+        // 已到首页：消费标记并滚动落位
+        sessionStorage.removeItem(NAV_SCROLL_FLAG);
+        navScrollWatcherRunning = false;
+        const isSettled = () => {
+            if (pending === 'top') return (window.pageYOffset || document.documentElement.scrollTop) < 2;
+            const target = document.getElementById('swup-container') || document.getElementById('content-wrapper');
+            return target ? Math.abs(target.getBoundingClientRect().top) < 8 : true;
+        };
+        let attempts = 0;
+        const tick = () => {
+            if (pending === 'main') navScrollToMain();
+            else navScrollToTop();
+            attempts += 1;
+            if (attempts < 10 && !isSettled()) {
+                setTimeout(tick, 250);
+            }
+        };
+        tick();
     };
-    tick();
+    waitForHome();
+}
+
+function applyPendingNavScroll() {
+    runNavScrollWatcher();
 }
 
 function initNavScrollBehavior() {
@@ -493,11 +532,18 @@ function initNavScrollBehavior() {
 }
 
 document.addEventListener('swup:contentReplaced', applyPendingNavScroll);
+document.addEventListener('swup:page:view', applyPendingNavScroll);
+document.addEventListener('astro:page-load', applyPendingNavScroll);
 document.addEventListener('astro:page-load', initNavScrollBehavior);
+window.addEventListener('load', applyPendingNavScroll);
+// 短定时器兜底：事件全部错过时也能消费标记
+setTimeout(applyPendingNavScroll, 600);
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initNavScrollBehavior);
+    document.addEventListener('DOMContentLoaded', applyPendingNavScroll);
 } else {
     initNavScrollBehavior();
+    applyPendingNavScroll();
 }
 
 

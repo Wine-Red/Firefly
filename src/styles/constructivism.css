@@ -195,9 +195,10 @@ body::after {
     aspect-ratio: 1;
     z-index: 3;
     transform-origin: 50% 50%;
-    /* 防闪现：JS 单摆起摆时才置 1（摆到屏外位后现身），
-       reduced-motion 由克制章节 !important 兜底，no-JS 由 noscript 兜底 */
-    opacity: 0;
+    /* 防单摆闪现的 opacity:0 由元素 inline style 携带（SSR 直出、
+       swup 注入都安全），JS 起摆/编舞时覆写；reduced-motion 由
+       克制章节 !important 兜底。勿在本规则恢复 opacity:0——
+       更不要用 <noscript><style>（swup DOMParser 会把它变成活规则） */
 }
 
 /* 大气辉光：让月亮"挂在天上"而非"贴在屏幕上" */

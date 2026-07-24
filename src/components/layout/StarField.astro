@@ -290,6 +290,7 @@
 		let moonEl: HTMLElement | null = null;
 		let sSmooth = -1;
 		let lastWritten = -1;
+		let frameCount = 0; // 主循环帧计数（调试探针用）
 
 		function scanChoreo() {
 			driftLayers = [];
@@ -331,7 +332,9 @@
 					const fall = acc * vh * 0.85;
 					const driftX = -acc * vh * 0.42;
 					const rot = p * 34;
-					const fade = moonFadeAt(sS, vh);
+					// opacity 用原始滚动值 s（非平滑值 sS）：任何滚动路径下
+					// 淡出都即时跟随真实位置，不被 lerp/互斥状态拖延
+					const fade = moonFadeAt(s, vh);
 					// 悬挂时的呼吸微摆（随坠落渐隐）
 					const sway = Math.sin(t * 0.0008) * 0.6 * fade;
 					moonEl.style.transform =
@@ -370,6 +373,7 @@
 		if (!REDUCED.matches) {
 			let lastT = 0;
 			const loop = (t: number) => {
+				frameCount++;
 				const dt = Math.min((t - lastT) / 1000, 0.032);
 				lastT = t;
 				if (!document.hidden) {
@@ -481,6 +485,47 @@
 			rescan();
 		});
 		document.addEventListener("swup:contentReplaced", () => setTimeout(rescan, 50));
+
+		/* ---------------- 滚动事件安全网 ----------------
+		   主循环之外的最后保险：任何 scroll 事件都在下一帧把月亮
+		   opacity 钉到 moonFadeAt(原始滚动值)。与主循环写入的公式
+		   完全一致（两源恒等不打架），即使 lerp/互斥/重扫时机在某条
+		   路径上失效（如跨页回首页后的轮询平滑滚动），淡出也不会卡住。 */
+		let scrollNetRaf = 0;
+		document.addEventListener(
+			"scroll",
+			() => {
+				if (scrollNetRaf) return;
+				scrollNetRaf = requestAnimationFrame(() => {
+					scrollNetRaf = 0;
+					if (REDUCED.matches) return;
+					// 不依赖 moonEl 引用（重扫可能未发生）：直接查当前 DOM
+					const cached = moonEl;
+					const moon = cached && cached.isConnected
+						? cached
+						: document.querySelector<HTMLElement>("[data-ch3-moon]");
+					if (!moon) return;
+					moon.style.opacity = moonFadeAt(window.scrollY || 0, window.innerHeight || 1).toFixed(3);
+				});
+			},
+			{ passive: true },
+		);
+
+		// 调试探针：跨页路径下诊断编舞器状态（只读，无副作用）
+		(window as any).__ch2Debug = () => {
+			const moon = document.querySelector<HTMLElement>("[data-ch3-moon]");
+			return {
+				frames: frameCount,
+				pendulumActive: !!pendulum,
+				moonElConnected: !!moonEl?.isConnected,
+				moonElIsCurrent: !!moonEl && moonEl === moon,
+				sSmooth: Math.round(sSmooth * 10) / 10,
+				lastWritten: Math.round(lastWritten * 10) / 10,
+				scrollY: Math.round(window.scrollY || 0),
+				moonInline: moon ? moon.style.cssText : null,
+				moonComputedOpacity: moon ? getComputedStyle(moon).opacity : null,
+			};
+		};
 
 		(window as any).__ch2Motion = true;
 	})();

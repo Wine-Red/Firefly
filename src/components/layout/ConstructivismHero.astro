@@ -21,9 +21,6 @@ const titleChars = [...heroTitle];
 ---
 
 <section class="ch3-hero" aria-label={siteConfig.title} data-ch3-hero>
-	<!-- no-JS 兜底：CSS 默认隐藏月亮防单摆闪现，无脚本时强制现身 -->
-	<noscript><style>.ch3-moon { opacity: 1 !important; }</style></noscript>
-
 	<!-- 首屏加密星空（全局星空之上再叠一层；data-scroll-rate 为视差速率：
 	     负值 = 向下补偿（绝对定位层滞后于文档），本层表观 0.6×） -->
 	<canvas
@@ -72,9 +69,13 @@ const titleChars = [...heroTitle];
 		</div>
 
 		<!-- 月亮（深色）/ 日蚀（浅色）：同一位置、同一编舞的主角。
-		     入场由 JS 单摆驱动（见 StarField 管理器）；
-		     CSS 默认 opacity:0 防闪现，no-JS 时由 noscript 兜底现身 -->
-		<div class="ch3-layer ch3-moon" data-ch3-moon aria-hidden="true">
+		     入场由 JS 单摆驱动（见 StarField 管理器）。
+		     防闪现：inline opacity:0 随 SSR 直出，JS 起摆/编舞时覆写；
+		     注意不可用 <noscript><style> 做 no-JS 兜底——Swup 用
+		     DOMParser 替换内容时 noscript 会被当作可解析标记，
+		     内层 style 泄漏为全局活规则（!important 压过 inline），
+		     曾导致跨页回首页后月亮 opacity 永久卡 1。 -->
+		<div class="ch3-layer ch3-moon" data-ch3-moon style="opacity: 0" aria-hidden="true">
 			<img
 				class="ch3-moon-art ch3-moon-for-dark"
 				src="/constructivism/moon.webp"

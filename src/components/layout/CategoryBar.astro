@@ -500,55 +500,174 @@ const archiveUrl = url("/archive/");
     document.addEventListener("swup:enable", setupSwupEarlyUpdate);
   }
 
-  // AI 过滤逻辑
+  // AI 过滤逻辑（原地过滤，不再跳转 /original/）
+  const AI_FILTER_STATE_KEY = "aiFilterInPlace";
+  // 跨 Swup 导航缓存原创列表 HTML（原创文章少，/original/ 第一页即可覆盖）
+  let cachedOriginalListHTML: string | null = null;
+  let originalListFetchPromise: Promise<string | null> | null = null;
+  // 进入过滤态前备份当前页完整列表，退出时恢复
+  let fullListBackupHTML: string | null = null;
+
+  function isAIFilterActive() {
+    try {
+      return sessionStorage.getItem(AI_FILTER_STATE_KEY) === "1";
+    } catch {
+      return false;
+    }
+  }
+
+  function setAIFilterActive(active: boolean) {
+    try {
+      if (active) {
+        sessionStorage.setItem(AI_FILTER_STATE_KEY, "1");
+      } else {
+        sessionStorage.removeItem(AI_FILTER_STATE_KEY);
+      }
+    } catch {
+      /* sessionStorage 不可用时静默降级 */
+    }
+  }
+
+  function updateAIFilterButton(btn: HTMLElement, filtered: boolean) {
+    if (filtered) {
+      btn.setAttribute("data-active", "");
+      btn.setAttribute("title", "显示全部文章");
+    } else {
+      btn.removeAttribute("data-active");
+      btn.setAttribute("title", "隐藏 AI 生成的文章");
+    }
+  }
+
+  async function fetchOriginalListHTML(originalPath: string): Promise<string | null> {
+    if (cachedOriginalListHTML) return cachedOriginalListHTML;
+    if (!originalListFetchPromise) {
+      originalListFetchPromise = (async () => {
+        try {
+          const res = await fetch(originalPath, { credentials: "same-origin" });
+          if (!res.ok) return null;
+          const doc = new DOMParser().parseFromString(await res.text(), "text/html");
+          const src = doc.getElementById("post-list-container");
+          if (!src || !src.innerHTML.trim()) return null;
+          cachedOriginalListHTML = src.innerHTML;
+          return cachedOriginalListHTML;
+        } catch {
+          return null;
+        }
+      })();
+    }
+    return originalListFetchPromise;
+  }
+
+  // 过滤态下隐藏分页器（原创列表很短，无需分页）
+  function setPaginationHidden(hidden: boolean) {
+    document
+      .querySelectorAll<HTMLElement>('[role="navigation"]')
+      .forEach((nav) => {
+        const wrapper = nav.parentElement;
+        if (wrapper && wrapper.id !== "post-list-container") {
+          wrapper.style.display = hidden ? "none" : "";
+        }
+      });
+  }
+
+  // 带淡入淡出的列表内容替换，与全站动效保持一致
+  function swapPostList(container: HTMLElement, html: string) {
+    container.style.opacity = "0";
+    window.setTimeout(() => {
+      container.innerHTML = html;
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          container.style.opacity = "1";
+        });
+      });
+    }, 220);
+  }
+
+  async function applyInPlaceAIFilter(bar: HTMLElement, btn: HTMLElement) {
+    const container = document.getElementById("post-list-container");
+    if (!container) return;
+    const originalPath = bar.getAttribute("data-original-path") || "/original/";
+    const originalHTML = await fetchOriginalListHTML(originalPath);
+    if (!originalHTML || !isAIFilterActive()) return;
+    // 每次都基于当前 DOM 备份，Swup 换页后恢复的是当前页列表
+    fullListBackupHTML = container.innerHTML;
+    swapPostList(container, originalHTML);
+    setPaginationHidden(true);
+    updateAIFilterButton(btn, true);
+  }
+
+  function removeInPlaceAIFilter(btn: HTMLElement) {
+    const container = document.getElementById("post-list-container");
+    if (container && fullListBackupHTML) {
+      swapPostList(container, fullListBackupHTML);
+      fullListBackupHTML = null;
+    }
+    setPaginationHidden(false);
+    updateAIFilterButton(btn, false);
+  }
+
   function initAIFilter() {
     const btn = document.getElementById("ai-filter-btn");
     const wrap = document.getElementById("ai-filter-wrap");
     if (!btn || !wrap) return;
-    
+
     const bar = document.getElementById("category-bar");
     if (!bar) return;
 
     // 首页和原创文章列表共享这组控制项。
     const { isHome, isOriginal } = getCategoryBarState(bar, new URL(window.location.href));
-    
+
     if (!isHome && !isOriginal) {
       wrap.classList.add("hide-filter");
     } else {
       wrap.classList.remove("hide-filter");
     }
 
-    function updateFilterState(filtered: boolean) {
-      if (filtered) {
-        btn?.setAttribute("data-active", "");
-        btn?.setAttribute("title", "显示全部文章");
-      } else {
-        btn?.removeAttribute("data-active");
-        btn?.setAttribute("title", "隐藏 AI 生成的文章");
-      }
-    }
-
-    // 清除旧版 CSS 过滤留下的偏好，改用独立的可分页原创列表。
+    // 清除旧版 CSS 过滤留下的偏好，改用首页原地过滤。
     localStorage.removeItem("filterAI");
     document.documentElement.classList.remove("filter-ai");
     document.body.classList.remove("filter-ai");
-    updateFilterState(isOriginal);
+
+    if (isOriginal) {
+      // 直链 /original/ 仍是完整的原创列表视图
+      updateAIFilterButton(btn, true);
+    } else if (isHome && isAIFilterActive()) {
+      // 刷新 / Swup 回到首页时保持过滤态
+      applyInPlaceAIFilter(bar, btn);
+    } else {
+      updateAIFilterButton(btn, false);
+    }
 
     if (btn.dataset.bound === "true") return;
     btn.dataset.bound = "true";
 
     btn.addEventListener("click", () => {
-      const currentState = getCategoryBarState(bar, new URL(window.location.href));
-      const destination = currentState.isOriginal
-        ? bar.getAttribute("data-home-path") || "/"
-        : bar.getAttribute("data-original-path") || "/original/";
+      const currentBar = document.getElementById("category-bar");
+      const currentBtn = document.getElementById("ai-filter-btn");
+      if (!currentBar || !currentBtn) return;
+      const currentState = getCategoryBarState(currentBar, new URL(window.location.href));
 
-      if (window.swup?.navigate) {
-				window.swup.navigate(destination, {
-					meta: { preserveCategoryScroll: true },
-				});
+      // 在 /original/ 直链页上，点击回到首页（保留原直达行为）
+      if (currentState.isOriginal) {
+        const destination = currentBar.getAttribute("data-home-path") || "/";
+        if (window.swup?.navigate) {
+          window.swup.navigate(destination, {
+            meta: { preserveCategoryScroll: true },
+          });
+        } else {
+          window.location.assign(destination);
+        }
+        return;
+      }
+
+      if (!currentState.isHome) return;
+
+      const nextActive = !isAIFilterActive();
+      setAIFilterActive(nextActive);
+      if (nextActive) {
+        applyInPlaceAIFilter(currentBar, currentBtn);
       } else {
-        window.location.assign(destination);
+        removeInPlaceAIFilter(currentBtn);
       }
     });
   }

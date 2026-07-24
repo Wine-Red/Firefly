@@ -159,8 +159,7 @@ const weeks = buildWeeks(calendarData.days);
 <WidgetLayout id="github-heatmap" class={`${className} !overflow-visible`} style={style}>
 	{
 		githubUsername ? (
-			calendarData.days.length > 0 ? (
-				<div class="github-calendar-shell" style={`--week-count: ${weeks.length};`}>
+				<div class="github-calendar-shell" data-username={githubUsername} style={`--week-count: ${weeks.length};`}>
 					<div class="flex items-center justify-between mb-2 text-xs text-neutral-600 dark:text-neutral-400">
 						<a
 							href={githubProfileUrl}
@@ -172,7 +171,7 @@ const weeks = buildWeeks(calendarData.days);
 							<Icon name="fa7-brands:github" class="text-sm" />
 							<span>GitHub</span>
 						</a>
-						<span class="font-mono text-[0.7rem] opacity-80">
+						<span class="github-calendar-badge font-mono text-[0.7rem] opacity-80">
 							{calendarData.activeDays}/{HEATMAP_DAYS}d
 						</span>
 					</div>
@@ -183,7 +182,7 @@ const weeks = buildWeeks(calendarData.days);
 						aria-label={`${githubUsername} 的 GitHub 近 ${HEATMAP_DAYS} 天提交日历`}
 					>
 						{
-							weeks.map((week) => (
+							weeks.length > 0 && weeks.map((week) => (
 								<div class="github-calendar-week" role="row">
 									{
 										week.map((day) =>
@@ -210,12 +209,12 @@ const weeks = buildWeeks(calendarData.days);
 							))
 						}
 					</div>
+					{calendarData.days.length === 0 && (
+						<div class="github-calendar-fallback rounded-2xl border border-dashed border-black/10 px-4 py-6 text-sm text-neutral-500 dark:border-white/10 dark:text-neutral-400">
+							正在加载 GitHub 提交数据…
+						</div>
+					)}
 				</div>
-			) : (
-				<div class="rounded-2xl border border-dashed border-black/10 px-4 py-6 text-sm text-neutral-500 dark:border-white/10 dark:text-neutral-400">
-					暂时未获取到 GitHub 提交数据。
-				</div>
-			)
 		) : (
 			<div class="rounded-2xl border border-dashed border-black/10 px-4 py-6 text-sm text-neutral-500 dark:border-white/10 dark:text-neutral-400">
 				请先在个人资料链接中配置 GitHub 主页地址。
@@ -223,6 +222,121 @@ const weeks = buildWeeks(calendarData.days);
 		)
 	}
 </WidgetLayout>
+
+<script>
+	// 运行时刷新：静态站点的构建时数据会冻结在构建日期，
+	// 导致"最近贡献检测不到"。这里在浏览器端重新拉取最近 100 天数据并重绘格子。
+	(() => {
+		const HEATMAP_DAYS = 100;
+		const shell = document.querySelector(
+			"#github-heatmap .github-calendar-shell",
+		);
+		if (!(shell instanceof HTMLElement)) return;
+		const username = shell.dataset.username;
+		if (!username) return;
+
+		const MS_DAY = 86400000;
+		const pad = (n) => String(n).padStart(2, "0");
+		const fmt = (d) =>
+			`${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}`;
+		const todayUTC = () => {
+			const now = new Date();
+			return new Date(
+				Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
+			);
+		};
+		const tooltipDate = (dateStr) => {
+			const d = new Date(`${dateStr}T00:00:00.000Z`);
+			return `${d.getUTCMonth() + 1}月${d.getUTCDate()}日`;
+		};
+
+		async function refresh() {
+			const controller = new AbortController();
+			const timer = setTimeout(() => controller.abort(), 8000);
+			let daysData;
+			try {
+				// 加时间戳参数绕过 CDN/浏览器缓存，保证拿到最新一天
+				const res = await fetch(
+					`https://github-contributions-api.jogruber.de/v4/${username}?y=last&_=${Date.now()}`,
+					{ signal: controller.signal },
+				);
+				if (!res.ok) throw new Error(String(res.status));
+				const data = await res.json();
+				daysData = data.contributions || [];
+			} catch {
+				// 拉取失败：保留构建时内容；若构建时也无数据，把加载提示换成失败文案
+				const fallback = shell.querySelector(".github-calendar-fallback");
+				if (fallback) fallback.textContent = "暂时未获取到 GitHub 提交数据。";
+				return;
+			} finally {
+				clearTimeout(timer);
+			}
+			if (!daysData.length) return;
+			const fallbackEl = shell.querySelector(".github-calendar-fallback");
+			if (fallbackEl) fallbackEl.remove();
+
+			const countMap = new Map();
+			for (const d of daysData) countMap.set(d.date, d);
+
+			const end = todayUTC();
+			const start = new Date(end.getTime() - (HEATMAP_DAYS - 1) * MS_DAY);
+			// 对齐到整周（周日开头）
+			const calStart = new Date(
+				start.getTime() - start.getUTCDay() * MS_DAY,
+			);
+			const calEnd = new Date(
+				end.getTime() + (6 - end.getUTCDay()) * MS_DAY,
+			);
+
+			let activeDays = 0;
+			const weeksHtml = [];
+			for (
+				let weekStart = calStart.getTime();
+				weekStart <= calEnd.getTime();
+				weekStart += 7 * MS_DAY
+			) {
+				const cells = [];
+				for (let offset = 0; offset < 7; offset++) {
+					const ts = weekStart + offset * MS_DAY;
+					if (ts < start.getTime() || ts > end.getTime()) {
+						cells.push(
+							'<span class="github-calendar-day-placeholder" aria-hidden="true"></span>',
+						);
+						continue;
+					}
+					const date = fmt(new Date(ts));
+					const found = countMap.get(date);
+					const count = found ? found.count : 0;
+					const level = found ? found.level : 0;
+					if (count > 0) activeDays++;
+					const tip =
+						count > 0
+							? `${tooltipDate(date)} · ${count} 次提交`
+							: `${tooltipDate(date)} · 无提交`;
+					cells.push(
+						`<div class="github-calendar-day-wrap"><button type="button" class="github-calendar-day github-calendar-level-${level}" aria-label="${tip}"></button><div class="github-calendar-tooltip" role="tooltip">${tip}</div></div>`,
+					);
+				}
+				weeksHtml.push(
+					`<div class="github-calendar-week" role="row">${cells.join("")}</div>`,
+				);
+			}
+
+			const grid = shell.querySelector(".github-calendar-grid");
+			if (grid) {
+				grid.innerHTML = weeksHtml.join("");
+				shell.style.setProperty(
+					"--week-count",
+					String(weeksHtml.length),
+				);
+			}
+			const badge = shell.querySelector(".github-calendar-badge");
+			if (badge) badge.textContent = `${activeDays}/${HEATMAP_DAYS}d`;
+		}
+
+		refresh();
+	})();
+</script>
 
 <style is:global>
 	#github-heatmap .github-calendar-shell {
