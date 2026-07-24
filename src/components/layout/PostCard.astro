@@ -433,10 +433,12 @@ const descriptionText = description || remarkPluginFrontmatter.excerpt || "";
       transform: translateX(0);
     }
 
-    /* hover 时文字层提到封面之上，完整标题可读；
-       文字背后垫一层左实右虚的底色纱幕（z-index -1 位于文字之下、
-       封面之上），保证压在图像上的部分仍有足够对比度——
-       构成主义海报式的「版式压图像」构图 */
+    /* hover 时文字层提到封面之上，完整标题可读。
+       不垫实底纱幕（会产生卡片感），改用：
+       ① 沿金色分界线斜角（100deg）的低峰值渐变，只在与图像交叠的
+          中段轻轻压暗，两端全透明，没有可辨的边界；
+       ② 文字本身带卡片底色光晕（text-shadow），字形浮在图像上
+          自然可读，视觉上完全"去容器化"。 */
     :global(.list-mode) .has-cover .post-card-content {
       position: relative;
     }
@@ -451,10 +453,12 @@ const descriptionText = description || remarkPluginFrontmatter.excerpt || "";
       z-index: -1;
       pointer-events: none;
       background: linear-gradient(
-        90deg,
-        var(--card-bg) 45%,
-        color-mix(in srgb, var(--card-bg) 82%, transparent) 68%,
-        transparent 88%
+        100deg,
+        transparent 30%,
+        color-mix(in srgb, var(--card-bg) 50%, transparent) 48%,
+        color-mix(in srgb, var(--card-bg) 72%, transparent) 62%,
+        color-mix(in srgb, var(--card-bg) 45%, transparent) 76%,
+        transparent 92%
       );
       opacity: 0;
       transition: opacity 0.4s ease 0.05s;
@@ -466,6 +470,16 @@ const descriptionText = description || remarkPluginFrontmatter.excerpt || "";
 
     :global(.list-mode) .post-card-wrapper:hover .post-card-content::after {
       opacity: 1;
+    }
+
+    /* 文字光晕：只在 hover 压图时加上，离开即无（无色硬边） */
+    :global(.list-mode) .post-card-wrapper:hover .post-card-title,
+    :global(.list-mode) .post-card-wrapper:hover .post-card-content .description,
+    :global(.list-mode) .post-card-wrapper:hover .post-card-content .post-meta {
+      text-shadow:
+        0 0 10px var(--card-bg),
+        0 0 22px var(--card-bg),
+        0 1px 4px var(--card-bg);
     }
 
     /* 沿斜切缘的金色 hairline（随封面一起平移，无需自身动画） */
