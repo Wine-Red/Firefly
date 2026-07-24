@@ -11,7 +11,7 @@ export const musicPlayerConfig: MusicPlayerConfig = {
 	showInNavbar: true,
 
 	// 使用方式："meting" 使用 Meting API，"local" 使用本地音乐列表
-	mode: "meting",
+	mode: "local",
 
 	// 默认音量 (0-1)
 	volume: 0.7,
@@ -50,11 +50,67 @@ export const musicPlayerConfig: MusicPlayerConfig = {
 	local: {
 		playlist: [
 			{
-				name: "使一颗心免于哀伤",
-				artist: "知更鸟 / HOYO-MiX / Chevy",
-				url: "/assets/music/使一颗心免于哀伤-哼唱.mp3",
-				cover: "/assets/music/cover/109951169585655912.webp",
+				name: "Give Up",
+				artist: "Low Roar",
+				url: "/assets/music/Low Roar - Give Up.mp3",
+				cover: "/assets/music/cover/giveup.jpg",
+				lrc: "/assets/music/lrc/Give Up - Low Roar .lrc",
+			},
+			
+			{
+				name: "君の知らない物語",
+				artist: "supercell",
+				url: "/assets/music/supercell - 君の知らない物語.mp3",
+				cover: "/assets/music/cover/物语.jpg",
+				lrc: "/assets/music/lrc/君の知らない物語 - supercell .lrc",
+			},
+			
+			{
+				name: "Wish My Life Away",
+				artist: "Kan R. Gao / Laura Shigihara",
+				url: "/assets/music/Kan R. Gao,Laura Shigihara - Wish My Life Away.mp3",
+				cover: "/assets/music/cover/wish_my_life_away.jpg",
+				lrc: "/assets/music/lrc/Wish My Life Away - Laura Shigihara .lrc",
+			},
+			
+			{
+				name: "Take on Me",
+				artist: "Ashley Johnson / Chris Rondinella / Pal Waaktaar / Morten Harket / Magne Furuholmen",
+				url: "/assets/music/Ashley Johnson&Chris Rondinella&Pal Waaktaar&Morten Harket&Magne Furuholmen - Ta.mp3",
+				cover: "/assets/music/cover/take_on_me.jpg",
+				lrc: "/assets/music/lrc/Take on Me - Ashley Johnson&Chris Rondinella&Pal Waaktaar&Morten Harket&Magne Furuholmen .lrc",
+			},
+			
+			{
+				name: "Bones",
+				artist: "Low Roar / Jófriður",
+				url: "/assets/music/Low Roar&Jófriður - Bones.mp3",
+				cover: "/assets/music/cover/giveup.jpg",
+				lrc: "/assets/music/lrc/Bones - Low Roar&Jófriður .lrc",
+			},
+			
+			{
+				name: "Don't Be So Serious",
+				artist: "Low Roar",
+				url: "/assets/music/Low Roar - Don't Be So Serious.mp3",
+				cover: "/assets/music/cover/giveup.jpg",
+				lrc: "/assets/music/lrc/Don't Be So Serious - Low Roar .lrc",
+			},
+			
+			{
+				name: "いつもの風景から始まる物語",
+				artist: "神前暁 / 髙田龍一",
+				url: "/assets/music/神前暁,髙田龍一（MONACA) - いつもの風景から始まる物語.mp3",
+				cover: "/assets/music/cover/4231583334.jpg",
 				lrc: "",
+			},
+			
+			{
+				name: "Perfect Night",
+				artist: "LE SSERAFIM",
+				url: "/assets/music/LE SSERAFIM - Perfect Night.mp3",
+				cover: "/assets/music/cover/perfect_night.jpg",
+				lrc: "/assets/music/lrc/Perfect Night - LE SSERAFIM .lrc",
 			},
 		],
 	},

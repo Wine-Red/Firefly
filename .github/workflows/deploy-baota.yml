@@ -75,6 +75,8 @@ jobs:
           pnpm cms:sync
 
       - name: Build site
+        env:
+          GITHUB_TOKEN: ${{ secrets.HEATMAP_GITHUB_TOKEN }}
         run: pnpm build:site
 
       - name: Deploy changed files to Baota Panel

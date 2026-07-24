@@ -1,0 +1,46 @@
+[vite] connected.
+06:33:46 [types] Generated 2ms
+[vite] connected.
+06:33:46 [content] Syncing content
+06:33:46 [content] Synced content
+06:33:46 [vite] Re-optimizing dependencies because vite config has changed
+ astro  v6.3.1 ready in 10244 ms
+┃ Local    http://localhost:4322/
+┃ Network  use --host to expose
+06:33:46 watching for file changes...
+06:34:30 [200] / 535ms
+[vite] program reload
+[vite] An error happened during full reload
+Failed to load url astro:server-app.js (resolved id: astro:server-app.js). Does the file exist?
+Error: Failed to load url astro:server-app.js (resolved id: astro:server-app.js). Does the file exist?
+    at loadAndTransform (file:///E:/Program/Firefly/node_modules/.pnpm/vite@7.3.3_@types+node@25.5.2_jiti@2.6.1_lightningcss@1.32.0_stylus@0.64.0_terser@5.46.0_yaml@2.8.2/node_modules/vite/dist/node/chunks/config.js:22679:33)
+06:34:48 [200] / 409ms
+06:34:54 [200] /_image/ 695ms
+06:34:54 [200] /api/allPostMeta.json 6ms
+06:34:54 [200] /_image/ 1146ms
+06:34:56 [200] /_image/ 1188ms
+06:34:57 [200] /_image/ 204ms
+06:34:58 [200] / 36ms
+06:34:58 [vite] ✨ new dependencies optimized: @swup/astro/serialise, @swup/astro/idle, @swup/astro/client/Swup, @swup/astro/client/SwupA11yPlugin, @swup/astro/client/SwupPreloadPlugin, @swup/astro/client/SwupHeadPlugin, @swup/astro/client/SwupScriptsPlugin, @fancyapps/ui
+06:34:58 [vite] ✨ optimized dependencies changed. reloading
+06:34:58 [200] / 61ms
+06:35:01 [200] /api/allPostMeta.json 5ms
+06:35:02 [200] / 142ms
+06:35:07 [200] / 37ms
+06:35:09 [200] /api/allPostMeta.json 6ms
+06:35:09 [200] / 38ms
+[vite] program reload
+06:35:58 [200] / 494ms
+06:35:59 [200] /_image/ 62ms
+06:35:59 [200] /_image/ 365ms
+06:36:00 [200] /api/allPostMeta.json 12ms
+06:36:01 [200] /_image/ 228ms
+06:36:01 [200] /_image/ 284ms
+06:36:01 [200] /_image/ 287ms
+06:36:01 [200] / 80ms
+06:36:10 [200] / 46ms
+06:36:11 [200] /api/allPostMeta.json 1ms
+06:36:11 [200] / 87ms
+06:36:22 [200] / 46ms
+06:36:23 [200] /api/allPostMeta.json 1ms
+06:36:24 [200] / 79ms

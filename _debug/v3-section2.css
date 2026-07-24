@@ -1,0 +1,460 @@
+/* --------------------------------------------------------------------------
+   2. 沉浸式首页 Hero v3 —— 分层天空（月亮、星星与构成主义）
+   页面背景即天幕；月亮/光束/竖条/刻度/文字全是独立图层，
+   滚动编舞（StarField 管理器）让它们各自运动。无任何卡片边界。
+   -------------------------------------------------------------------------- */
+
+.ch3-hero {
+    /* 主题感知：奶油纸墨字 / 夜空奶油字；光束与刻度同样反相 */
+    --ch3-fg: #16181f;
+    --ch3-sub: rgba(22, 24, 31, 0.72);
+    --ch3-beam: rgba(22, 24, 31, 0.85);
+    --ch3-tick: rgba(22, 24, 31, 0.4);
+
+    position: relative;
+    width: 100%;
+    height: calc(100svh - 4.5rem);
+    margin-top: -1rem; /* 贴合导航栏下缘 */
+    margin-bottom: 2rem;
+    perspective: 1400px;
+    pointer-events: none;
+}
+
+:root.dark .ch3-hero {
+    --ch3-fg: var(--cream);
+    --ch3-sub: rgba(241, 233, 214, 0.78);
+    --ch3-beam: rgba(241, 233, 214, 0.82);
+    --ch3-tick: rgba(241, 233, 214, 0.35);
+}
+
+/* 透视舞台：鼠标 3D 倾斜的载体 */
+.ch3-stage {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+    will-change: transform;
+}
+
+/* 图层通用：滚动编舞只碰 transform / opacity */
+.ch3-layer {
+    position: absolute;
+    pointer-events: none;
+    will-change: transform, opacity;
+}
+
+/* 首屏加密星空（全局星空之上再叠一层） */
+.ch3-stars {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+}
+
+:root:not(.dark) .ch3-stars {
+    opacity: 0.3;
+}
+
+/* 主光束：左下 → 右上，穿月而过 */
+.ch3-beam {
+    left: -12%;
+    bottom: 4%;
+    width: 135%;
+    height: 42%;
+    z-index: 2;
+}
+
+.ch3-beam-core {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 26%;
+    height: clamp(54px, 9vh, 104px);
+    background: linear-gradient(90deg, transparent 0%, var(--ch3-beam) 16%, var(--ch3-beam) 82%, transparent 100%);
+    transform: rotate(-16deg);
+    transform-origin: left center;
+    animation: ch3-beam-in 1.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.9s backwards;
+}
+
+.ch3-beam-edge {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: calc(26% + clamp(54px, 9vh, 104px) + 12px);
+    height: 1px;
+    background: linear-gradient(90deg, transparent 6%, var(--gold) 40%, var(--gold) 88%, transparent 100%);
+    transform: rotate(-16deg);
+    transform-origin: left center;
+    opacity: 0.8;
+    animation: ch3-beam-in 1.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1.05s backwards;
+}
+
+/* 刻度尺：左右缘细刻度 */
+.ch3-ruler {
+    top: 5%;
+    bottom: 12%;
+    width: 24px;
+    z-index: 2;
+    background-image: repeating-linear-gradient(to bottom,
+        var(--ch3-tick) 0,
+        var(--ch3-tick) 1px,
+        transparent 1px,
+        transparent 13px);
+    background-size: 9px 100%;
+    background-repeat: no-repeat;
+    animation: ch3-fade-in 1.1s ease-out 1.2s backwards;
+}
+
+.ch3-ruler-l { left: clamp(0.6rem, 1.6vw, 1.6rem); background-position: left center; }
+.ch3-ruler-r { right: clamp(0.6rem, 1.6vw, 1.6rem); background-position: right center; }
+
+/* 准星：月亮左下方的观测标记 */
+.ch3-cross {
+    left: 54%;
+    top: 24%;
+    width: 54px;
+    height: 54px;
+    z-index: 2;
+    border: 1px solid color-mix(in srgb, var(--gold) 55%, transparent);
+    border-radius: 50%;
+    animation: ch3-fade-in 1s ease-out 1.6s backwards;
+}
+
+.ch3-cross::before,
+.ch3-cross::after {
+    content: "";
+    position: absolute;
+    background: color-mix(in srgb, var(--gold) 75%, transparent);
+}
+
+.ch3-cross::before { left: 50%; top: -12px; bottom: -12px; width: 1px; }
+.ch3-cross::after { top: 50%; left: -12px; right: -12px; height: 1px; }
+
+/* 月亮 / 日蚀：同一位置、同一编舞的主角 */
+.ch3-moon {
+    top: 6%;
+    right: clamp(1.5rem, 6vw, 7rem);
+    width: clamp(300px, 32vw, 520px);
+    aspect-ratio: 1;
+    z-index: 3;
+    transform-origin: 50% 50%;
+}
+
+.ch3-moon-art {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    animation: ch3-moonrise 1.7s cubic-bezier(0.22, 0.61, 0.36, 1) 0.2s backwards;
+}
+
+.ch3-moon-for-dark {
+    filter: drop-shadow(0 0 64px color-mix(in srgb, var(--gold) 26%, transparent));
+}
+
+.ch3-moon-for-light { display: none; }
+
+:root:not(.dark) .ch3-moon-for-dark { display: none; }
+:root:not(.dark) .ch3-moon-for-light { display: block; }
+
+/* 竖条群：右下三色立柱 */
+.ch3-bars {
+    right: clamp(1.2rem, 4vw, 4.2rem);
+    bottom: 0;
+    height: 46%;
+    z-index: 4;
+    display: flex;
+    align-items: flex-end;
+    gap: clamp(8px, 1vw, 14px);
+}
+
+.ch3-bar {
+    display: block;
+    width: clamp(9px, 1vw, 15px);
+    transform-origin: bottom;
+    animation: ch3-bar-rise 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) backwards;
+}
+
+.ch3-bar-gold { height: 100%; background: var(--gold); animation-delay: 1.15s; }
+.ch3-bar-red { height: 70%; background: var(--vermilion); animation-delay: 1.3s; }
+.ch3-bar-ink { height: 44%; background: var(--ink); animation-delay: 1.45s; }
+:root.dark .ch3-bar-ink { background: var(--cream); }
+
+/* 海报文字层：先行上移淡出（编舞 y -0.35 / fade 0.42vh） */
+.ch3-text {
+    left: clamp(1.5rem, 7vw, 8rem);
+    bottom: clamp(4.5rem, 15vh, 9.5rem);
+    z-index: 6;
+    max-width: min(80%, 46rem);
+    pointer-events: auto;
+}
+
+.ch3-no {
+    font-size: 0.66rem;
+    letter-spacing: 0.36em;
+    text-transform: uppercase;
+    font-weight: 300;
+    color: var(--gold);
+    margin-bottom: 1.2rem;
+    animation: ch3-fade-up 0.7s ease-out 0.25s backwards;
+}
+
+.ch3-eyebrow {
+    font-size: clamp(0.62rem, 1vw, 0.78rem);
+    letter-spacing: 0.48em;
+    text-transform: uppercase;
+    font-weight: 300;
+    color: var(--gold);
+    margin-bottom: 1.4rem;
+    animation: ch3-fade-up 0.7s ease-out 0.4s backwards;
+}
+
+.ch3-title {
+    font-size: clamp(2.6rem, 7.2vw, 5.6rem);
+    line-height: 1.06;
+    font-weight: 200;
+    letter-spacing: 0.16em;
+    color: var(--ch3-fg);
+    overflow-wrap: break-word;
+}
+
+.ch3-char {
+    display: inline-block;
+    animation: ch3-char-in 0.85s cubic-bezier(0.25, 0.46, 0.45, 0.94) backwards;
+    animation-delay: calc(0.55s + var(--i, 0) * 65ms);
+}
+
+.ch3-rule {
+    width: clamp(6rem, 14vw, 11rem);
+    height: 1px;
+    margin: 1.6rem 0 1.3rem;
+    background: linear-gradient(90deg, var(--gold), transparent);
+    transform-origin: left;
+    animation: ch3-rule-in 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1.25s backwards;
+}
+
+.ch3-subtitle {
+    font-size: clamp(0.85rem, 1.4vw, 1.05rem);
+    letter-spacing: 0.16em;
+    font-weight: 300;
+    color: var(--ch3-sub);
+    min-height: 1.6em;
+    animation: ch3-fade-up 0.7s ease-out 1.4s backwards;
+}
+
+.ch3-subtitle .typewriter {
+    color: inherit;
+    letter-spacing: inherit;
+}
+
+.ch3-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    margin-top: 1.6rem;
+    font-size: 0.62rem;
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+    font-weight: 300;
+    color: var(--ch3-sub);
+    animation: ch3-fade-up 0.7s ease-out 1.55s backwards;
+}
+
+.ch3-dot {
+    width: 7px;
+    height: 7px;
+    background: var(--vermilion);
+}
+
+.ch3-star-sym {
+    color: var(--gold);
+    font-size: 0.85rem;
+}
+
+/* 边缘构成元素 */
+.ch3-vertical {
+    right: clamp(0.8rem, 2.4vw, 2.2rem);
+    top: 16%;
+    bottom: 16%;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    writing-mode: vertical-rl;
+    font-size: 0.7rem;
+    letter-spacing: 0.52em;
+    font-weight: 300;
+    color: var(--ch3-sub);
+    animation: ch3-fade-in 1s ease-out 1.5s backwards;
+}
+
+.ch3-swatch {
+    left: clamp(1.5rem, 7vw, 8rem);
+    bottom: 2.6rem;
+    z-index: 5;
+    display: flex;
+    gap: 8px;
+    animation: ch3-fade-in 1s ease-out 1.8s backwards;
+}
+
+.ch3-swatch i {
+    width: 12px;
+    height: 12px;
+    display: block;
+}
+
+.ch3-swatch i:nth-child(1) { background: var(--ink); }
+.ch3-swatch i:nth-child(2) { background: var(--gold); }
+.ch3-swatch i:nth-child(3) { background: var(--vermilion); }
+
+:root.dark .ch3-swatch i:nth-child(1) { background: var(--cream); }
+
+/* 地平线：月亮沉没处——一条横贯的金色细线 + 极轻光晕 */
+.ch3-horizon {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 4;
+    pointer-events: none;
+}
+
+.ch3-horizon-line {
+    display: block;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 2%, var(--gold) 24%, var(--gold) 76%, transparent 98%);
+    opacity: 0.85;
+    transform-origin: center;
+    animation: ch3-horizon-in 1.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1.1s backwards;
+}
+
+.ch3-horizon-glow {
+    position: absolute;
+    left: 8%;
+    right: 8%;
+    bottom: 0;
+    height: 110px;
+    background: radial-gradient(55% 100% at 50% 100%, color-mix(in srgb, var(--gold) 12%, transparent), transparent 72%);
+}
+
+/* 向下滚动提示 */
+.ch3-scrollcue {
+    position: absolute;
+    left: 50%;
+    bottom: 1.4rem;
+    transform: translateX(-50%);
+    z-index: 6;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    pointer-events: auto;
+    text-decoration: none;
+    animation: ch3-fade-in 1s ease-out 2s backwards;
+}
+
+.ch3-scrollcue-text {
+    font-size: 0.58rem;
+    letter-spacing: 0.44em;
+    text-transform: uppercase;
+    color: var(--ch3-sub);
+}
+
+.ch3-scrollcue-line {
+    width: 1px;
+    height: 2.6rem;
+    background: linear-gradient(to bottom, var(--gold), transparent);
+    animation: ch3-cue-drip 2.2s ease-in-out infinite;
+    transform-origin: top;
+}
+
+/* Hero 入场动画 */
+@keyframes ch3-moonrise {
+    from { opacity: 0; transform: translateY(-46px) scale(0.96); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes ch3-beam-in {
+    from { opacity: 0; transform: rotate(-16deg) scaleX(0.3); }
+    to { opacity: 1; transform: rotate(-16deg) scaleX(1); }
+}
+
+@keyframes ch3-bar-rise {
+    from { transform: scaleY(0); }
+    to { transform: scaleY(1); }
+}
+
+@keyframes ch3-horizon-in {
+    from { opacity: 0; transform: scaleX(0.3); }
+    to { opacity: 0.85; transform: scaleX(1); }
+}
+
+@keyframes ch3-char-in {
+    from { opacity: 0; transform: translateY(0.55em); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes ch3-fade-up {
+    from { opacity: 0; transform: translateY(1.2rem); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes ch3-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes ch3-rule-in {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+}
+
+@keyframes ch3-cue-drip {
+    0%, 100% { transform: scaleY(0.4); opacity: 0.5; }
+    50% { transform: scaleY(1); opacity: 1; }
+}
+
+/* Hero 移动端调整 */
+@media (max-width: 767px) {
+    .ch3-hero {
+        height: calc(100svh - 4.5rem);
+        margin-bottom: 1.25rem;
+    }
+
+    .ch3-moon {
+        top: 4%;
+        right: -12vw;
+        width: 68vw;
+    }
+
+    .ch3-bars {
+        height: 34%;
+        right: 1.2rem;
+        gap: 8px;
+    }
+
+    .ch3-beam {
+        height: 36%;
+        bottom: 2%;
+    }
+
+    .ch3-text {
+        left: 1.35rem;
+        right: 1rem;
+        bottom: clamp(4rem, 12vh, 6rem);
+        max-width: 92%;
+    }
+
+    .ch3-title {
+        letter-spacing: 0.1em;
+    }
+
+    .ch3-eyebrow {
+        letter-spacing: 0.3em;
+    }
+
+    .ch3-vertical,
+    .ch3-cross,
+    .ch3-swatch,
+    .ch3-ruler {
+        display: none;
+    }
+}

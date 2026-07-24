@@ -1,0 +1,45 @@
+import { spawn } from "node:child_process";
+import { mkdtempSync, mkdirSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+const EDGE = "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe";
+const OUTDIR = "_debug/redesign/v17-fx";
+mkdirSync(OUTDIR, { recursive: true });
+const udd = mkdtempSync(join(tmpdir(), "cdp-v17-"));
+const edge = spawn(EDGE, ["--headless=new","--disable-gpu",`--user-data-dir=${udd}`,"--remote-debugging-port=9567","--window-size=1600,900","about:blank"], { stdio: "ignore" });
+const sleep=(ms)=>new Promise((r)=>setTimeout(r,ms));
+async function getWs(){for(let i=0;i<30;i++){try{const l=await(await fetch("http://127.0.0.1:9567/json/list")).json();const p=l.find(t=>t.type==="page");if(p)return p.webSocketDebuggerUrl;}catch{}await sleep(300);}throw new Error("no cdp");}
+const ws=new WebSocket(await getWs());
+let id=0;const pending=new Map();
+ws.onmessage=(ev)=>{const m=JSON.parse(ev.data);if(m.id&&pending.has(m.id)){pending.get(m.id)(m);pending.delete(m.id);}};
+const send=(m,p={})=>new Promise((res)=>{const i=++id;pending.set(i,res);ws.send(JSON.stringify({id:i,method:m,params:p}));});
+await new Promise((r)=>{ws.onopen=r;});
+await send("Page.enable");await send("Runtime.enable");
+const evalJs=async(e)=>{const r=await send("Runtime.evaluate",{expression:e,returnByValue:true,awaitPromise:true});if(r.result?.exceptionDetails)console.log("ERR",JSON.stringify(r.result.exceptionDetails).slice(0,300));return r.result?.result?.value;};
+const shot=async(n)=>{const s=await send("Page.captureScreenshot",{format:"png"});if(s.result?.data){writeFileSync(`${OUTDIR}/${n}.png`,Buffer.from(s.result.data,"base64"));console.log("saved:",n);}};
+const mouse=(type,x,y,extra={})=>send("Input.dispatchMouseEvent",{type,x,y,button:"left",...extra});
+
+await send("Page.navigate",{url:"http://localhost:4321/"});
+await sleep(5000);
+await evalJs(`localStorage.setItem('theme','dark');document.documentElement.classList.add('dark');`);
+// 画一条曲线制造尾迹，中途截图（尾迹应部分消逝）
+for (let i = 0; i <= 30; i++) {
+  const a = (i / 30) * Math.PI * 1.2;
+  await mouse("mouseMoved", 500 + Math.cos(a) * 200 + i * 8, 420 - Math.sin(a) * 130);
+  await sleep(20);
+}
+await shot("frag-dark-mid");
+await sleep(500); // 尾部应已开始消逝
+await shot("frag-dark-fading");
+await sleep(1200); // 应基本消逝
+await shot("frag-dark-gone");
+// 浅色
+await evalJs(`localStorage.setItem('theme','light');document.documentElement.classList.remove('dark')`);
+await sleep(400);
+for (let i = 0; i <= 20; i++) {
+  const a = (i / 20) * Math.PI;
+  await mouse("mouseMoved", 400 + Math.cos(a) * 180 + i * 10, 400 - Math.sin(a) * 110);
+  await sleep(20);
+}
+await shot("frag-light-mid");
+ws.close();edge.kill();process.exit(0);

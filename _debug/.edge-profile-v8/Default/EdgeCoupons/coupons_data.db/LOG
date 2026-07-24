@@ -1,0 +1,5 @@
+2026/07/24-17:21:19.161 6ca4 Creating DB E:\Program\Firefly\_debug\.edge-profile-v8\Default\EdgeCoupons/coupons_data.db since it was missing.
+2026/07/24-17:21:19.183 6ca4 Reusing MANIFEST E:\Program\Firefly\_debug\.edge-profile-v8\Default\EdgeCoupons/coupons_data.db/MANIFEST-000001
+2026/07/24-17:21:22.760 5010 Level-0 table #5: started
+2026/07/24-17:21:22.767 5010 Level-0 table #5: 683041 bytes OK
+2026/07/24-17:21:22.773 5010 Delete type=0 #3

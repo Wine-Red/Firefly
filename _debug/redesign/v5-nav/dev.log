@@ -1,0 +1,791 @@
+[vite] connected.
+07:22:08 [types] Generated 8ms
+[vite] connected.
+07:22:12 [content] Syncing content
+07:22:12 [content] Astro config changed
+07:22:12 [content] Clearing content store
+07:22:16 [content] Synced content
+07:22:16 [vite] Port 4322 is in use, trying another one...
+07:22:16 [vite] Port 4323 is in use, trying another one...
+ astro  v6.3.1 ready in 44353 ms
+┃ Local    http://localhost:4324/
+┃ Network  use --host to expose
+07:22:16 watching for file changes...
+07:39:23 [glob-loader] Reloaded data from 2026-05-21-ai-github-trending-top5-2026-0514-0521.md
+07:57:52 Configuration file removed. Restarting...
+[vite] connected.
+07:57:59 [vite] server restarted.
+[vite] connected.
+08:00:39 Configuration file added. Restarting...
+[vite] connected.
+08:00:46 [vite] server restarted.
+[vite] connected.
+08:01:57 [watch] _debug/.edge-profile-v6/Default/Extensions/ncennffkjdiamlpmcbajkmaiiiddgioo/3.52.5_0/popup.html
+08:01:57 [watch] _debug/.edge-profile-v6/Default/Extensions/ncennffkjdiamlpmcbajkmaiiiddgioo/3.52.5_0/options.html
+08:01:57 [watch] _debug/.edge-profile-v6/Default/Extensions/ncennffkjdiamlpmcbajkmaiiiddgioo/3.52.5_0/xl-images.html
+08:02:22 [watch] _debug/.edge-profile-v6/Default/Extensions/ghbmnnjooekpmoecnnnilnnbdlolhkhi/1.108.1_0/offscreendocument.html
+08:02:32 [watch] _debug/.edge-profile-v6/Default/Extensions/nhdogjmejiglipccpnnnanhbledajbpd/7.7.7_0/popups/disabled.html
+08:02:32 [watch] _debug/.edge-profile-v6/Default/Extensions/nhdogjmejiglipccpnnnanhbledajbpd/7.7.7_0/popups/disabled.vitepress.html
+08:02:32 [watch] _debug/.edge-profile-v6/Default/Extensions/nhdogjmejiglipccpnnnanhbledajbpd/7.7.7_0/popups/disabled.nuxt.html
+08:02:32 [watch] _debug/.edge-profile-v6/Default/Extensions/nhdogjmejiglipccpnnnanhbledajbpd/7.7.7_0/popups/enabled.nuxt.html
+08:02:32 [watch] _debug/.edge-profile-v6/Default/Extensions/nhdogjmejiglipccpnnnanhbledajbpd/7.7.7_0/popups/enabled.vitepress.html
+08:02:32 [watch] _debug/.edge-profile-v6/Default/Extensions/nhdogjmejiglipccpnnnanhbledajbpd/7.7.7_0/popups/enabled.html
+08:02:32 [watch] _debug/.edge-profile-v6/Default/Extensions/nhdogjmejiglipccpnnnanhbledajbpd/7.7.7_0/popups/not-found.html
+08:02:32 [watch] _debug/.edge-profile-v6/Default/Extensions/nhdogjmejiglipccpnnnanhbledajbpd/7.7.7_0/popups/vue2-migration-guide.html
+08:02:32 [watch] _debug/.edge-profile-v6/Default/Extensions/nhdogjmejiglipccpnnnanhbledajbpd/7.7.7_0/pages/devtools-background.html
+08:02:32 [watch] _debug/.edge-profile-v6/Default/Extensions/nhdogjmejiglipccpnnnanhbledajbpd/7.7.7_0/pages/devtools-panel.html
+08:02:32 [watch] _debug/.edge-profile-v6/Default/Extensions/iikmkjmpaadaobahmlepeloendndfphd/5.5.0_0/action.html
+08:02:32 [watch] _debug/.edge-profile-v6/Default/Extensions/iikmkjmpaadaobahmlepeloendndfphd/5.5.0_0/ask.html
+08:02:32 [watch] _debug/.edge-profile-v6/Default/Extensions/iikmkjmpaadaobahmlepeloendndfphd/5.5.0_0/background.html
+08:02:32 [watch] _debug/.edge-profile-v6/Default/Extensions/iikmkjmpaadaobahmlepeloendndfphd/5.5.0_0/offscreen.html
+08:02:32 [watch] _debug/.edge-profile-v6/Default/Extensions/iikmkjmpaadaobahmlepeloendndfphd/5.5.0_0/options.html
+08:02:32 [watch] _debug/.edge-profile-v6/Default/Extensions/iikmkjmpaadaobahmlepeloendndfphd/5.5.0_0/userscript.html
+08:02:38 [watch] _debug/.edge-profile-v6/Default/Extensions/bnlffdbcfnanfbknnlaflhlhkocccckg/1.11.3_0/popup.html
+08:02:38 [watch] _debug/.edge-profile-v6/Default/Extensions/okjfkjmfkhemeenfiphhljeanmghofjm/0.7.1_0/options.html
+08:02:38 [watch] _debug/.edge-profile-v6/Default/Extensions/okjfkjmfkhemeenfiphhljeanmghofjm/0.7.1_0/popup.html
+08:02:38 [watch] _debug/.edge-profile-v6/Default/Extensions/okjfkjmfkhemeenfiphhljeanmghofjm/0.7.1_0/sidepanel.html
+08:03:06 [watch] _debug/.edge-profile-v6/Default/Extensions/onjbbeifafonkjcpaeeelbfbidfdpcoa/3.1.0_0/src/popup.html
+08:03:09 [watch] _debug/.edge-profile-v6/Default/Extensions/nmddeihindhodaigflchmkmechmjjjbc/1.3.0_0/decode.html
+08:03:09 [watch] _debug/.edge-profile-v6/Default/Extensions/nmddeihindhodaigflchmkmechmjjjbc/1.3.0_0/generator.html
+08:03:09 [watch] _debug/.edge-profile-v6/Default/Extensions/nmddeihindhodaigflchmkmechmjjjbc/1.3.0_0/popup.html
+08:03:11 [watch] _debug/.edge-profile-v6/Default/Extensions/liilgpjgabokdklappibcjfablkpcekh/1.4.0_0/src/batchupdate.html
+08:03:11 [watch] _debug/.edge-profile-v6/Default/Extensions/liilgpjgabokdklappibcjfablkpcekh/1.4.0_0/src/confirm.html
+08:03:11 [watch] _debug/.edge-profile-v6/Default/Extensions/liilgpjgabokdklappibcjfablkpcekh/1.4.0_0/src/import.html
+08:03:11 [watch] _debug/.edge-profile-v6/Default/Extensions/liilgpjgabokdklappibcjfablkpcekh/1.4.0_0/src/install.html
+08:03:12 [watch] _debug/.edge-profile-v6/Default/Extensions/liilgpjgabokdklappibcjfablkpcekh/1.4.0_0/src/offscreen.html
+08:03:12 [watch] _debug/.edge-profile-v6/Default/Extensions/liilgpjgabokdklappibcjfablkpcekh/1.4.0_0/src/options.html
+08:03:12 [watch] _debug/.edge-profile-v6/Default/Extensions/liilgpjgabokdklappibcjfablkpcekh/1.4.0_0/src/sandbox.html
+08:03:12 [watch] _debug/.edge-profile-v6/Default/Extensions/liilgpjgabokdklappibcjfablkpcekh/1.4.0_0/src/popup.html
+08:03:13 [watch] _debug/.edge-profile-v6/Default/Extensions/ebbdheafhjncoeidpdijmfmkicnejelp/1.0_0/pascoli.html
+08:03:13 [watch] _debug/.edge-profile-v6/Default/Extensions/ebbdheafhjncoeidpdijmfmkicnejelp/1.0_0/popup.html
+08:03:13 [watch] _debug/.edge-profile-v6/Default/Extensions/efjbjbiikanoebecldljpjddfhjfmnob/2.0.8_0/options.html
+08:03:13 [watch] _debug/.edge-profile-v6/Default/Extensions/efjbjbiikanoebecldljpjddfhjfmnob/2.0.8_0/popup.html
+08:03:14 [watch] _debug/.edge-profile-v6/Default/Extensions/Temp/scoped_dir47892_794707610/CRX_INSTALL/index.html
+08:03:14 [watch] _debug/.edge-profile-v6/Default/Extensions/Temp/scoped_dir47892_794707610/CRX_INSTALL/member/index.html
+08:03:14 [watch] _debug/.edge-profile-v6/Default/Extensions/Temp/scoped_dir47892_794707610/CRX_INSTALL/popup/index.html
+08:03:14 [watch] _debug/.edge-profile-v6/Default/Extensions/Temp/scoped_dir47892_794707610/CRX_INSTALL/sidepanel/index.html
+08:03:14 [watch] _debug/.edge-profile-v6/Default/Extensions/Temp/scoped_dir47892_794707610/CRX_INSTALL/update/index.html
+08:03:16 [watch] _debug/.edge-profile-v6/Default/Extensions/Temp/scoped_dir47892_794707610/CRX_INSTALL/action/index.html
+08:03:26 [watch] _debug/.edge-profile-v6/Default/Extensions/Temp/scoped_dir47892_794707610/CRX_INSTALL/index.html
+08:03:26 [watch] _debug/.edge-profile-v6/Default/Extensions/Temp/scoped_dir47892_794707610/CRX_INSTALL/action/index.html
+08:03:26 [watch] _debug/.edge-profile-v6/Default/Extensions/Temp/scoped_dir47892_794707610/CRX_INSTALL/member/index.html
+08:03:26 [watch] _debug/.edge-profile-v6/Default/Extensions/Temp/scoped_dir47892_794707610/CRX_INSTALL/popup/index.html
+08:03:26 [watch] _debug/.edge-profile-v6/Default/Extensions/Temp/scoped_dir47892_794707610/CRX_INSTALL/sidepanel/index.html
+08:03:26 [watch] _debug/.edge-profile-v6/Default/Extensions/Temp/scoped_dir47892_794707610/CRX_INSTALL/update/index.html
+08:03:26 [watch] _debug/.edge-profile-v6/Default/Extensions/bpelnogcookhocnaokfpoeinibimbeff/2.2.42_0/index.html
+08:03:27 [watch] _debug/.edge-profile-v6/Default/Extensions/bpelnogcookhocnaokfpoeinibimbeff/2.2.42_0/action/index.html
+08:03:27 [watch] _debug/.edge-profile-v6/Default/Extensions/bpelnogcookhocnaokfpoeinibimbeff/2.2.42_0/sidepanel/index.html
+08:03:27 [watch] _debug/.edge-profile-v6/Default/Extensions/bpelnogcookhocnaokfpoeinibimbeff/2.2.42_0/update/index.html
+08:03:27 [watch] _debug/.edge-profile-v6/Default/Extensions/bpelnogcookhocnaokfpoeinibimbeff/2.2.42_0/member/index.html
+08:03:27 [watch] _debug/.edge-profile-v6/Default/Extensions/bpelnogcookhocnaokfpoeinibimbeff/2.2.42_0/popup/index.html
+08:03:28 [watch] _debug/.edge-profile-v6/Default/Extensions/Temp/scoped_dir47892_365447383/CRX_INSTALL/offscreen.html
+08:03:28 [watch] _debug/.edge-profile-v6/Default/Extensions/Temp/scoped_dir47892_365447383/CRX_INSTALL/panel.html
+08:03:28 [watch] _debug/.edge-profile-v6/Default/Extensions/Temp/scoped_dir47892_365447383/CRX_INSTALL/popup.html
+08:03:28 [watch] _debug/.edge-profile-v6/Default/Extensions/Temp/scoped_dir47892_365447383/CRX_INSTALL/settings.html
+08:03:28 [watch] _debug/.edge-profile-v6/Default/Extensions/Temp/scoped_dir47892_365447383/CRX_INSTALL/offscreen.html
+08:03:28 [watch] _debug/.edge-profile-v6/Default/Extensions/Temp/scoped_dir47892_365447383/CRX_INSTALL/panel.html
+08:03:28 [watch] _debug/.edge-profile-v6/Default/Extensions/Temp/scoped_dir47892_365447383/CRX_INSTALL/popup.html
+08:03:28 [watch] _debug/.edge-profile-v6/Default/Extensions/Temp/scoped_dir47892_365447383/CRX_INSTALL/settings.html
+08:03:34 [watch] _debug/.edge-profile-v6/Default/Extensions/oikmahiipjniocckomdccmplodldodja/11.9.0_0/offscreen.html
+08:03:34 [watch] _debug/.edge-profile-v6/Default/Extensions/oikmahiipjniocckomdccmplodldodja/11.9.0_0/panel.html
+08:03:34 [watch] _debug/.edge-profile-v6/Default/Extensions/oikmahiipjniocckomdccmplodldodja/11.9.0_0/popup.html
+08:03:34 [watch] _debug/.edge-profile-v6/Default/Extensions/oikmahiipjniocckomdccmplodldodja/11.9.0_0/settings.html
+08:03:35 [watch] _debug/.edge-profile-v6/Default/Extensions/oikmahiipjniocckomdccmplodldodja/11.9.0_0/pdf-viewer/web/viewer.html
+08:11:18 [watch] _debug/.edge-profile-v6b/Default/Extensions/ncennffkjdiamlpmcbajkmaiiiddgioo/3.52.5_0/popup.html
+08:11:18 [watch] _debug/.edge-profile-v6b/Default/Extensions/ncennffkjdiamlpmcbajkmaiiiddgioo/3.52.5_0/options.html
+08:11:18 [watch] _debug/.edge-profile-v6b/Default/Extensions/ncennffkjdiamlpmcbajkmaiiiddgioo/3.52.5_0/xl-images.html
+08:13:28 [watch] _debug/.edge-profile-v6c/Default/Extensions/ncennffkjdiamlpmcbajkmaiiiddgioo/3.52.5_0/options.html
+08:13:28 [watch] _debug/.edge-profile-v6c/Default/Extensions/ncennffkjdiamlpmcbajkmaiiiddgioo/3.52.5_0/popup.html
+08:13:28 [watch] _debug/.edge-profile-v6c/Default/Extensions/ncennffkjdiamlpmcbajkmaiiiddgioo/3.52.5_0/xl-images.html
+08:14:18 [watch] _debug/.edge-profile-v6/Default/Extensions/bnlffdbcfnanfbknnlaflhlhkocccckg/1.11.3_0/popup.html
+08:14:18 [watch] _debug/.edge-profile-v6/Default/Extensions/bpelnogcookhocnaokfpoeinibimbeff/2.2.42_0/action/index.html
+08:14:19 [watch] _debug/.edge-profile-v6/Default/Extensions/bpelnogcookhocnaokfpoeinibimbeff/2.2.42_0/index.html
+08:14:19 [watch] _debug/.edge-profile-v6/Default/Extensions/bpelnogcookhocnaokfpoeinibimbeff/2.2.42_0/member/index.html
+08:14:19 [watch] _debug/.edge-profile-v6/Default/Extensions/bpelnogcookhocnaokfpoeinibimbeff/2.2.42_0/sidepanel/index.html
+08:14:19 [watch] _debug/.edge-profile-v6/Default/Extensions/bpelnogcookhocnaokfpoeinibimbeff/2.2.42_0/update/index.html
+08:14:19 [watch] _debug/.edge-profile-v6/Default/Extensions/bpelnogcookhocnaokfpoeinibimbeff/2.2.42_0/popup/index.html
+08:14:20 [watch] _debug/.edge-profile-v6/Default/Extensions/ebbdheafhjncoeidpdijmfmkicnejelp/1.0_0/pascoli.html
+08:14:20 [watch] _debug/.edge-profile-v6/Default/Extensions/ebbdheafhjncoeidpdijmfmkicnejelp/1.0_0/popup.html
+08:14:20 [watch] _debug/.edge-profile-v6/Default/Extensions/efjbjbiikanoebecldljpjddfhjfmnob/2.0.8_0/options.html
+08:14:20 [watch] _debug/.edge-profile-v6/Default/Extensions/efjbjbiikanoebecldljpjddfhjfmnob/2.0.8_0/popup.html
+08:14:20 [watch] _debug/.edge-profile-v6/Default/Extensions/ghbmnnjooekpmoecnnnilnnbdlolhkhi/1.108.1_0/offscreendocument.html
+08:14:20 [watch] _debug/.edge-profile-v6/Default/Extensions/iikmkjmpaadaobahmlepeloendndfphd/5.5.0_0/action.html
+08:14:20 [watch] _debug/.edge-profile-v6/Default/Extensions/iikmkjmpaadaobahmlepeloendndfphd/5.5.0_0/ask.html
+08:14:20 [watch] _debug/.edge-profile-v6/Default/Extensions/iikmkjmpaadaobahmlepeloendndfphd/5.5.0_0/background.html
+08:14:20 [watch] _debug/.edge-profile-v6/Default/Extensions/iikmkjmpaadaobahmlepeloendndfphd/5.5.0_0/offscreen.html
+08:14:20 [watch] _debug/.edge-profile-v6/Default/Extensions/iikmkjmpaadaobahmlepeloendndfphd/5.5.0_0/options.html
+08:14:20 [watch] _debug/.edge-profile-v6/Default/Extensions/iikmkjmpaadaobahmlepeloendndfphd/5.5.0_0/userscript.html
+08:14:21 [watch] _debug/.edge-profile-v6/Default/Extensions/liilgpjgabokdklappibcjfablkpcekh/1.4.0_0/src/batchupdate.html
+08:14:21 [watch] _debug/.edge-profile-v6/Default/Extensions/liilgpjgabokdklappibcjfablkpcekh/1.4.0_0/src/confirm.html
+08:14:21 [watch] _debug/.edge-profile-v6/Default/Extensions/liilgpjgabokdklappibcjfablkpcekh/1.4.0_0/src/import.html
+08:14:21 [watch] _debug/.edge-profile-v6/Default/Extensions/liilgpjgabokdklappibcjfablkpcekh/1.4.0_0/src/install.html
+08:14:21 [watch] _debug/.edge-profile-v6/Default/Extensions/liilgpjgabokdklappibcjfablkpcekh/1.4.0_0/src/offscreen.html
+08:14:21 [watch] _debug/.edge-profile-v6/Default/Extensions/liilgpjgabokdklappibcjfablkpcekh/1.4.0_0/src/options.html
+08:14:21 [watch] _debug/.edge-profile-v6/Default/Extensions/liilgpjgabokdklappibcjfablkpcekh/1.4.0_0/src/sandbox.html
+08:14:21 [watch] _debug/.edge-profile-v6/Default/Extensions/liilgpjgabokdklappibcjfablkpcekh/1.4.0_0/src/popup.html
+08:14:21 [watch] _debug/.edge-profile-v6/Default/Extensions/ncennffkjdiamlpmcbajkmaiiiddgioo/3.52.5_0/popup.html
+08:14:21 [watch] _debug/.edge-profile-v6/Default/Extensions/ncennffkjdiamlpmcbajkmaiiiddgioo/3.52.5_0/options.html
+08:14:21 [watch] _debug/.edge-profile-v6/Default/Extensions/ncennffkjdiamlpmcbajkmaiiiddgioo/3.52.5_0/xl-images.html
+08:14:21 [watch] _debug/.edge-profile-v6/Default/Extensions/nhdogjmejiglipccpnnnanhbledajbpd/7.7.7_0/popups/disabled.html
+08:14:21 [watch] _debug/.edge-profile-v6/Default/Extensions/nhdogjmejiglipccpnnnanhbledajbpd/7.7.7_0/popups/disabled.vitepress.html
+08:14:21 [watch] _debug/.edge-profile-v6/Default/Extensions/nhdogjmejiglipccpnnnanhbledajbpd/7.7.7_0/popups/disabled.nuxt.html
+08:14:21 [watch] _debug/.edge-profile-v6/Default/Extensions/nhdogjmejiglipccpnnnanhbledajbpd/7.7.7_0/popups/enabled.nuxt.html
+08:14:21 [watch] _debug/.edge-profile-v6/Default/Extensions/nhdogjmejiglipccpnnnanhbledajbpd/7.7.7_0/popups/enabled.vitepress.html
+08:14:21 [watch] _debug/.edge-profile-v6/Default/Extensions/nhdogjmejiglipccpnnnanhbledajbpd/7.7.7_0/popups/enabled.html
+08:14:21 [watch] _debug/.edge-profile-v6/Default/Extensions/nhdogjmejiglipccpnnnanhbledajbpd/7.7.7_0/popups/not-found.html
+08:14:21 [watch] _debug/.edge-profile-v6/Default/Extensions/nhdogjmejiglipccpnnnanhbledajbpd/7.7.7_0/popups/vue2-migration-guide.html
+08:14:21 [watch] _debug/.edge-profile-v6/Default/Extensions/nhdogjmejiglipccpnnnanhbledajbpd/7.7.7_0/pages/devtools-background.html
+08:14:21 [watch] _debug/.edge-profile-v6/Default/Extensions/nhdogjmejiglipccpnnnanhbledajbpd/7.7.7_0/pages/devtools-panel.html
+08:14:21 [watch] _debug/.edge-profile-v6/Default/Extensions/okjfkjmfkhemeenfiphhljeanmghofjm/0.7.1_0/options.html
+08:14:21 [watch] _debug/.edge-profile-v6/Default/Extensions/okjfkjmfkhemeenfiphhljeanmghofjm/0.7.1_0/popup.html
+08:14:21 [watch] _debug/.edge-profile-v6/Default/Extensions/okjfkjmfkhemeenfiphhljeanmghofjm/0.7.1_0/sidepanel.html
+08:14:21 [watch] _debug/.edge-profile-v6/Default/Extensions/onjbbeifafonkjcpaeeelbfbidfdpcoa/3.1.0_0/src/popup.html
+08:14:21 [watch] _debug/.edge-profile-v6/Default/Extensions/nmddeihindhodaigflchmkmechmjjjbc/1.3.0_0/decode.html
+08:14:21 [watch] _debug/.edge-profile-v6/Default/Extensions/nmddeihindhodaigflchmkmechmjjjbc/1.3.0_0/generator.html
+08:14:21 [watch] _debug/.edge-profile-v6/Default/Extensions/nmddeihindhodaigflchmkmechmjjjbc/1.3.0_0/popup.html
+08:14:21 [watch] _debug/.edge-profile-v6/Default/Extensions/oikmahiipjniocckomdccmplodldodja/11.9.0_0/offscreen.html
+08:14:21 [watch] _debug/.edge-profile-v6/Default/Extensions/oikmahiipjniocckomdccmplodldodja/11.9.0_0/panel.html
+08:14:21 [watch] _debug/.edge-profile-v6/Default/Extensions/oikmahiipjniocckomdccmplodldodja/11.9.0_0/popup.html
+08:14:21 [watch] _debug/.edge-profile-v6/Default/Extensions/oikmahiipjniocckomdccmplodldodja/11.9.0_0/settings.html
+08:14:21 [watch] _debug/.edge-profile-v6/Default/Extensions/oikmahiipjniocckomdccmplodldodja/11.9.0_0/pdf-viewer/web/viewer.html
+08:14:27 [watch] _debug/.edge-profile-v6b/Default/Extensions/ncennffkjdiamlpmcbajkmaiiiddgioo/3.52.5_0/options.html
+08:14:27 [watch] _debug/.edge-profile-v6b/Default/Extensions/ncennffkjdiamlpmcbajkmaiiiddgioo/3.52.5_0/popup.html
+08:14:27 [watch] _debug/.edge-profile-v6b/Default/Extensions/ncennffkjdiamlpmcbajkmaiiiddgioo/3.52.5_0/xl-images.html
+08:14:29 [watch] _debug/.edge-profile-v6c/Default/Extensions/ncennffkjdiamlpmcbajkmaiiiddgioo/3.52.5_0/options.html
+08:14:29 [watch] _debug/.edge-profile-v6c/Default/Extensions/ncennffkjdiamlpmcbajkmaiiiddgioo/3.52.5_0/popup.html
+08:14:29 [watch] _debug/.edge-profile-v6c/Default/Extensions/ncennffkjdiamlpmcbajkmaiiiddgioo/3.52.5_0/xl-images.html
+15:03:18 [watch] _debug/.edge-profile-v7/Default/Extensions/ncennffkjdiamlpmcbajkmaiiiddgioo/3.52.5_0/options.html
+15:03:18 [watch] _debug/.edge-profile-v7/Default/Extensions/ncennffkjdiamlpmcbajkmaiiiddgioo/3.52.5_0/popup.html
+15:03:18 [watch] _debug/.edge-profile-v7/Default/Extensions/ncennffkjdiamlpmcbajkmaiiiddgioo/3.52.5_0/xl-images.html
+15:04:09 [watch] _debug/.edge-profile-v7/Default/Extensions/nmddeihindhodaigflchmkmechmjjjbc/1.3.0_0/decode.html
+15:04:09 [watch] _debug/.edge-profile-v7/Default/Extensions/nmddeihindhodaigflchmkmechmjjjbc/1.3.0_0/generator.html
+15:04:09 [watch] _debug/.edge-profile-v7/Default/Extensions/nmddeihindhodaigflchmkmechmjjjbc/1.3.0_0/popup.html
+15:04:10 [watch] _debug/.edge-profile-v7/Default/Extensions/onjbbeifafonkjcpaeeelbfbidfdpcoa/3.1.0_0/src/popup.html
+15:06:32 [watch] _debug/.edge-profile-v7m/Default/Extensions/ncennffkjdiamlpmcbajkmaiiiddgioo/3.52.5_0/popup.html
+15:06:32 [watch] _debug/.edge-profile-v7m/Default/Extensions/ncennffkjdiamlpmcbajkmaiiiddgioo/3.52.5_0/options.html
+15:06:32 [watch] _debug/.edge-profile-v7m/Default/Extensions/ncennffkjdiamlpmcbajkmaiiiddgioo/3.52.5_0/xl-images.html
+15:06:54 Configuration file removed. Restarting...
+[vite] connected.
+15:07:12 [vite] server restarted.
+[vite] connected.
+15:07:49 Configuration file added. Restarting...
+[vite] connected.
+15:08:19 [vite] server restarted.
+[vite] connected.
+15:09:36 [watch] _debug/.edge-profile-v7/Default/Extensions/Temp/scoped_dir18092_1025378480/CRX_INSTALL/options.html
+15:09:36 [watch] _debug/.edge-profile-v7/Default/Extensions/Temp/scoped_dir18092_1025378480/CRX_INSTALL/popup.html
+15:09:36 [watch] _debug/.edge-profile-v7/Default/Extensions/Temp/scoped_dir18092_1025378480/CRX_INSTALL/sidepanel.html
+15:09:36 [watch] _debug/.edge-profile-v7/Default/Extensions/Temp/scoped_dir18092_1025378480/CRX_INSTALL/options.html
+15:09:36 [watch] _debug/.edge-profile-v7/Default/Extensions/Temp/scoped_dir18092_1025378480/CRX_INSTALL/popup.html
+15:09:36 [watch] _debug/.edge-profile-v7/Default/Extensions/Temp/scoped_dir18092_1025378480/CRX_INSTALL/sidepanel.html
+15:09:36 [watch] _debug/.edge-profile-v7/Default/Extensions/okjfkjmfkhemeenfiphhljeanmghofjm/0.7.1_0/options.html
+15:09:36 [watch] _debug/.edge-profile-v7/Default/Extensions/okjfkjmfkhemeenfiphhljeanmghofjm/0.7.1_0/sidepanel.html
+15:09:36 [watch] _debug/.edge-profile-v7/Default/Extensions/okjfkjmfkhemeenfiphhljeanmghofjm/0.7.1_0/popup.html
+15:10:47 [watch] _debug/.edge-profile-v7/Default/Extensions/Temp/scoped_dir18092_1231012786/CRX_INSTALL/offscreendocument.html
+15:10:49 [watch] _debug/.edge-profile-v7/Default/Extensions/Temp/scoped_dir18092_1231012786/CRX_INSTALL/offscreendocument.html
+15:10:49 [watch] _debug/.edge-profile-v7/Default/Extensions/ghbmnnjooekpmoecnnnilnnbdlolhkhi/1.108.1_0/offscreendocument.html
+15:11:02 [watch] _debug/.edge-profile-v7/Default/Extensions/Temp/scoped_dir18092_2114057461/CRX_INSTALL/offscreen.html
+15:11:02 [watch] _debug/.edge-profile-v7/Default/Extensions/Temp/scoped_dir18092_2114057461/CRX_INSTALL/panel.html
+15:11:03 [watch] _debug/.edge-profile-v7/Default/Extensions/Temp/scoped_dir18092_2114057461/CRX_INSTALL/popup.html
+15:11:03 [watch] _debug/.edge-profile-v7/Default/Extensions/Temp/scoped_dir18092_2114057461/CRX_INSTALL/settings.html
+15:11:06 [watch] _debug/.edge-profile-v7/Default/Extensions/Temp/scoped_dir18092_2114057461/CRX_INSTALL/pdf-viewer/web/viewer.html
+15:11:07 [watch] _debug/.edge-profile-v7/Default/Extensions/Temp/scoped_dir18092_2114057461/CRX_INSTALL/pdf-viewer/web/viewer.html
+15:11:08 [watch] _debug/.edge-profile-v7/Default/Extensions/Temp/scoped_dir18092_2114057461/CRX_INSTALL/offscreen.html
+15:11:08 [watch] _debug/.edge-profile-v7/Default/Extensions/Temp/scoped_dir18092_2114057461/CRX_INSTALL/panel.html
+15:11:08 [watch] _debug/.edge-profile-v7/Default/Extensions/Temp/scoped_dir18092_2114057461/CRX_INSTALL/popup.html
+15:11:08 [watch] _debug/.edge-profile-v7/Default/Extensions/Temp/scoped_dir18092_2114057461/CRX_INSTALL/settings.html
+15:11:10 [watch] _debug/.edge-profile-v7/Default/Extensions/oikmahiipjniocckomdccmplodldodja/11.9.0_0/offscreen.html
+15:11:10 [watch] _debug/.edge-profile-v7/Default/Extensions/oikmahiipjniocckomdccmplodldodja/11.9.0_0/panel.html
+15:11:10 [watch] _debug/.edge-profile-v7/Default/Extensions/oikmahiipjniocckomdccmplodldodja/11.9.0_0/popup.html
+15:11:10 [watch] _debug/.edge-profile-v7/Default/Extensions/oikmahiipjniocckomdccmplodldodja/11.9.0_0/settings.html
+15:11:15 [watch] _debug/.edge-profile-v7/Default/Extensions/ebbdheafhjncoeidpdijmfmkicnejelp/1.0_0/pascoli.html
+15:11:15 [watch] _debug/.edge-profile-v7/Default/Extensions/ebbdheafhjncoeidpdijmfmkicnejelp/1.0_0/popup.html
+15:11:15 [watch] _debug/.edge-profile-v7/Default/Extensions/oikmahiipjniocckomdccmplodldodja/11.9.0_0/pdf-viewer/web/viewer.html
+15:11:18 [watch] _debug/.edge-profile-v7/Default/Extensions/liilgpjgabokdklappibcjfablkpcekh/1.4.0_0/src/batchupdate.html
+15:11:18 [watch] _debug/.edge-profile-v7/Default/Extensions/liilgpjgabokdklappibcjfablkpcekh/1.4.0_0/src/confirm.html
+15:11:18 [watch] _debug/.edge-profile-v7/Default/Extensions/liilgpjgabokdklappibcjfablkpcekh/1.4.0_0/src/import.html
+15:11:18 [watch] _debug/.edge-profile-v7/Default/Extensions/liilgpjgabokdklappibcjfablkpcekh/1.4.0_0/src/install.html
+15:11:18 [watch] _debug/.edge-profile-v7/Default/Extensions/liilgpjgabokdklappibcjfablkpcekh/1.4.0_0/src/offscreen.html
+15:11:18 [watch] _debug/.edge-profile-v7/Default/Extensions/liilgpjgabokdklappibcjfablkpcekh/1.4.0_0/src/options.html
+15:11:18 [watch] _debug/.edge-profile-v7/Default/Extensions/liilgpjgabokdklappibcjfablkpcekh/1.4.0_0/src/popup.html
+15:11:18 [watch] _debug/.edge-profile-v7/Default/Extensions/liilgpjgabokdklappibcjfablkpcekh/1.4.0_0/src/sandbox.html
+15:13:59 [watch] _debug/.edge-profile-v7/Default/Extensions/Temp/scoped_dir18092_613981197/CRX_INSTALL/action.html
+15:13:59 [watch] _debug/.edge-profile-v7/Default/Extensions/Temp/scoped_dir18092_613981197/CRX_INSTALL/ask.html
+15:13:59 [watch] _debug/.edge-profile-v7/Default/Extensions/Temp/scoped_dir18092_613981197/CRX_INSTALL/background.html
+15:13:59 [watch] _debug/.edge-profile-v7/Default/Extensions/Temp/scoped_dir18092_613981197/CRX_INSTALL/offscreen.html
+15:13:59 [watch] _debug/.edge-profile-v7/Default/Extensions/Temp/scoped_dir18092_613981197/CRX_INSTALL/options.html
+15:13:59 [watch] _debug/.edge-profile-v7/Default/Extensions/Temp/scoped_dir18092_613981197/CRX_INSTALL/userscript.html
+15:14:00 [watch] _debug/.edge-profile-v7/Default/Extensions/Temp/scoped_dir18092_613981197/CRX_INSTALL/action.html
+15:14:00 [watch] _debug/.edge-profile-v7/Default/Extensions/Temp/scoped_dir18092_613981197/CRX_INSTALL/ask.html
+15:14:00 [watch] _debug/.edge-profile-v7/Default/Extensions/Temp/scoped_dir18092_613981197/CRX_INSTALL/background.html
+15:14:00 [watch] _debug/.edge-profile-v7/Default/Extensions/Temp/scoped_dir18092_613981197/CRX_INSTALL/offscreen.html
+15:14:00 [watch] _debug/.edge-profile-v7/Default/Extensions/Temp/scoped_dir18092_613981197/CRX_INSTALL/options.html
+15:14:00 [watch] _debug/.edge-profile-v7/Default/Extensions/Temp/scoped_dir18092_613981197/CRX_INSTALL/userscript.html
+15:14:00 [watch] _debug/.edge-profile-v7/Default/Extensions/iikmkjmpaadaobahmlepeloendndfphd/5.5.0_0/action.html
+15:14:00 [watch] _debug/.edge-profile-v7/Default/Extensions/iikmkjmpaadaobahmlepeloendndfphd/5.5.0_0/background.html
+15:14:00 [watch] _debug/.edge-profile-v7/Default/Extensions/iikmkjmpaadaobahmlepeloendndfphd/5.5.0_0/ask.html
+15:14:00 [watch] _debug/.edge-profile-v7/Default/Extensions/iikmkjmpaadaobahmlepeloendndfphd/5.5.0_0/offscreen.html
+15:14:00 [watch] _debug/.edge-profile-v7/Default/Extensions/iikmkjmpaadaobahmlepeloendndfphd/5.5.0_0/options.html
+15:14:00 [watch] _debug/.edge-profile-v7/Default/Extensions/iikmkjmpaadaobahmlepeloendndfphd/5.5.0_0/userscript.html
+[vite] program reload
+[vite] An error happened during full reload
+Failed to load url astro:server-app.js (resolved id: astro:server-app.js). Does the file exist?
+Error: Failed to load url astro:server-app.js (resolved id: astro:server-app.js). Does the file exist?
+    at loadAndTransform (file:///E:/Program/Firefly/node_modules/.pnpm/vite@7.3.3_@types+node@25.5.2_jiti@2.6.1_lightningcss@1.32.0_stylus@0.64.0_terser@5.46.0_yaml@2.8.2/node_modules/vite/dist/node/chunks/config.js:22679:33)
+15:15:15 [watch] /src/styles/main.css
+15:15:15 [watch] _debug/.edge-profile-v7/Default/Extensions/efjbjbiikanoebecldljpjddfhjfmnob/2.0.8_0/options.html
+15:15:15 [watch] _debug/.edge-profile-v7/Default/Extensions/efjbjbiikanoebecldljpjddfhjfmnob/2.0.8_0/popup.html
+[vite] program reload
+15:15:27 [watch] /src/styles/main.css
+[vite] program reload
+[vite] program reload
+[vite] program reload
+15:16:19 [watch] /src/styles/main.css
+15:16:19 [watch] /src/styles/main.css
+[vite] program reload
+[vite] program reload
+15:16:43 [watch] /src/styles/main.css
+[vite] program reload
+15:16:58 [watch] /src/styles/main.css
+[vite] program reload
+15:17:23 [ERROR] Error: transport invoke timed out after 60000ms (data: {"type":"custom","event":"vite:invoke","data":{"name":"fetchModule","id":"send:laVvhR2_KbPkN9VEUUGZQ","data":["/@id/__x00__virtual:astro:dev-css:src/pages/[...page]@_@astro","\u0000virtual:astro:dev-css-all",{"cached":false,"startOffset":2}]}})
+    at reviveInvokeError (file:///E:/Program/Firefly/node_modules/.pnpm/vite@7.3.3_@types+node@25.5.2_jiti@2.6.1_lightningcss@1.32.0_stylus@0.64.0_terser@5.46.0_yaml@2.8.2/node_modules/vite/dist/node/module-runner.js:475:14)
+    at Object.invoke (file:///E:/Program/Firefly/node_modules/.pnpm/vite@7.3.3_@types+node@25.5.2_jiti@2.6.1_lightningcss@1.32.0_stylus@0.64.0_terser@5.46.0_yaml@2.8.2/node_modules/vite/dist/node/module-runner.js:549:11)
+    at async ModuleRunner.getModuleInformation (file:///E:/Program/Firefly/node_modules/.pnpm/vite@7.3.3_@types+node@25.5.2_jiti@2.6.1_lightningcss@1.32.0_stylus@0.64.0_terser@5.46.0_yaml@2.8.2/node_modules/vite/dist/node/module-runner.js:1086:7)
+15:17:23 [ERROR] Error: transport invoke timed out after 60000ms (data: {"type":"custom","event":"vite:invoke","data":{"name":"fetchModule","id":"send:laVvhR2_KbPkN9VEUUGZQ","data":["/@id/__x00__virtual:astro:dev-css:src/pages/[...page]@_@astro","\u0000virtual:astro:dev-css-all",{"cached":false,"startOffset":2}]}})
+    at reviveInvokeError (file:///E:/Program/Firefly/node_modules/.pnpm/vite@7.3.3_@types+node@25.5.2_jiti@2.6.1_lightningcss@1.32.0_stylus@0.64.0_terser@5.46.0_yaml@2.8.2/node_modules/vite/dist/node/module-runner.js:475:14)
+    at Object.invoke (file:///E:/Program/Firefly/node_modules/.pnpm/vite@7.3.3_@types+node@25.5.2_jiti@2.6.1_lightningcss@1.32.0_stylus@0.64.0_terser@5.46.0_yaml@2.8.2/node_modules/vite/dist/node/module-runner.js:549:11)
+    at async ModuleRunner.getModuleInformation (file:///E:/Program/Firefly/node_modules/.pnpm/vite@7.3.3_@types+node@25.5.2_jiti@2.6.1_lightningcss@1.32.0_stylus@0.64.0_terser@5.46.0_yaml@2.8.2/node_modules/vite/dist/node/module-runner.js:1086:7)
+15:17:23 [ERROR] Error: transport invoke timed out after 60000ms (data: {"type":"custom","event":"vite:invoke","data":{"name":"fetchModule","id":"send:laVvhR2_KbPkN9VEUUGZQ","data":["/@id/__x00__virtual:astro:dev-css:src/pages/[...page]@_@astro","\u0000virtual:astro:dev-css-all",{"cached":false,"startOffset":2}]}})
+    at reviveInvokeError (file:///E:/Program/Firefly/node_modules/.pnpm/vite@7.3.3_@types+node@25.5.2_jiti@2.6.1_lightningcss@1.32.0_stylus@0.64.0_terser@5.46.0_yaml@2.8.2/node_modules/vite/dist/node/module-runner.js:475:14)
+    at Object.invoke (file:///E:/Program/Firefly/node_modules/.pnpm/vite@7.3.3_@types+node@25.5.2_jiti@2.6.1_lightningcss@1.32.0_stylus@0.64.0_terser@5.46.0_yaml@2.8.2/node_modules/vite/dist/node/module-runner.js:549:11)
+    at async ModuleRunner.getModuleInformation (file:///E:/Program/Firefly/node_modules/.pnpm/vite@7.3.3_@types+node@25.5.2_jiti@2.6.1_lightningcss@1.32.0_stylus@0.64.0_terser@5.46.0_yaml@2.8.2/node_modules/vite/dist/node/module-runner.js:1086:7)
+15:17:23 [ERROR] transport invoke timed out after 60000ms (data: {"type":"custom","event":"vite:invoke","data":{"name":"fetchModule","id":"send:laVvhR2_KbPkN9VEUUGZQ","data":["/@id/__x00__virtual:astro:dev-css:src/pages/[...page]@_@astro","\u0000virtual:astro:dev-css-all",{"cached":false,"startOffset":2}]}})
+  Stack trace:
+    at reviveInvokeError (file:///E:/Program/Firefly/node_modules/.pnpm/vite@7.3.3_@types+node@25.5.2_jiti@2.6.1_lightningcss@1.32.0_stylus@0.64.0_terser@5.46.0_yaml@2.8.2/node_modules/vite/dist/node/module-runner.js:475:14)
+    at async ModuleRunner.getModuleInformation (file:///E:/Program/Firefly/node_modules/.pnpm/vite@7.3.3_@types+node@25.5.2_jiti@2.6.1_lightningcss@1.32.0_stylus@0.64.0_terser@5.46.0_yaml@2.8.2/node_modules/vite/dist/node/module-runner.js:1086:7)
+15:17:23 [ERROR] transport invoke timed out after 60000ms (data: {"type":"custom","event":"vite:invoke","data":{"name":"fetchModule","id":"send:laVvhR2_KbPkN9VEUUGZQ","data":["/@id/__x00__virtual:astro:dev-css:src/pages/[...page]@_@astro","\u0000virtual:astro:dev-css-all",{"cached":false,"startOffset":2}]}})
+  Stack trace:
+    at reviveInvokeError (file:///E:/Program/Firefly/node_modules/.pnpm/vite@7.3.3_@types+node@25.5.2_jiti@2.6.1_lightningcss@1.32.0_stylus@0.64.0_terser@5.46.0_yaml@2.8.2/node_modules/vite/dist/node/module-runner.js:475:14)
+    at async ModuleRunner.getModuleInformation (file:///E:/Program/Firefly/node_modules/.pnpm/vite@7.3.3_@types+node@25.5.2_jiti@2.6.1_lightningcss@1.32.0_stylus@0.64.0_terser@5.46.0_yaml@2.8.2/node_modules/vite/dist/node/module-runner.js:1086:7)
+15:17:23 [ERROR] transport invoke timed out after 60000ms (data: {"type":"custom","event":"vite:invoke","data":{"name":"fetchModule","id":"send:laVvhR2_KbPkN9VEUUGZQ","data":["/@id/__x00__virtual:astro:dev-css:src/pages/[...page]@_@astro","\u0000virtual:astro:dev-css-all",{"cached":false,"startOffset":2}]}})
+  Stack trace:
+    at reviveInvokeError (file:///E:/Program/Firefly/node_modules/.pnpm/vite@7.3.3_@types+node@25.5.2_jiti@2.6.1_lightningcss@1.32.0_stylus@0.64.0_terser@5.46.0_yaml@2.8.2/node_modules/vite/dist/node/module-runner.js:475:14)
+    [...] See full stack trace in the browser, or rerun with --verbose.
+[vite] program reload
+[vite] program reload
+15:18:23 [ERROR] Error: transport invoke timed out after 60000ms (data: {"type":"custom","event":"vite:invoke","data":{"name":"fetchModule","id":"send:o1HJ7my92_0EdIgv3dKid","data":["/@id/__x00__virtual:astro:dev-css:src/pages/[...page]@_@astro","\u0000virtual:astro:dev-css-all",{"cached":false,"startOffset":2}]}})
+    at reviveInvokeError (file:///E:/Program/Firefly/node_modules/.pnpm/vite@7.3.3_@types+node@25.5.2_jiti@2.6.1_lightningcss@1.32.0_stylus@0.64.0_terser@5.46.0_yaml@2.8.2/node_modules/vite/dist/node/module-runner.js:475:14)
+    at Object.invoke (file:///E:/Program/Firefly/node_modules/.pnpm/vite@7.3.3_@types+node@25.5.2_jiti@2.6.1_lightningcss@1.32.0_stylus@0.64.0_terser@5.46.0_yaml@2.8.2/node_modules/vite/dist/node/module-runner.js:549:11)
+    at async ModuleRunner.getModuleInformation (file:///E:/Program/Firefly/node_modules/.pnpm/vite@7.3.3_@types+node@25.5.2_jiti@2.6.1_lightningcss@1.32.0_stylus@0.64.0_terser@5.46.0_yaml@2.8.2/node_modules/vite/dist/node/module-runner.js:1086:7)
+    at async request (file:///E:/Program/Firefly/node_modules/.pnpm/vite@7.3.3_@types+node@25.5.2_jiti@2.6.1_lightningcss@1.32.0_stylus@0.64.0_terser@5.46.0_yaml@2.8.2/node_modules/vite/dist/node/module-runner.js:1103:83)
+    at async RunnablePipeline.headElements (E:\Program\Firefly\node_modules\.pnpm\astro@6.3.1_@types+node@25.5.2_jiti@2.6.1_lightningcss@1.32.0_rollup@2.80.0_stylus@0.64.0_terser@5.46.0_yaml@2.8.2\node_modules\astro\dist\vite-plugin-app\pipeline.js:120:25)
+    at async FetchState.createResult (E:\Program\Firefly\node_modules\.pnpm\astro@6.3.1_@types+node@25.5.2_jiti@2.6.1_lightningcss@1.32.0_rollup@2.80.0_stylus@0.64.0_terser@5.46.0_yaml@2.8.2\node_modules\astro\dist\core\fetch\fetch-state.js:185:40)
+    at async PagesHandler.handle (E:\Program\Firefly\node_modules\.pnpm\astro@6.3.1_@types+node@25.5.2_jiti@2.6.1_lightningcss@1.32.0_rollup@2.80.0_stylus@0.64.0_terser@5.46.0_yaml@2.8.2\node_modules\astro\dist\core\pages\handler.js:35:24)
+    at async callMiddleware (E:\Program\Firefly\node_modules\.pnpm\astro@6.3.1_@types+node@25.5.2_jiti@2.6.1_lightningcss@1.32.0_rollup@2.80.0_stylus@0.64.0_terser@5.46.0_yaml@2.8.2\node_modules\astro\dist\core\middleware\callMiddleware.js:11:10)
+    at async AstroMiddleware.handle (E:\Program\Firefly\node_modules\.pnpm\astro@6.3.1_@types+node@25.5.2_jiti@2.6.1_lightningcss@1.32.0_rollup@2.80.0_stylus@0.64.0_terser@5.46.0_yaml@2.8.2\node_modules\astro\dist\core\middleware\astro-middleware.js:39:18)
+    at async AstroHandler.render (E:\Program\Firefly\node_modules\.pnpm\astro@6.3.1_@types+node@25.5.2_jiti@2.6.1_lightningcss@1.32.0_rollup@2.80.0_stylus@0.64.0_terser@5.46.0_yaml@2.8.2\node_modules\astro\dist\core\routing\handler.js:118:20)
+15:18:23 [ERROR] transport invoke timed out after 60000ms (data: {"type":"custom","event":"vite:invoke","data":{"name":"fetchModule","id":"send:o1HJ7my92_0EdIgv3dKid","data":["/@id/__x00__virtual:astro:dev-css:src/pages/[...page]@_@astro","\u0000virtual:astro:dev-css-all",{"cached":false,"startOffset":2}]}})
+  Stack trace:
+    at reviveInvokeError (file:///E:/Program/Firefly/node_modules/.pnpm/vite@7.3.3_@types+node@25.5.2_jiti@2.6.1_lightningcss@1.32.0_stylus@0.64.0_terser@5.46.0_yaml@2.8.2/node_modules/vite/dist/node/module-runner.js:475:14)
+    at async ModuleRunner.getModuleInformation (file:///E:/Program/Firefly/node_modules/.pnpm/vite@7.3.3_@types+node@25.5.2_jiti@2.6.1_lightningcss@1.32.0_stylus@0.64.0_terser@5.46.0_yaml@2.8.2/node_modules/vite/dist/node/module-runner.js:1086:7)
+    at async RunnablePipeline.headElements (E:\Program\Firefly\node_modules\.pnpm\astro@6.3.1_@types+node@25.5.2_jiti@2.6.1_lightningcss@1.32.0_rollup@2.80.0_stylus@0.64.0_terser@5.46.0_yaml@2.8.2\node_modules\astro\dist\vite-plugin-app\pipeline.js:120:25)
+    at async PagesHandler.handle (E:\Program\Firefly\node_modules\.pnpm\astro@6.3.1_@types+node@25.5.2_jiti@2.6.1_lightningcss@1.32.0_rollup@2.80.0_stylus@0.64.0_terser@5.46.0_yaml@2.8.2\node_modules\astro\dist\core\pages\handler.js:35:24)
+    at async AstroMiddleware.handle (E:\Program\Firefly\node_modules\.pnpm\astro@6.3.1_@types+node@25.5.2_jiti@2.6.1_lightningcss@1.32.0_rollup@2.80.0_stylus@0.64.0_terser@5.46.0_yaml@2.8.2\node_modules\astro\dist\core\middleware\astro-middleware.js:39:18)
+[vite] program reload
+[vite] program reload
+[vite] program reload
+15:18:59 [200] / 80409ms
+15:19:07 [watch] /src/styles/main.css
+[vite] program reload
+15:19:25 [watch] /src/styles/main.css
+15:19:30 [200] / 46413ms
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+15:24:49 Configuration file removed. Restarting...
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] _debug/.edge-profile-v7/Default/Extensions/ghbmnnjooekpmoecnnnilnnbdlolhkhi/1.108.1_0/offscreendocument.html
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:50 [watch] /src/styles/main.css
+15:24:52 [watch] /src/styles/main.css
+15:24:52 [watch] /src/styles/main.css
+15:24:52 [watch] /src/styles/main.css
+15:24:52 [watch] /src/styles/main.css
+15:24:52 [watch] /src/styles/main.css
+[vite] program reload
+[vite] program reload
+15:25:06 [watch] /src/styles/main.css
+15:25:09 [watch] /src/styles/main.css
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+15:26:56 [ERROR] Error: transport invoke timed out after 60000ms (data: {"type":"custom","event":"vite:invoke","data":{"name":"fetchModule","id":"send:rN2D00ZCVZdCI2BAdAH0E","data":["/@id/__x00__virtual:astro:dev-css:src/pages/[...page]@_@astro","\u0000virtual:astro:dev-css-all",{"cached":false,"startOffset":2}]}})
+    at reviveInvokeError (file:///E:/Program/Firefly/node_modules/.pnpm/vite@7.3.3_@types+node@25.5.2_jiti@2.6.1_lightningcss@1.32.0_stylus@0.64.0_terser@5.46.0_yaml@2.8.2/node_modules/vite/dist/node/module-runner.js:475:14)
+    at Object.invoke (file:///E:/Program/Firefly/node_modules/.pnpm/vite@7.3.3_@types+node@25.5.2_jiti@2.6.1_lightningcss@1.32.0_stylus@0.64.0_terser@5.46.0_yaml@2.8.2/node_modules/vite/dist/node/module-runner.js:549:11)
+    at runNextTicks (node:internal/process/task_queues:65:5)
+    at listOnTimeout (node:internal/timers:567:9)
+    at process.processTimers (node:internal/timers:541:7)
+    at async ModuleRunner.getModuleInformation (file:///E:/Program/Firefly/node_modules/.pnpm/vite@7.3.3_@types+node@25.5.2_jiti@2.6.1_lightningcss@1.32.0_stylus@0.64.0_terser@5.46.0_yaml@2.8.2/node_modules/vite/dist/node/module-runner.js:1086:7)
+    at async request (file:///E:/Program/Firefly/node_modules/.pnpm/vite@7.3.3_@types+node@25.5.2_jiti@2.6.1_lightningcss@1.32.0_stylus@0.64.0_terser@5.46.0_yaml@2.8.2/node_modules/vite/dist/node/module-runner.js:1103:83)
+    at async RunnablePipeline.headElements (E:\Program\Firefly\node_modules\.pnpm\astro@6.3.1_@types+node@25.5.2_jiti@2.6.1_lightningcss@1.32.0_rollup@2.80.0_stylus@0.64.0_terser@5.46.0_yaml@2.8.2\node_modules\astro\dist\vite-plugin-app\pipeline.js:120:25)
+    at async FetchState.createResult (E:\Program\Firefly\node_modules\.pnpm\astro@6.3.1_@types+node@25.5.2_jiti@2.6.1_lightningcss@1.32.0_rollup@2.80.0_stylus@0.64.0_terser@5.46.0_yaml@2.8.2\node_modules\astro\dist\core\fetch\fetch-state.js:185:40)
+    at async PagesHandler.handle (E:\Program\Firefly\node_modules\.pnpm\astro@6.3.1_@types+node@25.5.2_jiti@2.6.1_lightningcss@1.32.0_rollup@2.80.0_stylus@0.64.0_terser@5.46.0_yaml@2.8.2\node_modules\astro\dist\core\pages\handler.js:35:24)
+15:26:56 [ERROR] transport invoke timed out after 60000ms (data: {"type":"custom","event":"vite:invoke","data":{"name":"fetchModule","id":"send:rN2D00ZCVZdCI2BAdAH0E","data":["/@id/__x00__virtual:astro:dev-css:src/pages/[...page]@_@astro","\u0000virtual:astro:dev-css-all",{"cached":false,"startOffset":2}]}})
+  Stack trace:
+    at reviveInvokeError (file:///E:/Program/Firefly/node_modules/.pnpm/vite@7.3.3_@types+node@25.5.2_jiti@2.6.1_lightningcss@1.32.0_stylus@0.64.0_terser@5.46.0_yaml@2.8.2/node_modules/vite/dist/node/module-runner.js:475:14)
+    at runNextTicks (node:internal/process/task_queues:65:5)
+    at process.processTimers (node:internal/timers:541:7)
+    [...] See full stack trace in the browser, or rerun with --verbose.
+[astro] Unable to load your Astro config
+
+15:26:56 [ERROR] [config] transport invoke timed out after 60000ms (data: {"type":"custom","event":"vite:invoke","data":{"name":"fetchModule","id":"send:ZSP42c83784BTfpuU16Bp","data":["/src/config/coverImageConfig.ts","E:/Program/Firefly/src/config/index.ts",{"cached":false,"startOffset":2}]}})
+  Stack trace:
+    at reviveInvokeError (file:///E:/Program/Firefly/node_modules/.pnpm/vite@7.3.3_@types+node@25.5.2_jiti@2.6.1_lightningcss@1.32.0_stylus@0.64.0_terser@5.46.0_yaml@2.8.2/node_modules/vite/dist/node/module-runner.js:475:14)
+    at runNextTicks (node:internal/process/task_queues:65:5)
+    at async ModuleRunner.getModuleInformation (file:///E:/Program/Firefly/node_modules/.pnpm/vite@7.3.3_@types+node@25.5.2_jiti@2.6.1_lightningcss@1.32.0_stylus@0.64.0_terser@5.46.0_yaml@2.8.2/node_modules/vite/dist/node/module-runner.js:1086:7)
+    at async eval (E:\Program\Firefly\src\config\index.ts:34:1)
+    at async ModuleRunner.directRequest (file:///E:/Program/Firefly/node_modules/.pnpm/vite@7.3.3_@types+node@25.5.2_jiti@2.6.1_lightningcss@1.32.0_stylus@0.64.0_terser@5.46.0_yaml@2.8.2/node_modules/vite/dist/node/module-runner.js:1146:59)
+
+15:26:56 [ERROR] Continuing with previous valid configuration
+
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+15:28:35 Configuration file added. Restarting...
+[vite] program reload
+[vite] program reload
+15:28:54 [watch] /src/styles/main.css
+15:28:54 [200] / 24716ms
+[vite] program reload
+15:29:03 [200] / 18133ms
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
+[vite] program reload
