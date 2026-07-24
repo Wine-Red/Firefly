@@ -86,11 +86,11 @@
 		   围绕指针持续运转，直至生命终结消逝；身前的网不断重建。
 		   碎（点多而细）、小（短线小点）、快（生灭敏捷）、活（永动）。 */
 		interface Frag { x: number; y: number; vx: number; vy: number; t: number; life: number; r: number; swirl: number }
-		const LINK_NN = 60;       // 节点-节点连线阈值（短而碎）
+		const LINK_NN = 50;       // 节点-节点连线阈值（短而碎）
 		const LINK_NC = 85;       // 节点-指针连线阈值
-		const MAX_FRAGS = 70;
-		const SWIRL_R = 190;      // 涡旋力场半径
-		const ORBIT_D = 75;       // 盘旋的偏好轨道半径
+		const MAX_FRAGS = 30;
+		const SWIRL_R = 60;      // 涡旋力场半径
+		const ORBIT_D = 20;       // 盘旋的偏好轨道半径
 		let nodes: Frag[] = [];
 		let sparks: { x: number; y: number; vx: number; vy: number; t: number; life: number }[] = [];
 		let rings: Ring[] = [];
@@ -123,7 +123,7 @@
 		}, { passive: true });
 
 		let lastDropAt = 0;
-		const IDLE_KEEP = 22; // 静止时涵养的星点数量
+		const IDLE_KEEP = 12; // 静止时涵养的星点数量
 
 		function spawnOne(x: number, y: number, now: number) {
 			nodes.push({
