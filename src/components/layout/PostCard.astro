@@ -433,6 +433,41 @@ const descriptionText = description || remarkPluginFrontmatter.excerpt || "";
       transform: translateX(0);
     }
 
+    /* hover 时文字层提到封面之上，完整标题可读；
+       文字背后垫一层左实右虚的底色纱幕（z-index -1 位于文字之下、
+       封面之上），保证压在图像上的部分仍有足够对比度——
+       构成主义海报式的「版式压图像」构图 */
+    :global(.list-mode) .has-cover .post-card-content {
+      position: relative;
+    }
+
+    :global(.list-mode) .has-cover .post-card-content::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: -2rem;
+      right: -50%;
+      z-index: -1;
+      pointer-events: none;
+      background: linear-gradient(
+        90deg,
+        var(--card-bg) 45%,
+        color-mix(in srgb, var(--card-bg) 82%, transparent) 68%,
+        transparent 88%
+      );
+      opacity: 0;
+      transition: opacity 0.4s ease 0.05s;
+    }
+
+    :global(.list-mode) .post-card-wrapper:hover .post-card-content {
+      z-index: 30;
+    }
+
+    :global(.list-mode) .post-card-wrapper:hover .post-card-content::after {
+      opacity: 1;
+    }
+
     /* 沿斜切缘的金色 hairline（随封面一起平移，无需自身动画） */
     :global(.list-mode) .post-card-image::before {
       content: "";
