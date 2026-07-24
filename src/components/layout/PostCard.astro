@@ -414,8 +414,8 @@ const descriptionText = description || remarkPluginFrontmatter.excerpt || "";
 
   /* 桌面列表模式：封面斜切 bleeding 到条目右缘 + 金色细描边 */
   /* 封面容器恒定 62% 宽（即 hover 落点大小，接近常见封面自然宽高比，
-     图片渲染尺寸全程不变、绝不缩放）；静止时整体向右平移 38%，
-     只露左侧斜切的一角；hover 时平移归零，封面携金色 hairline
+     图片渲染尺寸全程不变、绝不缩放）；静止时整体向右平移 44%，
+     只露左侧斜切的一角、不遮挡文字；hover 时平移归零，封面携金色 hairline
      纯滑动到位，像一扇被推开的斜门。文本层不淡出——被封面覆盖的
      部分由 cover-blend 渐变柔和消融，左侧保持可读。 */
   @media (min-width: 768px) {
@@ -424,7 +424,7 @@ const descriptionText = description || remarkPluginFrontmatter.excerpt || "";
       z-index: 25;
       width: 62% !important;
       clip-path: polygon(10% 0, 100% 0, 100% 100%, 0 100%) !important;
-      transform: translateX(38%);
+      transform: translateX(44%);
       transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1) !important;
       will-change: transform;
     }
@@ -453,7 +453,7 @@ const descriptionText = description || remarkPluginFrontmatter.excerpt || "";
   @media (min-width: 768px) and (prefers-reduced-motion: reduce) {
     :global(.list-mode) .post-card-image,
     :global(.list-mode) .post-card-wrapper:hover .post-card-image {
-      transform: translateX(38%) !important;
+      transform: translateX(44%) !important;
       transition: none !important;
     }
 
