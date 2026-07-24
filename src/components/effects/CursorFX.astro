@@ -81,13 +81,16 @@
 				: { head: "16,18,24", tail: "16,18,24", tail2: "150,112,48" };
 
 		/* ---------------- 星座尾迹 ----------------
-		   沿鼠标轨迹撒落细碎星点，近距相连成网；星点生命周期很短，
-		   随指针前进去留——身后的网不断消逝，身前的网不断重建。
-		   碎（点多而细）、小（短线小点）、快（生灭敏捷）。 */
-		interface Frag { x: number; y: number; vx: number; vy: number; t: number; life: number; r: number }
+		   沿鼠标轨迹撒落细碎星点，近距相连成网；星点不静止——每颗都受
+		   指针涡旋力场驱动（切向盘旋 + 向轨道半径的弹簧 + 自身游走），
+		   围绕指针持续运转，直至生命终结消逝；身前的网不断重建。
+		   碎（点多而细）、小（短线小点）、快（生灭敏捷）、活（永动）。 */
+		interface Frag { x: number; y: number; vx: number; vy: number; t: number; life: number; r: number; swirl: number }
 		const LINK_NN = 85;       // 节点-节点连线阈值（短而碎）
 		const LINK_NC = 110;      // 节点-指针连线阈值
 		const MAX_FRAGS = 70;
+		const SWIRL_R = 190;      // 涡旋力场半径
+		const ORBIT_D = 75;       // 盘旋的偏好轨道半径
 		let nodes: Frag[] = [];
 		let sparks: { x: number; y: number; vx: number; vy: number; t: number; life: number }[] = [];
 		let rings: Ring[] = [];
@@ -105,11 +108,12 @@
 				nodes.push({
 					x: mx + (Math.random() - 0.5) * 10,
 					y: my + (Math.random() - 0.5) * 10,
-					vx: (Math.random() - 0.5) * 0.35,
-					vy: (Math.random() - 0.5) * 0.35,
+					vx: (Math.random() - 0.5) * 0.6,
+					vy: (Math.random() - 0.5) * 0.6,
 					t: now,
 					life: 700 + Math.random() * 500,   // 生灭快
 					r: 0.9 + Math.random() * 1.1,      // 小而细
+					swirl: Math.random() < 0.5 ? 1 : -1, // 每颗固定的盘旋方向
 				});
 				if (nodes.length > MAX_FRAGS) nodes.shift();
 			}
@@ -130,7 +134,25 @@
 		function stepNodes(t: number) {
 			nodes = nodes.filter((n) => t - n.t < n.life);
 			for (const n of nodes) {
-				n.vx *= 0.985; n.vy *= 0.985;
+				const dx = mx - n.x, dy = my - n.y;
+				const d = Math.hypot(dx, dy) || 1;
+				if (d < SWIRL_R) {
+					// 切向盘旋力（越近越强）
+					const tang = (1 - d / SWIRL_R) * 0.09 * n.swirl;
+					n.vx += (-dy / d) * tang;
+					n.vy += (dx / d) * tang;
+					// 向偏好轨道半径的弹簧（远了内拉、近了外推）
+					const k = (d - ORBIT_D) * 0.0006;
+					n.vx += (dx / d) * k;
+					n.vy += (dy / d) * k;
+				}
+				// 自身游走（永动的噪声）
+				n.vx += (Math.random() - 0.5) * 0.05;
+				n.vy += (Math.random() - 0.5) * 0.05;
+				// 阻尼与限速
+				n.vx *= 0.96; n.vy *= 0.96;
+				const sp = Math.hypot(n.vx, n.vy);
+				if (sp > 1.4) { n.vx = (n.vx / sp) * 1.4; n.vy = (n.vy / sp) * 1.4; }
 				n.x += n.vx; n.y += n.vy;
 			}
 			sparks = sparks.filter((s) => t - s.t < s.life);
