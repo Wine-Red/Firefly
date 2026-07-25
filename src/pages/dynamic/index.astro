@@ -32,46 +32,15 @@ const memos = dynamicConfig.memos;
 	<section class="dynamic-page" aria-labelledby="dynamic-page-title">
 		<div>
 			<header class="dynamic-page-header">
-				<div class="dynamic-broadcast-label" aria-hidden="true">
-					<span>CHRONICLE</span>
-					<span>月相通信</span>
-				</div>
 				<div class="dynamic-page-heading">
-					<div class="dynamic-page-icon" aria-hidden="true">
-						<Icon is:inline name="material-symbols:forum-rounded" />
+					<div
+						class="h-8 w-8 rounded-lg bg-(--primary) flex items-center justify-center text-white dark:text-black/70"
+					>
+						<Icon is:inline name="material-symbols:forum-rounded" class="text-[1.5rem]" />
 					</div>
-					<div>
-						<h2 id="dynamic-page-title">{title}</h2>
-						{description && <p>{description}</p>}
-					</div>
+					<h2 id="dynamic-page-title">{title}</h2>
 				</div>
-				<div
-					class="dynamic-count"
-					aria-label={i18n(I18nKey.dynamic)}
-				>
-					<Icon is:inline name="material-symbols:dynamic-feed-rounded" />
-					<strong data-dynamic-page-count>0</strong>
-					<span>{i18n(I18nKey.dynamic)}</span>
-				</div>
-				<div class="dynamic-filter">
-					<label class="dynamic-search">
-						<span class="sr-only">{i18n(I18nKey.dynamicSearch)}</span>
-						<Icon is:inline name="material-symbols:search-rounded" />
-						<input
-							type="search"
-							data-dynamic-search
-							placeholder={i18n(I18nKey.dynamicSearch)}
-						/>
-					</label>
-					<label class="dynamic-year-select">
-						<span class="sr-only">{i18n(I18nKey.year)}</span>
-						<Icon is:inline name="material-symbols:calendar-month-rounded" />
-						<select data-year-select aria-label={i18n(I18nKey.year)}>
-							<option value="all">{i18n(I18nKey.dynamicAllYears)}</option>
-						</select>
-						<Icon is:inline name="material-symbols:arrow-drop-down-rounded" />
-					</label>
-				</div>
+				{description && <p class="dynamic-page-desc">{description}</p>}
 			</header>
 
 			<DynamicFeed
