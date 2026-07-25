@@ -8,6 +8,8 @@ import type {
 	WALLPAPER_OVERLAY,
 } from "../constants/constants";
 
+export type { DynamicConfig } from "./dynamicConfig";
+
 export type SiteConfig = {
 	title: string;
 	subtitle: string;
@@ -86,6 +88,7 @@ export type SiteConfig = {
 		guestbook: boolean; // 留言板页面开关
 		bangumi: boolean;
 		gallery: boolean; // 相册页面开关
+		dynamic: boolean; // 动态页面开关
 	};
 
 	// 分类导航栏开关
@@ -416,7 +419,14 @@ export type WidgetComponentType =
 	| "stats"
 	| "calendar"
 	| "timeGreeting"
-	| "music";
+	| "music"
+	| "dynamic";
+
+export type WidgetSpecificConfig = {
+	dynamic?: {
+		limit?: number;
+	};
+};
 
 export type WidgetComponentConfig = {
 	type: WidgetComponentType; // 组件类型
@@ -425,6 +435,7 @@ export type WidgetComponentConfig = {
 	configId?: string; // 配置ID，用于广告组件指定使用哪个配置
 	showOnPostPage?: boolean; // 是否在文章详情页显示
 	showOnNonPostPage?: boolean; // 是否在非文章详情页显示
+	specificConfig?: WidgetSpecificConfig;
 	responsive?: {
 		hidden?: ("mobile" | "tablet" | "desktop")[]; // 在指定设备上隐藏
 		collapseThreshold?: number; // 折叠阈值

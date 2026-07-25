@@ -130,6 +130,8 @@ export const siteConfig: SiteConfig = {
 		bangumi: true,
 		// 相册页面开关
 		gallery: false,
+		// 动态页面开关，默认使用本地 Markdown 数据源
+		dynamic: true,
 	},
 
 	// 分类导航栏开关，在首页和归档页顶部显示分类快捷导航

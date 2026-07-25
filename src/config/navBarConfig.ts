@@ -19,6 +19,14 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 		LinkPreset.Archive,
 	];
 
+	if (siteConfig.pages.dynamic) {
+		links.push({
+			name: "动态",
+			url: "/dynamic/",
+			icon: "material-symbols:dynamic-feed-rounded",
+		});
+	}
+
 	// 根据配置决定是否添加友链，在siteConfig关闭pages.friends时导航栏不显示友链
 	if (siteConfig.pages.friends) {
 		links.push(LinkPreset.Friends);

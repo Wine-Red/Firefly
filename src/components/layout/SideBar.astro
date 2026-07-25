@@ -4,6 +4,7 @@ import Advertisement from "@/components/widget/Advertisement.astro";
 import Announcement from "@/components/widget/Announcement.astro";
 import Calendar from "@/components/widget/Calendar.astro";
 import Categories from "@/components/widget/Categories.astro";
+import Dynamic from "@/components/widget/Dynamic.astro";
 import GitHubHeatmap from "@/components/widget/GitHubHeatmap.astro";
 import Music from "@/components/widget/Music.astro";
 import Profile from "@/components/widget/Profile.astro";
@@ -53,6 +54,7 @@ const componentMap = {
 	calendar: Calendar,
 	timeGreeting: TimeGreeting,
 	music: Music,
+	dynamic: Dynamic,
 } satisfies Record<WidgetComponentType, typeof Profile>;
 
 // 获取侧边栏位置
@@ -134,6 +136,7 @@ const getComponentProps = (
 	const baseProps: Record<string, unknown> = {
 		class: "onload-animation",
 		style: `animation-delay: ${getAnimationDelay(index)}`,
+		widgetConfig: config,
 	};
 
 	// 添加 showOnPostPage 和 showOnNonPostPage 标记class（仅WidgetComponentConfig有这些属性）

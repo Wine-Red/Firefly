@@ -131,6 +131,17 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 			showOnPostPage: true,
 		},
 		{
+			// 最新动态：保持非文章页的信息密度，文章阅读时不打扰正文
+			type: "dynamic",
+			enable: true,
+			position: "top",
+			showOnPostPage: false,
+			showOnNonPostPage: true,
+			specificConfig: {
+				dynamic: { limit: 3 },
+			},
+		},
+		{
 			// 组件类型：站点统计组件
 			type: "stats",
 			// 是否启用该组件

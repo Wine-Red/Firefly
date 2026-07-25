@@ -132,48 +132,43 @@ const managerConfigStr = JSON.stringify({
         window.dispatchEvent(new CustomEvent(name, { detail: detail || {} }));
     }
 
-    // ── Audio Analyser for Waves ─────────────────────────────
+    // Pull-based meter: sampled by the existing starfield render loop.
     var audioCtx = null;
     var analyser = null;
-    var dataArray = null;
+    var frequencyData = null;
 
-    function initAudioAnalyser() {
+    function initAudioMeter() {
         if (audioCtx) return;
         try {
             var AudioContext = window.AudioContext || window.webkitAudioContext;
             if (!AudioContext) return;
             audioCtx = new AudioContext();
             analyser = audioCtx.createAnalyser();
-            analyser.fftSize = 256;
+            analyser.fftSize = 64;
+            analyser.smoothingTimeConstant = 0.82;
             var source = audioCtx.createMediaElementSource(audio);
             source.connect(analyser);
             analyser.connect(audioCtx.destination);
-            dataArray = new Uint8Array(analyser.frequencyBinCount);
-            
-            function renderFrame() {
-                if (!state.isPlaying) {
-                    document.documentElement.style.setProperty('--music-wave-scale', '1');
-                } else {
-                    analyser.getByteFrequencyData(dataArray);
-                    
-                    var sum = 0;
-                    // Calculate average of the first few bins (bass frequencies)
-                    var count = 10;
-                    for (var i = 0; i < count; i++) {
-                        sum += dataArray[i];
-                    }
-                    var avg = sum / count;
-                    
-                    // Map 0-255 to scale 1.0 - 1.2 for a subtle effect
-                    var scale = 1 + (avg / 255) * 0.2;
-                    document.documentElement.style.setProperty('--music-wave-scale', scale.toString());
-                }
-                requestAnimationFrame(renderFrame);
-            }
-            renderFrame();
+            frequencyData = new Uint8Array(analyser.frequencyBinCount);
         } catch (e) {
-            console.warn('Audio analyser init failed:', e);
+            audioCtx = null;
+            analyser = null;
+            frequencyData = null;
         }
+    }
+
+    function resumeAudioMeter() {
+        initAudioMeter();
+        if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+    }
+
+    function sampleMusicEnergy() {
+        if (!state.isPlaying || !analyser || !frequencyData || document.hidden) return 0;
+        analyser.getByteFrequencyData(frequencyData);
+        var sum = 0;
+        var end = Math.min(18, frequencyData.length);
+        for (var i = 2; i < end; i++) sum += frequencyData[i];
+        return end > 2 ? Math.min(1, sum / ((end - 2) * 255)) : 0;
     }
 
     // ── Meting fetch ─────────────────────────────────────────
@@ -261,10 +256,7 @@ const managerConfigStr = JSON.stringify({
         emit('fm:track', { index: index, track: track, autoPlay: !!autoPlay });
 
         if (autoPlay) {
-            initAudioAnalyser();
-            if (audioCtx && audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
+            resumeAudioMeter();
             audio.play().then(function () {
                 state.isPlaying = true;
                 emit('fm:play-state', { isPlaying: true });
@@ -280,10 +272,7 @@ const managerConfigStr = JSON.stringify({
     // ── Playback controls ────────────────────────────────────
     function togglePlay() {
         if (audio.paused) {
-            initAudioAnalyser();
-            if (audioCtx && audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
+            resumeAudioMeter();
             audio.play().then(function () {
                 state.isPlaying = true;
                 emit('fm:play-state', { isPlaying: true });
@@ -298,10 +287,7 @@ const managerConfigStr = JSON.stringify({
     function playNext(auto) {
         if (state.playMode === 1 && auto) {
             audio.currentTime = 0;
-            initAudioAnalyser();
-            if (audioCtx && audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
+            resumeAudioMeter();
             audio.play();
             return;
         }
@@ -495,7 +481,8 @@ const managerConfigStr = JSON.stringify({
         seek: seek,
         seekToTime: seekToTime,
         playTrackByIndex: playTrackByIndex,
-        loadTrack: loadTrack
+        loadTrack: loadTrack,
+        sampleMusicEnergy: sampleMusicEnergy
     };
 })();
 </script>

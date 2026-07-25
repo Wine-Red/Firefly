@@ -6,6 +6,7 @@ declare global {
 	}
 
 	interface Window {
+		webkitAudioContext?: typeof AudioContext;
 		// biome-ignore lint/suspicious/noExplicitAny: External library
 		swup: any;
 		live2dModelInitialized?: boolean;
@@ -63,6 +64,7 @@ declare global {
 			seekToTime: (time: number) => void;
 			playTrackByIndex: (index: number) => void;
 			loadTrack: (index: number, autoPlay: boolean) => void;
+			sampleMusicEnergy: () => number;
 		};
 	}
 

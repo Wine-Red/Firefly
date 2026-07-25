@@ -18,6 +18,7 @@
 	data-density="0.000055"
 	data-max-stars="150"
 	data-meteors="true"
+	data-music-meteors="true"
 	data-scroll-rate="0.22"
 	aria-hidden="true"></canvas>
 
@@ -59,10 +60,11 @@
 		});
 
 		/* ---------------- 星空 ---------------- */
-		interface Star { x: number; y: number; r: number; base: number; phase: number; speed: number; role: number; born: number }
+		interface Star { x: number; y: number; r: number; base: number; phase: number; speed: number; role: number; born: number; musicResponse: number }
 		interface Meteor { x: number; y: number; vx: number; vy: number; life: number; maxLife: number; tail: number; bright: number }
 
-		const METEOR_SLOTS = 2;
+		const NATURAL_METEOR_SLOTS = 2;
+		const METEOR_SLOTS = 5;
 
 		class StarCanvas {
 			canvas: HTMLCanvasElement;
@@ -70,6 +72,7 @@
 			stars: Star[] = [];
 			meteors: (Meteor | null)[] = new Array(METEOR_SLOTS).fill(null);
 			nextMeteorAt: number[] = new Array(METEOR_SLOTS).fill(0);
+			lastMusicMeteorAt = 0;
 			visible = true;
 			w = 0; h = 0;
 			birth = performance.now();
@@ -124,12 +127,17 @@
 						speed: 0.0006 + Math.random() * 0.0016,
 						role: Math.floor(Math.random() * roles), // 配色角色，绘制时按当前模式取色
 						born: this.birth + Math.random() * 1600,
+						musicResponse: Math.random() < (this.isMobile ? 0.16 : 0.28)
+							? 0.35 + Math.random() * 0.65
+							: 0,
 					});
 				}
 				this.meteors = new Array(METEOR_SLOTS).fill(null);
 				const now = performance.now();
 				for (let s = 0; s < METEOR_SLOTS; s++) {
-					this.nextMeteorAt[s] = now + 2500 + s * 2600 + Math.random() * 4000;
+					this.nextMeteorAt[s] = s < NATURAL_METEOR_SLOTS
+						? now + 2500 + s * 2600 + Math.random() * 4000
+						: Number.POSITIVE_INFINITY;
 				}
 			}
 
@@ -137,7 +145,7 @@
 				if (REDUCED.matches) this.draw(performance.now(), true);
 			}
 
-			draw(t: number, forceFull = false) {
+			draw(t: number, forceFull = false, musicPulse = 0, musicBurst = 0) {
 				const ctx = this.ctx;
 				ctx.clearRect(0, 0, this.w, this.h);
 				// 星辰按画布视差速率漂移（全局层慢上漂，Hero 层向下补偿滞后）
@@ -146,15 +154,26 @@
 					const fadeIn = forceFull ? 1 : Math.min(1, Math.max(0, (t - s.born) / 1200));
 					if (fadeIn <= 0) continue;
 					const tw = forceFull ? 1 : 0.55 + 0.45 * Math.sin(t * s.speed + s.phase);
-					ctx.fillStyle = hexToRgba(starColors()[s.role], s.base * tw * fadeIn);
+					const response = forceFull ? 0 : musicPulse * s.musicResponse;
+					const alpha = Math.min(1, s.base * (tw + response * 0.9) * fadeIn);
+					const radius = s.r * (1 + response * 0.16);
+					ctx.fillStyle = hexToRgba(starColors()[s.role], alpha);
 					ctx.beginPath();
-					ctx.arc(s.x + drift * 0.35, s.y - drift, s.r, 0, Math.PI * 2);
+					ctx.arc(s.x + drift * 0.35, s.y - drift, radius, 0, Math.PI * 2);
 					ctx.fill();
 				}
 				// 流星池：多条并存，方向/长度/亮度各异
 				if (!forceFull && this.canvas.dataset.meteors === "true" && !this.isMobile) {
+					const sinceMusicMeteor = t - this.lastMusicMeteorAt;
+					const musicMeteor =
+						this.canvas.dataset.musicMeteors === "true" &&
+						((musicBurst >= 0.055 && sinceMusicMeteor >= 900) ||
+							(musicPulse >= 0.1 && sinceMusicMeteor >= 2400));
+					let musicMeteorSpawned = false;
 					for (let slot = 0; slot < METEOR_SLOTS; slot++) {
-						if (!this.meteors[slot] && t >= this.nextMeteorAt[slot]) {
+						const triggeredByMusic = musicMeteor;
+						const naturalMeteorDue = slot < NATURAL_METEOR_SLOTS && t >= this.nextMeteorAt[slot];
+						if (!this.meteors[slot] && (triggeredByMusic || naturalMeteorDue)) {
 							const fromLeft = Math.random() > 0.5;
 							const speed = 0.3 + Math.random() * 0.3;
 							this.meteors[slot] = {
@@ -167,6 +186,7 @@
 								tail: 60 + Math.random() * 80,
 								bright: 0.5 + Math.random() * 0.4,
 							};
+							if (triggeredByMusic) musicMeteorSpawned = true;
 						}
 						const m = this.meteors[slot];
 						if (m) {
@@ -186,10 +206,13 @@
 							ctx.stroke();
 							if (m.life >= m.maxLife || m.x < -160 || m.x > this.w + 160 || m.y > this.h + 160) {
 								this.meteors[slot] = null;
-								this.nextMeteorAt[slot] = t + 2500 + Math.random() * 4000 + slot * 1400;
+								this.nextMeteorAt[slot] = slot < NATURAL_METEOR_SLOTS
+									? t + 2500 + Math.random() * 4000 + slot * 1400
+									: Number.POSITIVE_INFINITY;
 							}
 						}
 					}
+					if (musicMeteorSpawned) this.lastMusicMeteorAt = t;
 				}
 			}
 
@@ -324,6 +347,9 @@
 		let sSmooth = -1;
 		let lastWritten = -1;
 		let frameCount = 0; // 主循环帧计数（调试探针用）
+		let musicPulse = 0;
+		let musicBaseline = 0;
+		let musicBurst = 0;
 
 		function scanChoreo() {
 			driftLayers = [];
@@ -425,10 +451,27 @@
 				const dt = Math.min((t - lastT) / 1000, 0.032);
 				lastT = t;
 				if (!document.hidden) {
+					// Sample at roughly 20 Hz. Fast attack and slow release keep the
+					// response musical without adding a second animation loop.
+					if (frameCount % 3 === 0) {
+						const energy = window.__fireflyMusic?.sampleMusicEnergy?.() ?? 0;
+						const smoothing = energy > musicPulse ? 0.34 : 0.1;
+						musicPulse += (energy - musicPulse) * smoothing;
+						if (energy > 0) {
+							if (musicBaseline === 0) musicBaseline = energy;
+							const onset = Math.max(0, energy - musicBaseline);
+							musicBurst = Math.max(onset * 3.2, musicBurst * 0.68);
+							musicBaseline += (energy - musicBaseline) * 0.045;
+						} else {
+							musicBaseline = 0;
+							musicBurst = 0;
+						}
+						if (musicPulse < 0.004) musicPulse = 0;
+					}
 					stepPendulum(dt);
 					updateChoreo(t);
 					for (const inst of instances.values()) {
-						if (inst.visible) inst.draw(t);
+						if (inst.visible) inst.draw(t, false, musicPulse, musicBurst);
 					}
 				}
 				requestAnimationFrame(loop);

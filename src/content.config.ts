@@ -40,7 +40,20 @@ const specCollection = defineCollection({
 	schema: z.object({}),
 });
 
+// Short-form dynamics remain a static Astro collection. This keeps the
+// feature deployable without a service while the client can later switch to
+// the reserved Memos adapter through dynamicConfig.
+const dynamicCollection = defineCollection({
+	loader: glob({ pattern: "**/*.md", base: "./src/content/dynamic" }),
+	schema: z.object({
+		published: z.date(),
+		pinned: z.boolean().optional().default(false),
+		location: z.string().optional().default(""),
+	}),
+});
+
 export const collections = {
+	dynamic: dynamicCollection,
 	posts: postsCollection,
 	spec: specCollection,
 };
