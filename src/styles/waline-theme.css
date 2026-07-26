@@ -46,7 +46,8 @@
 
 /* 昵称 / 邮箱 / 网址：保持干净的无边线输入 */
 #waline .wl-header {
-	border-bottom: 0;
+	border-bottom: 1px dashed
+		color-mix(in srgb, var(--gold) 35%, var(--waline-border-color));
 }
 
 #waline .wl-header .wl-header-item {
@@ -63,6 +64,22 @@
 #waline .wl-header .wl-input:focus {
 	border: 0;
 	box-shadow: none;
+}
+
+/* PC 横排时以竖向虚线分隔昵称、邮箱和网址 */
+@media (min-width: 581px) {
+	#waline .wl-header .wl-header-item:not(:last-child) {
+		border-inline-end: 1px dashed
+			color-mix(in srgb, var(--gold) 35%, var(--waline-border-color));
+	}
+}
+
+/* 手机堆叠时改用横向虚线，避免同时出现横竖双线 */
+@media (max-width: 580px) {
+	#waline .wl-header .wl-header-item:not(:last-child) {
+		border-bottom: 1px dashed
+			color-mix(in srgb, var(--gold) 35%, var(--waline-border-color));
+	}
 }
 
 /* 预览区显式继承主题色，避免被文章 Markdown 全局样式染黑 */
@@ -224,5 +241,99 @@
 	#waline .wl-btn,
 	#waline .wl-header .wl-input {
 		transition: none;
+	}
+}
+
+/* ---------- 移动端：把桌面双栏编辑器重排为全宽单栏 ---------- */
+@media (max-width: 640px) {
+	#waline {
+		--waline-font-size: 0.9rem;
+		--waline-avatar-size: 2.5rem;
+		--waline-m-avatar-size: 2.25rem;
+		width: 100%;
+		min-width: 0;
+	}
+
+	#waline > [data-waline],
+	#waline .wl-comment {
+		box-sizing: border-box;
+		width: 100%;
+		max-width: 100%;
+		min-width: 0;
+	}
+
+	#waline .wl-comment {
+		display: block;
+		margin-bottom: 1rem;
+	}
+
+	/* 登录身份不再单独占据左侧一列 */
+	#waline .wl-login-info {
+		display: flex;
+		align-items: center;
+		gap: 0.625rem;
+		max-width: none;
+		margin: 0 0 0.625rem;
+		text-align: start;
+	}
+
+	#waline .wl-login-info .wl-avatar {
+		flex: 0 0 auto;
+		margin: 0;
+	}
+
+	#waline .wl-login-nick {
+		min-width: 0;
+		font-size: 0.75rem;
+		word-break: normal;
+		overflow-wrap: anywhere;
+	}
+
+	#waline .wl-logout-btn {
+		position: static;
+		flex: 0 0 auto;
+		margin-inline-start: auto;
+		padding: 0.4rem;
+	}
+
+	#waline .wl-panel {
+		box-sizing: border-box;
+		width: 100%;
+		min-width: 0;
+		margin: 0;
+	}
+
+	#waline .wl-header {
+		padding-inline: 0;
+	}
+
+	#waline .wl-header label {
+		padding-inline: 0.625rem;
+		text-align: start;
+	}
+
+	#waline .wl-header input {
+		box-sizing: border-box;
+		min-width: 0;
+		width: 100%;
+	}
+
+	#waline .wl-editor {
+		min-height: 8rem;
+		margin: 0.625rem 0.5rem;
+	}
+
+	/* 评论卡片只减少无效缩进，其余操作布局沿用 Waline 原生规则 */
+	#waline .wl-card-item {
+		min-width: 0;
+		padding: 0.625rem 0;
+	}
+
+	#waline .wl-cards .wl-user {
+		margin-inline-end: 0.625rem;
+	}
+
+	#waline .wl-card:first-child {
+		margin-inline-start: 0;
 	}
 }

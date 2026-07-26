@@ -657,7 +657,6 @@ dynamic-feed {
 .dynamic-page {
 	--dynamic-rule: color-mix(in srgb, var(--gold) 48%, transparent);
 	--dynamic-rule-soft: color-mix(in srgb, var(--gold) 24%, transparent);
-	--dynamic-hover: color-mix(in srgb, var(--gold) 6%, transparent);
 }
 
 .dynamic-permalink:focus-visible,
@@ -697,7 +696,6 @@ dynamic-feed {
 	border-bottom: 1px solid var(--dynamic-rule-soft);
 	padding: 0.95rem 0.9rem;
 	background: transparent;
-	transition: background-color 220ms ease;
 }
 
 .dynamic-entry::before {
@@ -723,10 +721,6 @@ dynamic-feed {
 	font-variant-numeric: tabular-nums;
 	letter-spacing: 0.22em;
 	pointer-events: none;
-}
-
-.dynamic-entry:hover {
-	background: var(--dynamic-hover);
 }
 
 .dynamic-avatar {
