@@ -259,6 +259,14 @@ const archiveUrl = url("/archive/");
     };
   }
 
+  // 类型筛选栏只在主页（含分页与 /original/）和归档页显示，其余页面整条隐藏
+  function updateBarVisibility(bar: HTMLElement, currentUrl: URL) {
+    const wrapper = document.getElementById("category-bar-wrapper");
+    if (!wrapper) return;
+    const { isHome, isOriginal, isArchive } = getCategoryBarState(bar, currentUrl);
+    wrapper.style.display = isHome || isOriginal || isArchive ? "" : "none";
+  }
+
   function setActiveCategory(bar: HTMLElement, currentUrl: URL) {
     const { isHome, isOriginal, isArchive, activeCategory, hasTag, hasUncategorized } =
       getCategoryBarState(bar, currentUrl);
@@ -343,6 +351,7 @@ const archiveUrl = url("/archive/");
       bar.setAttribute("data-current-post-category", currentPostCategory);
     }
 
+    updateBarVisibility(bar, currentUrl);
     setActiveCategory(bar, currentUrl);
 
     const deferScroll = options.deferScroll ?? shouldDeferCategoryScroll(bar, currentUrl);
@@ -481,6 +490,7 @@ const archiveUrl = url("/archive/");
 				visit.scroll.reset = false;
 			}
       const targetUrl = new URL(visit.to.url, window.location.href);
+      updateBarVisibility(bar, targetUrl);
       setActiveCategory(bar, targetUrl);
       
       // 在页面跳转前提前触发过滤按钮的动画

@@ -131,9 +131,9 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 			showOnPostPage: true,
 		},
 		{
-			// 最新动态：保持非文章页的信息密度，文章阅读时不打扰正文
+			// 最新动态：暂时隐藏，动态页本身已经提供完整时间线
 			type: "dynamic",
-			enable: true,
+			enable: false,
 			position: "top",
 			showOnPostPage: false,
 			showOnNonPostPage: true,

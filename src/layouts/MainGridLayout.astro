@@ -121,6 +121,11 @@ const showConstructivismHero = heroPathname === heroBasePath;
 
 const shouldRenderCategoryBar = !!siteConfig.categoryBar;
 
+// 类型筛选栏只在主页（含分页与 /original/）和归档页出现
+const categoryBarPathname = Astro.url.pathname.replace(/\/+$/, "") || "/";
+const isCategoryBarPage =
+	isHomePageCheck || categoryBarPathname.endsWith("/archive");
+
 // 检查是否在文章详情页
 const isPostPage = !!postSlug;
 
@@ -980,8 +985,12 @@ const bannerCarouselInterval = Math.max(
                     
             {/* 主内容区包装器 - 包含静态栏位和swup容器，作为单个grid item */}
             <div class={staticBarClass}>
-                {/* 分类导航栏 - 全站渲染并显示 */}
-                {shouldRenderCategoryBar && <div id="category-bar-wrapper"><CategoryBar currentPostCategory={postCategory} /></div>}
+                {/* 分类导航栏 - 始终挂载（Swup 换页时不重建），仅在主页/归档显示 */}
+                {shouldRenderCategoryBar && (
+                    <div id="category-bar-wrapper" style={isCategoryBarPage ? undefined : "display: none;"}>
+                        <CategoryBar currentPostCategory={postCategory} />
+                    </div>
+                )}
                 {/* 主内容区 - 始终渲染，确保 Swup 容器存在 */}
                 <main
                     id="swup-container"

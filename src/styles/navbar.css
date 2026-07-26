@@ -457,3 +457,64 @@ body #navbar.nav-condensed .grid > a:first-child {
 .is-page-transitioning body #top-row div#navbar {
     transition: none !important;
 }
+
+/* ============================================
+ * 宽度自适应修复：气泡内容溢出防护
+ * ============================================ */
+
+/* 收缩时不再收窄气泡宽度——内容（7 个 tab + 搜索 + 图标组）需要完整宽度，
+ * 收缩感只体现在高度、贴顶距离与底色加深上。 */
+@media (min-width: 1280px) {
+    body #top-row div#navbar.nav-condensed {
+        width: min(92vw - 1.5rem, var(--page-width)) !important;
+    }
+}
+
+/* 中等桌面宽度（1024–1535px）：收紧 tab 内边距与搜索框，防止挤压溢出 */
+@media (min-width: 1024px) and (max-width: 1535px) {
+    body #navbar .dropdown-container > a {
+        padding-left: 0.6rem;
+        padding-right: 0.6rem;
+        letter-spacing: 0.06em;
+    }
+
+    body #navbar .dropdown-container > button {
+        padding-left: 0.6rem;
+        padding-right: 1.75rem;
+        letter-spacing: 0.06em;
+    }
+
+    body #navbar #search-bar input {
+        width: 7rem;
+    }
+
+    body #navbar #search-bar input:focus,
+    body #navbar #search-bar input:active {
+        width: 11rem;
+    }
+}
+
+/* 移动端：图标按钮过多会挤破气泡，次级按钮让位（菜单面板内均可达） */
+@media (max-width: 1023px) {
+    body #navbar .space-shuttle-btn,
+    body #navbar #display-settings-switch {
+        display: none !important;
+    }
+
+    /* logo 内边距收紧，给小屏留空间 */
+    body #navbar .grid > a:first-child {
+        padding-left: 0.65rem;
+        padding-right: 0.65rem;
+    }
+}
+
+/* 超小屏：再让出音乐按钮与月亮小图标（音乐可用侧边栏组件） */
+@media (max-width: 479px) {
+    body #navbar #music-player-switch {
+        display: none !important;
+    }
+
+    body #navbar .nav-moon {
+        display: none;
+    }
+}

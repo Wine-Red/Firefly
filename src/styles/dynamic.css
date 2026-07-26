@@ -5,162 +5,8 @@
 	max-width: 100%;
 }
 
-.dynamic-page-header {
-	display: grid;
-	grid-template-columns: minmax(0, 1fr) auto;
-	gap: 1rem;
-	margin-bottom: 1rem;
-	padding: 1.5rem 2rem;
-}
-
-.dynamic-page-heading {
-	display: flex;
-	align-items: center;
-	gap: 0.875rem;
-}
-
-.dynamic-count {
-	display: inline-flex;
-	align-items: baseline;
-	gap: 0.3rem;
-	align-self: center;
-	color: var(--primary);
-	white-space: nowrap;
-}
-
-.dynamic-count svg {
-	align-self: center;
-	font-size: 1.35rem;
-}
-
-.dynamic-count strong {
-	font-size: 1.3rem;
-	font-weight: 700;
-	line-height: 1;
-}
-
-.dynamic-count span {
-	color: var(--content-meta);
-	font-size: 0.8rem;
-	font-weight: 500;
-}
-
-.dynamic-page-icon {
-	display: grid;
-	width: 3rem;
-	height: 3rem;
-	flex: 0 0 3rem;
-	place-items: center;
-	border-radius: var(--radius-large);
-	background: var(--btn-regular-bg);
-	color: var(--primary);
-	font-size: 1.75rem;
-}
-
-.dynamic-page-header h2 {
-	margin: 0;
-	color: rgb(0 0 0 / 90%);
-	font-size: 1.5rem;
-	font-weight: 700;
-	line-height: 1.25;
-}
-
-.dynamic-page-header p {
-	margin: 0.2rem 0 0;
-	color: var(--content-meta);
-	font-size: 0.875rem;
-}
-
 dynamic-feed {
 	display: block;
-}
-
-.dynamic-filter {
-	grid-column: 1 / -1;
-	display: flex;
-	align-items: center;
-	gap: 0.75rem;
-}
-
-.dynamic-search {
-	position: relative;
-	display: block;
-	min-width: 12rem;
-	flex: 1;
-}
-
-.dynamic-search svg {
-	position: absolute;
-	top: 50%;
-	left: 0.875rem;
-	color: var(--content-meta);
-	font-size: 1.25rem;
-	pointer-events: none;
-	transform: translateY(-50%);
-}
-
-.dynamic-search input {
-	width: 100%;
-	min-height: 2.75rem;
-	border: 1px solid var(--line-divider);
-	border-radius: var(--radius-large);
-	outline: none;
-	background: transparent;
-	color: rgb(0 0 0 / 90%);
-	padding: 0.625rem 1rem 0.625rem 2.75rem;
-	font-size: 0.9rem;
-}
-
-.dynamic-search input:focus {
-	border-color: var(--primary);
-	box-shadow: 0 0 0 1px var(--primary);
-}
-
-.dynamic-year-select {
-	position: relative;
-	display: flex;
-	flex: 0 0 auto;
-	align-items: center;
-	color: var(--content-meta);
-}
-
-.dynamic-year-select svg:first-child {
-	position: absolute;
-	left: 0.75rem;
-	font-size: 1.15rem;
-	pointer-events: none;
-}
-
-.dynamic-year-select svg:last-child {
-	position: absolute;
-	right: 0.5rem;
-	font-size: 1.25rem;
-	pointer-events: none;
-}
-
-.dynamic-year-select select {
-	min-width: 9.5rem;
-	min-height: 2.75rem;
-	appearance: none;
-	border: 1px solid var(--line-divider);
-	border-radius: var(--radius-large);
-	outline: none;
-	background: var(--card-bg);
-	color: rgb(0 0 0 / 90%);
-	color-scheme: light;
-	padding: 0.625rem 2.25rem 0.625rem 2.35rem;
-	font-size: 0.9rem;
-	cursor: pointer;
-}
-
-.dynamic-year-select select option {
-	background: var(--card-bg);
-	color: rgb(0 0 0 / 90%);
-}
-
-.dynamic-year-select select:focus {
-	border-color: var(--primary);
-	box-shadow: 0 0 0 1px var(--primary);
 }
 
 .dynamic-feed {
@@ -662,6 +508,38 @@ dynamic-feed {
 	}
 }
 
+/* 与友链、留言等页面统一的标题卡片 */
+.dynamic-page-header {
+	display: flex;
+	margin-bottom: 1rem;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	clip-path: none;
+}
+
+.dynamic-page-header::after,
+.dynamic-page-header .dynamic-broadcast-label {
+	display: none;
+}
+
+.dynamic-page-header .card-base {
+	border-radius: var(--radius-large);
+}
+
+.dynamic-page-header h2 {
+	margin: 0;
+	font-size: 1.875rem;
+	font-weight: 700;
+	letter-spacing: 0;
+}
+
+@media (max-width: 640px) {
+	.dynamic-page-header .card-base {
+		padding: 1.25rem;
+	}
+}
+
 .dynamic-no-results {
 	display: grid;
 	min-height: 10rem;
@@ -703,7 +581,6 @@ dynamic-feed {
 	margin-top: 0.25rem;
 }
 
-:root.dark .dynamic-page-header h2,
 :root.dark .dynamic-author,
 :root.dark .dynamic-content {
 	color: rgb(255 255 255 / 90%);
@@ -711,31 +588,6 @@ dynamic-feed {
 
 :root.dark .dynamic-author:hover {
 	color: var(--primary);
-}
-
-:root.dark .dynamic-search input,
-:root.dark .dynamic-year-select select {
-	background: transparent;
-	color: rgb(255 255 255 / 90%);
-	color-scheme: dark;
-}
-
-:root.dark .dynamic-year-select select option {
-	background: var(--card-bg);
-	color: rgb(255 255 255 / 90%);
-}
-
-/* 透明模式适配 */
-body.wallpaper-transparent .dynamic-search input {
-	background: transparent;
-}
-
-body.wallpaper-transparent .dynamic-year-select select {
-	background: transparent;
-}
-
-body.wallpaper-transparent .dynamic-year-select select option {
-	background: var(--card-bg);
 }
 
 @media (max-width: 768px) {
@@ -762,23 +614,6 @@ body.wallpaper-transparent .dynamic-year-select select option {
 		min-width: 0;
 		max-width: 100%;
 		overflow-x: hidden;
-	}
-
-	.dynamic-page-header {
-		padding: 1.25rem;
-	}
-
-	.dynamic-count {
-		align-self: center;
-	}
-
-	.dynamic-filter {
-		align-items: stretch;
-		flex-direction: column;
-	}
-
-	.dynamic-year-select select {
-		width: 100%;
 	}
 
 	.dynamic-entry {
@@ -829,44 +664,6 @@ body.wallpaper-transparent .dynamic-year-select select option {
 	--dynamic-rule: color-mix(in srgb, var(--gold) 48%, transparent);
 	--dynamic-rule-soft: color-mix(in srgb, var(--gold) 24%, transparent);
 	--dynamic-hover: color-mix(in srgb, var(--gold) 6%, transparent);
-}
-
-/* 页头：简简单单——朱红边条 + 金色底线，小图标、标题与一句描述 */
-.dynamic-page-header {
-	position: relative;
-	display: block;
-	overflow: hidden;
-	margin-bottom: 0.5rem;
-	border-left: 4px solid var(--vermilion);
-	border-bottom: 1px solid var(--dynamic-rule);
-	padding: 1.1rem 2rem 1.15rem 1.4rem;
-	background: transparent;
-}
-
-.dynamic-page-header::after {
-	content: "";
-	position: absolute;
-	top: 0;
-	right: 0;
-	width: 1px;
-	height: 6.5rem;
-	background: var(--gold);
-	transform: rotate(-45deg);
-	transform-origin: top;
-	pointer-events: none;
-}
-
-.dynamic-page-header h2 {
-	font-size: 1.65rem;
-	font-weight: 650;
-	letter-spacing: 0.08em;
-}
-
-.dynamic-page-desc {
-	margin: 0.5rem 0 0;
-	color: var(--content-meta);
-	font-size: 0.9rem;
-	letter-spacing: 0.02em;
 }
 
 .dynamic-permalink:focus-visible,
@@ -1020,10 +817,6 @@ body.wallpaper-transparent .dynamic-year-select select option {
 }
 
 @media (max-width: 640px) {
-	.dynamic-page-header {
-		padding: 0.9rem 1rem 0.95rem 1.1rem;
-	}
-
 	.dynamic-feed {
 		width: 100%;
 		padding-left: 1.5rem;
