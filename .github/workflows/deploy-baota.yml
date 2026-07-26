@@ -78,7 +78,40 @@ jobs:
       - name: Build site
         env:
           GITHUB_TOKEN: ${{ secrets.HEATMAP_GITHUB_TOKEN }}
-        run: pnpm build:site
+          SSH_HOST: ${{ secrets.SERVER_HOST }}
+          SSH_USER: ${{ secrets.SERVER_USERNAME }}
+          SSH_PORT: ${{ secrets.SERVER_PORT }}
+          SSH_PRIVATE_KEY: ${{ secrets.SERVER_KEY }}
+          MEMOS_API_URL: http://127.0.0.1:15230
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/firefly-deploy
+          chmod 600 ~/.ssh/firefly-deploy
+          ssh-keyscan -p "$SSH_PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts
+
+          ssh \
+            -i ~/.ssh/firefly-deploy \
+            -p "$SSH_PORT" \
+            -o ExitOnForwardFailure=yes \
+            -o ServerAliveInterval=30 \
+            -NT \
+            -L 15230:127.0.0.1:5230 \
+            "$SSH_USER@$SSH_HOST" &
+          tunnel_pid=$!
+          trap 'kill "$tunnel_pid" 2>/dev/null || true; rm -f ~/.ssh/firefly-deploy' EXIT
+
+          for attempt in {1..10}; do
+            if curl --silent --output /dev/null --max-time 2 "$MEMOS_API_URL/"; then
+              break
+            fi
+            if [ "$attempt" -eq 10 ]; then
+              echo "Memos SSH tunnel did not become ready" >&2
+              exit 1
+            fi
+            sleep 1
+          done
+
+          pnpm build:site
 
       - name: Deploy changed files to Baota Panel
         env:

@@ -200,6 +200,7 @@ export async function fetchMemos(
 		maxPages?: number;
 		parent?: string;
 		accessToken?: string;
+		publicUrl?: string;
 	},
 ): Promise<DynamicEntry[]> {
 	const cacheKey = `${memosApiUrl}:${options?.parent || ""}`;
@@ -244,6 +245,7 @@ async function fetchMemosInternal(
 		maxPages?: number;
 		parent?: string;
 		accessToken?: string;
+		publicUrl?: string;
 	},
 ): Promise<DynamicEntry[]> {
 	const pageSize = Math.min(options?.pageSize || 1000, 1000);
@@ -291,7 +293,7 @@ async function fetchMemosInternal(
 			const id = memo.name.split("/").pop() || "";
 			const published = new Date(memo.createTime).getTime();
 			const html = markdownToHtml(memo.content);
-			const images = extractImages(memo, memosApiUrl);
+			const images = extractImages(memo, options?.publicUrl || memosApiUrl);
 			const location = memo.location?.placeholder?.trim() || "";
 			const searchText = [extractPlainText(memo.content), location]
 				.filter(Boolean)

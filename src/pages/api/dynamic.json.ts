@@ -45,9 +45,12 @@ export async function GET(): Promise<Response> {
 			);
 		} else {
 			try {
-				data = await fetchMemos(dynamicConfig.memos.apiUrl, {
+				const apiUrl =
+					import.meta.env.MEMOS_API_URL?.trim() || dynamicConfig.memos.apiUrl;
+				data = await fetchMemos(apiUrl, {
 					accessToken,
 					parent: dynamicConfig.memos.parent,
+					publicUrl: dynamicConfig.memos.apiUrl,
 				});
 			} catch (error) {
 				console.warn("[Memos] Sync failed; using local dynamics.", error);
