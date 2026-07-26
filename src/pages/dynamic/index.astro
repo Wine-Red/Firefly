@@ -31,16 +31,16 @@ const memos = dynamicConfig.memos;
 <MainGridLayout title={title} description={description}>
 	<section class="dynamic-page" aria-labelledby="dynamic-page-title">
 		<div>
-			<header class="dynamic-page-header flex w-full min-h-32 overflow-hidden relative rounded-(--radius-large)">
+			<header class="dynamic-page-header flex w-full overflow-hidden relative rounded-(--radius-large)">
 				<div class="card-base z-10 relative w-full px-9 py-6">
-					<div class="mb-8">
+					<div>
 						<div class="mb-3 flex items-center gap-3">
 							<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-(--primary) text-white dark:text-black/70">
 								<Icon is:inline name="material-symbols:forum-rounded" class="text-[1.5rem]" />
 							</div>
 							<h2 id="dynamic-page-title" class="text-3xl font-bold text-neutral-900 dark:text-neutral-100">{title}</h2>
 						</div>
-						{description && <p class="mb-4 text-base leading-relaxed text-(--content-meta)">{description}</p>}
+						{description && <p class="text-base leading-relaxed text-(--content-meta)">{description}</p>}
 					</div>
 				</div>
 			</header>
