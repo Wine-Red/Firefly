@@ -124,6 +124,11 @@ export type SiteConfig = {
 			scriptUrl?: string; // Umami JS地址，支持使用自建
 			trackOutboundLinks?: boolean; // 是否追踪出站链接点击事件，默认 true
 			collectWebVitals?: boolean; // 是否自动收集访客浏览器核心网页指标，默认 false
+			shareUrl?: string;
+			visitorStats?: {
+				enabled?: boolean;
+				refreshInterval?: number;
+			};
 			relpays?: {
 				enabled?: boolean; // 是否启用会话回放，默认 false
 				sampleRate?: number; // 录制会话采样率，范围 0-1，默认 0.15

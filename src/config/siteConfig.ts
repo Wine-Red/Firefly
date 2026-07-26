@@ -176,6 +176,11 @@ export const siteConfig: SiteConfig = {
 			websiteId: "bc05efe2-8118-4e14-900d-681646039101",
 			// Umami JS地址，支持使用自建
 			scriptUrl: "https://umami.winered-0v0.com/script.js",
+			shareUrl: "https://umami.winered-0v0.com/share/xpciqIdaO57tlbe3",
+			visitorStats: {
+				enabled: true,
+				refreshInterval: 60000,
+			},
 			// 是否追踪出站链接
 			trackOutboundLinks: true,
 			// 是否收集浏览器性能指标

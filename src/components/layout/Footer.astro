@@ -1,9 +1,11 @@
 ---
 import fs from "node:fs";
 import path from "node:path";
-import { footerConfig, profileConfig } from "@/config";
+import FooterVisitorStats from "@/components/layout/FooterVisitorStats.svelte";
+import { footerConfig, profileConfig, siteConfig } from "@/config";
 
 const currentYear = new Date().getFullYear();
+const umamiConfig = siteConfig.analytics?.umamiAnalytics;
 
 // 读取FooterConfig.html文件内容
 let customFooterHtml = "";
@@ -37,6 +39,14 @@ if (footerConfig.enable) {
       <div class="mb-2">
         <div set:html={customFooterHtml} />
       </div>
+    )}
+
+    {umamiConfig?.visitorStats?.enabled && umamiConfig.shareUrl && (
+      <FooterVisitorStats
+        client:load
+        shareUrl={umamiConfig.shareUrl}
+        refreshInterval={umamiConfig.visitorStats.refreshInterval || 60000}
+      />
     )}
 
     <div class="flex items-center gap-4 text-xs font-medium mt-1 uppercase">
