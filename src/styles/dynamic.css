@@ -534,12 +534,6 @@ dynamic-feed {
 	letter-spacing: 0;
 }
 
-@media (max-width: 640px) {
-	.dynamic-page-header .card-base {
-		padding: 1.25rem;
-	}
-}
-
 .dynamic-no-results {
 	display: grid;
 	min-height: 10rem;
