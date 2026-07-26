@@ -8,7 +8,6 @@ import { i18n } from "@i18n/translation";
 import { onMount } from "svelte";
 import { formatDynamicDate } from "@/utils/date-utils";
 import { fetchWithDedup } from "@/utils/fetch-dedup";
-import { fetchMemos } from "@/utils/memos-adapter";
 import { url } from "@/utils/url-utils";
 
 interface DynamicEntry {
@@ -20,19 +19,12 @@ interface DynamicEntry {
 	pinned?: boolean;
 }
 
-interface MemosConfig {
-	enable: boolean;
-	apiUrl: string;
-	parent?: string;
-}
-
 interface Props {
 	apiUrl: string;
 	limit: number;
-	memos?: MemosConfig;
 }
 
-let { apiUrl, limit, memos }: Props = $props();
+let { apiUrl, limit }: Props = $props();
 
 let entries: DynamicEntry[] = $state([]);
 let totalCount = $state(0);
@@ -41,12 +33,7 @@ let error = $state(false);
 
 onMount(async () => {
 	try {
-		let data: DynamicEntry[];
-		if (memos?.enable) {
-			data = await fetchMemos(memos.apiUrl, { parent: memos.parent });
-		} else {
-			data = await fetchWithDedup(apiUrl);
-		}
+		const data: DynamicEntry[] = await fetchWithDedup(apiUrl);
 
 		totalCount = data.length;
 		entries = data.slice(0, limit);
@@ -76,7 +63,7 @@ function getPlainText(html: string): string {
 // 本地 API 使用 formatDynamicDate（带时区转换）
 // 第三方 API 和 Memos 使用浏览器本地时区，不做额外转换
 function formatDate(timestamp: number): string {
-	if (apiUrl.startsWith("http") || memos?.enable) {
+	if (apiUrl.startsWith("http")) {
 		return new Date(timestamp).toLocaleDateString("zh-CN", {
 			year: "numeric",
 			month: "2-digit",

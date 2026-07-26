@@ -195,7 +195,12 @@ const pendingRequests = new Map<string, Promise<DynamicEntry[]>>();
  */
 export async function fetchMemos(
 	memosApiUrl: string,
-	options?: { pageSize?: number; maxPages?: number; parent?: string },
+	options?: {
+		pageSize?: number;
+		maxPages?: number;
+		parent?: string;
+		accessToken?: string;
+	},
 ): Promise<DynamicEntry[]> {
 	const cacheKey = `${memosApiUrl}:${options?.parent || ""}`;
 	const pending = pendingRequests.get(cacheKey);
@@ -209,9 +214,14 @@ export async function fetchMemos(
 
 async function fetchMemosInternal(
 	memosApiUrl: string,
-	options?: { pageSize?: number; maxPages?: number; parent?: string },
+	options?: {
+		pageSize?: number;
+		maxPages?: number;
+		parent?: string;
+		accessToken?: string;
+	},
 ): Promise<DynamicEntry[]> {
-	const pageSize = options?.pageSize || 10000;
+	const pageSize = Math.min(options?.pageSize || 1000, 1000);
 	const maxPages = options?.maxPages || 10;
 	const parent = options?.parent || "";
 	const allMemos: Memo[] = [];
@@ -220,6 +230,7 @@ async function fetchMemosInternal(
 	for (let page = 0; page < maxPages; page++) {
 		const url = new URL(`${memosApiUrl}/api/v1/memos`);
 		url.searchParams.set("pageSize", String(pageSize));
+		url.searchParams.set("filter", 'visibility == "PUBLIC"');
 		if (parent) {
 			url.searchParams.set("parent", parent);
 		}
@@ -228,7 +239,12 @@ async function fetchMemosInternal(
 		}
 
 		const response = await fetch(url.toString(), {
-			headers: { Accept: "application/json" },
+			headers: {
+				Accept: "application/json",
+				...(options?.accessToken
+					? { Authorization: `Bearer ${options.accessToken}` }
+					: {}),
+			},
 		});
 
 		if (!response.ok) {
@@ -245,7 +261,7 @@ async function fetchMemosInternal(
 	}
 
 	return allMemos
-		.filter((memo) => memo.state === "NORMAL")
+		.filter((memo) => memo.state === "NORMAL" && memo.visibility === "PUBLIC")
 		.map((memo) => {
 			const id = memo.name.split("/").pop() || "";
 			const published = new Date(memo.createTime).getTime();
