@@ -289,13 +289,6 @@
 		overflow-wrap: anywhere;
 	}
 
-	#waline .wl-logout-btn {
-		position: static;
-		flex: 0 0 auto;
-		margin-inline-start: auto;
-		padding: 0.4rem;
-	}
-
 	#waline .wl-panel {
 		box-sizing: border-box;
 		width: 100%;
