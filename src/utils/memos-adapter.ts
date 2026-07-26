@@ -208,8 +208,33 @@ export async function fetchMemos(
 
 	const promise = fetchMemosInternal(memosApiUrl, options);
 	pendingRequests.set(cacheKey, promise);
-	promise.finally(() => pendingRequests.delete(cacheKey));
+	void promise.then(
+		() => pendingRequests.delete(cacheKey),
+		() => pendingRequests.delete(cacheKey),
+	);
 	return promise;
+}
+
+async function fetchWithRetry(
+	url: string,
+	init: RequestInit,
+	attempts = 3,
+): Promise<Response> {
+	let lastError: unknown;
+	for (let attempt = 1; attempt <= attempts; attempt++) {
+		try {
+			const response = await fetch(url, init);
+			if (response.ok || response.status < 500 || attempt === attempts) {
+				return response;
+			}
+			await response.body?.cancel();
+		} catch (error) {
+			lastError = error;
+			if (attempt === attempts) throw error;
+		}
+		await new Promise((resolve) => setTimeout(resolve, attempt * 500));
+	}
+	throw lastError;
 }
 
 async function fetchMemosInternal(
@@ -238,7 +263,7 @@ async function fetchMemosInternal(
 			url.searchParams.set("pageToken", pageToken);
 		}
 
-		const response = await fetch(url.toString(), {
+		const response = await fetchWithRetry(url.toString(), {
 			headers: {
 				Accept: "application/json",
 				...(options?.accessToken
