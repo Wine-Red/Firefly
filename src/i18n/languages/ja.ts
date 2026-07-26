@@ -278,6 +278,7 @@ export const ja: Translation = {
 
 	// サイト統計
 	[Key.siteStats]: "サイト統計",
+	[Key.siteStatsHomeViews]: "ホーム閲覧数",
 	[Key.siteStatsPostCount]: "記事",
 	[Key.siteStatsCategoryCount]: "カテゴリー",
 	[Key.siteStatsTagCount]: "タグ",

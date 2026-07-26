@@ -1,0 +1,195 @@
+/* ============================================
+ * Waline 评论区 · 构成主义月相主题适配
+ * 覆盖 unpkg waline.css：全部选择器以 #waline 开头保证优先级
+ * ============================================ */
+
+/* ---------- 主题变量 ---------- */
+#waline {
+	--waline-font-size: 0.95rem;
+	--waline-theme-color: var(--primary);
+	--waline-active-color: var(--gold-deep);
+	--waline-color: color-mix(in srgb, #22242c 88%, transparent);
+	--waline-bg-color: transparent;
+	--waline-bg-color-light: color-mix(in srgb, var(--page-bg) 55%, transparent);
+	--waline-border-color: var(--line-divider);
+	--waline-disable-color: var(--content-meta);
+	--waline-disable-bg-color: color-mix(
+		in srgb,
+		var(--btn-regular-bg) 60%,
+		transparent
+	);
+	--waline-code-bg-color: var(--inline-code-bg);
+	--waline-bq-color: color-mix(in srgb, var(--gold) 20%, transparent);
+	--waline-info-color: var(--primary);
+	--waline-info-bg-color: color-mix(in srgb, var(--gold) 9%, transparent);
+}
+
+:root.dark #waline {
+	--waline-active-color: var(--gold);
+	--waline-color: color-mix(in srgb, #f1e9d6 88%, transparent);
+	--waline-bg-color-light: color-mix(in srgb, var(--ink-soft) 55%, transparent);
+	--waline-info-bg-color: color-mix(in srgb, var(--gold) 12%, transparent);
+}
+
+/* ---------- 输入区：锐角 + 金发丝线 ---------- */
+#waline .wl-editor {
+	border-radius: var(--radius-large);
+	transition:
+		border-color 180ms ease,
+		box-shadow 180ms ease;
+}
+
+#waline .wl-editor:focus-within {
+	border-color: color-mix(in srgb, var(--gold) 55%, transparent);
+	box-shadow: 0 0 0 1px color-mix(in srgb, var(--gold) 35%, transparent);
+}
+
+/* 昵称 / 邮箱 / 网址：只留底部发丝线 */
+#waline .wl-header .wl-input {
+	border: 0;
+	border-bottom: 1px solid var(--line-divider);
+	border-radius: 0;
+	background: transparent;
+	transition: border-color 180ms ease;
+}
+
+#waline .wl-header .wl-input:focus {
+	border-bottom-color: var(--gold);
+}
+
+/* 编辑器底部工具图标 */
+#waline .wl-footer {
+	background: transparent;
+}
+
+/* ---------- 按钮：金底直角主按钮 ---------- */
+#waline .wl-btn {
+	border-radius: var(--radius-large);
+	letter-spacing: 0.05em;
+	transition:
+		background-color 180ms ease,
+		border-color 180ms ease,
+		color 180ms ease;
+}
+
+#waline .wl-btn.wl-primary {
+	border-color: var(--primary);
+	background: var(--primary);
+	color: #fff;
+}
+
+:root.dark #waline .wl-btn.wl-primary {
+	color: #10131a;
+}
+
+#waline .wl-btn.wl-primary:hover {
+	border-color: var(--gold-deep);
+	background: var(--gold-deep);
+}
+
+:root.dark #waline .wl-btn.wl-primary:hover {
+	border-color: var(--gold);
+	background: var(--gold);
+}
+
+/* ---------- 排序与计数 ---------- */
+#waline .wl-sort li {
+	color: var(--content-meta);
+}
+
+#waline .wl-sort li.active,
+#waline .wl-sort li:hover {
+	color: var(--primary);
+}
+
+#waline .wl-count,
+#waline .wl-num {
+	color: var(--primary);
+	font-variant-numeric: tabular-nums;
+	letter-spacing: 0.04em;
+}
+
+/* ---------- 评论卡片：去底色，发丝线分隔 ---------- */
+#waline .wl-card {
+	border-bottom: 1px solid var(--line-divider);
+}
+
+#waline .wl-card:last-child {
+	border-bottom: 0;
+}
+
+#waline .wl-card .wl-nick {
+	color: var(--primary);
+	font-weight: 600;
+	letter-spacing: 0.02em;
+}
+
+#waline .wl-card .wl-time {
+	color: var(--content-meta);
+	font-variant-numeric: tabular-nums;
+}
+
+/* 博主徽标 */
+#waline .wl-badge {
+	border-color: color-mix(in srgb, var(--vermilion) 60%, transparent);
+	background: transparent;
+	color: var(--vermilion);
+	border-radius: 0;
+	letter-spacing: 0.06em;
+}
+
+/* 回复 / 点赞等操作图标 */
+#waline .wl-card .wl-action,
+#waline .wl-card .wl-like {
+	color: var(--content-meta);
+}
+
+#waline .wl-card .wl-action:hover,
+#waline .wl-card .wl-like:hover {
+	color: var(--gold);
+}
+
+/* 引用块 */
+#waline .wl-content blockquote,
+#waline .wl-comment blockquote {
+	border-left-color: var(--vermilion);
+}
+
+/* 表情面板与预览面板 */
+#waline .wl-emoji-popup,
+#waline .wl-gif-popup {
+	border-color: var(--line-divider);
+	border-radius: var(--radius-large);
+}
+
+/* ---------- 页脚 ---------- */
+#waline .wl-power {
+	color: var(--content-meta);
+	opacity: 0.7;
+}
+
+#waline .wl-power a {
+	color: inherit;
+}
+
+/* 登录 / 链接 */
+#waline a {
+	text-decoration: none;
+}
+
+#waline a:hover {
+	color: var(--gold-deep);
+}
+
+:root.dark #waline a:hover {
+	color: var(--gold);
+}
+
+/* ---------- 动效收敛 ---------- */
+@media (prefers-reduced-motion: reduce) {
+	#waline .wl-editor,
+	#waline .wl-btn,
+	#waline .wl-header .wl-input {
+		transition: none;
+	}
+}

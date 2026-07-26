@@ -41,7 +41,15 @@ const {
 	pinned,
 } = Astro.props;
 
-const path = customPath || (id ? `/posts/${id}` : "");
+const normalizePath = (value: string): string => {
+	const normalized = `/${value.replace(/^\/+|\/+$/g, "")}`;
+	return normalized === "/" ? "/" : `${normalized}/`;
+};
+const path = customPath
+	? normalizePath(customPath)
+	: id
+		? normalizePath(`/posts/${id}`)
+		: "";
 ---
 
 <div
@@ -157,14 +165,14 @@ const path = customPath || (id ? `/posts/${id}` : "");
       commentConfig.type === 'waline' &&
       commentConfig.waline?.visitorCount &&
       id && (
-        <div class="flex items-center">
+        <div class="flex items-center pageview-meta">
           <div class="meta-icon">
             <Icon name="material-symbols:visibility-outline-rounded" class="text-xl" />
           </div>
           <span class="text-50 text-sm font-medium mr-1">
             {i18n(I18nKey.pageViews)}
           </span>
-          <span class="text-50 text-sm font-medium waline-pageview-count" data-path={path}>{i18n(I18nKey.pageViewsLoading)}</span>
+          <span class="pageview-count waline-pageview-count" data-path={path}>{i18n(I18nKey.pageViewsLoading)}</span>
         </div>
       )
   }
@@ -181,8 +189,19 @@ const path = customPath || (id ? `/posts/${id}` : "");
                         <span class="text-50 text-sm font-medium mr-1">
                             {i18n(I18nKey.pageViews)}
                         </span>
-                        <span class="text-50 text-sm font-medium artalk-pv-count" data-path={path}>{i18n(I18nKey.pageViewsLoading)}</span>
+                        <span class="pageview-count artalk-pv-count" data-path={path}>{i18n(I18nKey.pageViewsLoading)}</span>
                     </div>
         )
     }
 </div>
+
+<style>
+  /* 阅读量计数：主题金色 + 等宽数字，与普通 meta 信息区分开 */
+  .pageview-count {
+    color: var(--primary);
+    font-size: 0.875rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.05em;
+  }
+</style>

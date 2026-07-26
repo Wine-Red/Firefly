@@ -1,0 +1,73 @@
+---
+import { commentConfig } from "@/config";
+
+const serverURL = commentConfig.waline?.serverURL;
+const errorText = "—";
+---
+
+{
+	commentConfig.type === "waline" &&
+		commentConfig.waline?.visitorCount &&
+		serverURL && (
+			<script type="module" is:inline define:vars={{ serverURL, errorText }}>
+				const stateKey = "__fireflyWalinePageview";
+				const selector = ".waline-pageview-count";
+				const state = window[stateKey] || {
+					abort: null,
+					bound: false,
+					lastCountedPath: null,
+					modulePromise: null,
+					pendingPath: null,
+				};
+				window[stateKey] = state;
+
+				function normalizePath(pathname) {
+					const cleanPath = `/${pathname.replace(/^\/+|\/+$/g, "")}`;
+					return cleanPath === "/" ? "/" : `${cleanPath}/`;
+				}
+
+				function showError() {
+					document.querySelectorAll(selector).forEach((element) => {
+						element.textContent = errorText;
+					});
+				}
+
+				async function refreshWalinePageviews() {
+					const path = normalizePath(window.location.pathname);
+					if (state.pendingPath === path) return;
+
+					const shouldUpdate = state.lastCountedPath !== path;
+					if (shouldUpdate) state.lastCountedPath = path;
+					state.pendingPath = path;
+
+					if (typeof state.abort === "function") state.abort();
+
+					try {
+						state.modulePromise ||= import(
+							"https://unpkg.com/@waline/client@v3/dist/pageview.js"
+						);
+						const { pageviewCount } = await state.modulePromise;
+						state.abort = pageviewCount({
+							serverURL,
+							path,
+							selector,
+							update: shouldUpdate,
+						});
+					} catch (error) {
+						if (shouldUpdate) state.lastCountedPath = null;
+						showError();
+						console.error("[Waline] 浏览量加载失败", error);
+					} finally {
+						state.pendingPath = null;
+					}
+				}
+
+				if (!state.bound) {
+					document.addEventListener("astro:page-load", refreshWalinePageviews);
+					state.bound = true;
+				}
+
+				refreshWalinePageviews();
+			</script>
+		)
+}

@@ -18,16 +18,20 @@ interface Props {
 
 const { post, customPath, title: customTitle } = Astro.props as Props;
 
-// 根据页面类型确定路径
+// Waline 按路径分别保存评论和浏览量；统一尾斜杠，避免同一页面产生两份记录。
+const normalizePath = (value: string): string => {
+	const normalized = `/${value.replace(/^\/+|\/+$/g, "")}`;
+	return normalized === "/" ? "/" : `${normalized}/`;
+};
 const slugFromPath = (customPath || "/").replace(/^\/+|\/+$/g, "") || "index";
 const slug = post ? removeFileExtension(post.id) : slugFromPath;
 const path = customPath
-	? customPath
+	? normalizePath(customPath)
 	: post
 		? post.collection === "posts"
-			? `/posts/${slug}`
-			: `/${slug}`
-		: `/${slug}`;
+			? normalizePath(`/posts/${slug}`)
+			: normalizePath(`/${slug}`)
+		: normalizePath(`/${slug}`);
 const url = `${Astro.site?.href}${path}`;
 const postTitle = post && "title" in post.data ? post.data.title : undefined;
 

@@ -1,5 +1,6 @@
 ---
 import { commentConfig } from "@/config";
+import "@/styles/waline-theme.css";
 
 interface Props {
 	path: string;
@@ -11,7 +12,6 @@ const config = {
 	path: Astro.props.path,
 	dark: "html.dark",
 	wordLimit: ["2", "300"],
-	...(commentConfig.waline?.visitorCount ? { pageview: true } : {}),
 };
 ---
 <!-- Waline -->
@@ -19,7 +19,27 @@ const config = {
   <div id="waline"></div>
   <link rel="stylesheet" href="https://unpkg.com/@waline/client@v3/dist/waline.css" />
   <script type="module" is:inline define:vars={{ config }}>
-    import { init } from 'https://unpkg.com/@waline/client@v3/dist/waline.js';
-    init(config);
+    const stateKey = "__fireflyWalineComment";
+    const state = window[stateKey] || { instance: null, cleanupBound: false };
+    window[stateKey] = state;
+
+    function destroyWaline() {
+      if (state.instance) {
+        state.instance.destroy();
+        state.instance = null;
+      }
+    }
+
+    if (!state.cleanupBound) {
+      document.addEventListener("astro:before-swap", destroyWaline);
+      state.cleanupBound = true;
+    }
+
+    destroyWaline();
+    const commentElement = document.querySelector(config.el);
+    if (commentElement) {
+      const { init } = await import('https://unpkg.com/@waline/client@v3/dist/waline.js');
+      state.instance = init(config);
+    }
   </script>
 </div>
