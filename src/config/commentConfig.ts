@@ -19,6 +19,10 @@ export const commentConfig: CommentConfig = {
 		serverURL: "https://comments.winered-0v0.com",
 		// 设置 Waline 评论系统语言
 		lang: "zh-CN",
+		// 评论输入框提示语
+		locale: {
+			placeholder: "如果不填上面的信息，你就是匿名的！",
+		},
 		// 设置 Waline 评论系统表情地址
 		emoji: [
 			"https://unpkg.com/@waline/emojis@1.4.0/weibo",

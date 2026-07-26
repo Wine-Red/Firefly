@@ -31,7 +31,7 @@
 	--waline-info-bg-color: color-mix(in srgb, var(--gold) 12%, transparent);
 }
 
-/* ---------- 输入区：锐角 + 金发丝线 ---------- */
+/* ---------- 输入区 ---------- */
 #waline .wl-editor {
 	border-radius: var(--radius-large);
 	transition:
@@ -44,22 +44,55 @@
 	box-shadow: 0 0 0 1px color-mix(in srgb, var(--gold) 35%, transparent);
 }
 
-/* 昵称 / 邮箱 / 网址：只留底部发丝线 */
+/* 昵称 / 邮箱 / 网址：保持干净的无边线输入 */
+#waline .wl-header {
+	border-bottom: 0;
+}
+
+#waline .wl-header .wl-header-item {
+	border-bottom: 0;
+}
+
 #waline .wl-header .wl-input {
 	border: 0;
-	border-bottom: 1px solid var(--line-divider);
 	border-radius: 0;
 	background: transparent;
-	transition: border-color 180ms ease;
+	box-shadow: none;
 }
 
 #waline .wl-header .wl-input:focus {
-	border-bottom-color: var(--gold);
+	border: 0;
+	box-shadow: none;
+}
+
+/* 预览区显式继承主题色，避免被文章 Markdown 全局样式染黑 */
+#waline .wl-preview {
+	color: var(--waline-color);
+}
+
+#waline .wl-preview hr {
+	border: 0;
+	border-top: 1px solid var(--line-divider);
+	opacity: 0.7;
+}
+
+#waline .wl-preview h4 {
+	color: var(--primary);
+}
+
+#waline .wl-preview .wl-content,
+#waline .wl-preview .wl-content :where(p, li, h1, h2, h3, h4, h5, h6, blockquote) {
+	color: inherit;
 }
 
 /* 编辑器底部工具图标 */
 #waline .wl-footer {
 	background: transparent;
+}
+
+/* Markdown Guide 图标基线微调，与右侧工具图标视觉居中 */
+#waline .wl-actions > a.wl-action:first-child {
+	transform: translateY(5px);
 }
 
 /* ---------- 按钮：金底直角主按钮 ---------- */
