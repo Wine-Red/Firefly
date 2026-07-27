@@ -279,10 +279,9 @@ export const en: Translation = {
 
 	// Site Statistics
 	[Key.siteStats]: "Site Statistics",
-	[Key.siteStatsHomeViews]: "Home Views",
+	[Key.siteStatsTodayVisitors]: "Visitors Today",
+	[Key.siteStatsTotalVisitors]: "Total Visitors",
 	[Key.siteStatsPostCount]: "Posts",
-	[Key.siteStatsCategoryCount]: "Categories",
-	[Key.siteStatsTagCount]: "Tags",
 	[Key.siteStatsTotalWords]: "Total Words",
 	[Key.siteStatsRunningDays]: "Running Days",
 	[Key.siteStatsLastUpdate]: "Last Activity",

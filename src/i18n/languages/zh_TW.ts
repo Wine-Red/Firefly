@@ -272,10 +272,9 @@ export const zh_TW: Translation = {
 
 	// 站點統計
 	[Key.siteStats]: "站點統計",
-	[Key.siteStatsHomeViews]: "首頁瀏覽",
+	[Key.siteStatsTodayVisitors]: "今日訪客",
+	[Key.siteStatsTotalVisitors]: "累計訪客",
 	[Key.siteStatsPostCount]: "文章",
-	[Key.siteStatsCategoryCount]: "分類",
-	[Key.siteStatsTagCount]: "標籤",
 	[Key.siteStatsTotalWords]: "總字數",
 	[Key.siteStatsRunningDays]: "運行時長",
 	[Key.siteStatsLastUpdate]: "最後活動",

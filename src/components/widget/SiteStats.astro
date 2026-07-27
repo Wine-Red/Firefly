@@ -1,14 +1,10 @@
 ---
 import { Icon } from "astro-icon/components";
 import WidgetLayout from "@/components/common/WidgetLayout.astro";
-import { commentConfig, siteConfig } from "@/config";
+import { dynamicConfig, siteConfig } from "@/config";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
-import {
-	getCategoryList,
-	getSortedPosts,
-	getTagList,
-} from "@/utils/content-utils";
+import { getSortedPosts } from "@/utils/content-utils";
 
 interface Props {
 	class?: string;
@@ -23,8 +19,6 @@ interface SiteStat {
 	suffix?: string;
 	dynamic?: boolean;
 	id?: string;
-	path?: string;
-	walinePageview?: boolean;
 }
 
 const { class: className, style } = Astro.props;
@@ -34,8 +28,6 @@ const siteStartDate = siteConfig.siteStartDate || "2025-01-01";
 
 // 获取所有文章
 const posts = await getSortedPosts();
-const categories = await getCategoryList();
-const tags = await getTagList();
 
 // 计算总字数
 let totalWords = 0;
@@ -49,7 +41,7 @@ for (const post of posts) {
 			.trim();
 
 		// 分别计算中文字符和英文字符
-		const chineseChars = text.match(/[\u4e00-\u9fa5]/g) || [];
+		const chineseChars = text.match(/[一-龥]/g) || [];
 		const englishChars = text.match(/[a-zA-Z]/g) || [];
 
 		totalWords += chineseChars.length + englishChars.length;
@@ -73,6 +65,22 @@ const lastPostDate = latestPost
 
 const todayText = i18n(I18nKey.today);
 
+// Umami 访客统计配置
+const umamiConfig = siteConfig.analytics?.umamiAnalytics;
+const umamiShareUrl =
+	umamiConfig?.visitorStats?.enabled && umamiConfig.shareUrl
+		? umamiConfig.shareUrl
+		: "";
+const umamiRefreshInterval = Math.max(
+	30000,
+	umamiConfig?.visitorStats?.refreshInterval || 60000,
+);
+
+// 动态数据地址（构建时快照，包含 Memos 数据）
+const dynamicApiUrl = dynamicConfig.apiUrl?.startsWith("http")
+	? dynamicConfig.apiUrl
+	: "/api/dynamic.json";
+
 const stats: SiteStat[] = [
 	{
 		icon: "material-symbols:article-outline",
@@ -80,21 +88,29 @@ const stats: SiteStat[] = [
 		value: posts.length,
 	},
 	{
-		icon: "material-symbols:folder-outline",
-		label: i18n(I18nKey.siteStatsCategoryCount),
-		value: categories.length,
-	},
-	{
-		icon: "material-symbols:label-outline",
-		label: i18n(I18nKey.siteStatsTagCount),
-		value: tags.length,
-	},
-	{
 		icon: "material-symbols:text-ad-outline-rounded",
 		label: i18n(I18nKey.siteStatsTotalWords),
 		value: totalWords,
 		formatted: true,
 	},
+	...(umamiShareUrl
+		? [
+				{
+					icon: "material-symbols:person-outline",
+					label: i18n(I18nKey.siteStatsTodayVisitors),
+					value: "--",
+					dynamic: true,
+					id: "today-visitors",
+				},
+				{
+					icon: "material-symbols:groups-outline",
+					label: i18n(I18nKey.siteStatsTotalVisitors),
+					value: "--",
+					dynamic: true,
+					id: "total-visitors",
+				},
+			]
+		: []),
 	{
 		icon: "material-symbols:calendar-clock-outline",
 		label: i18n(I18nKey.siteStatsRunningDays),
@@ -128,12 +144,8 @@ const stats: SiteStat[] = [
         </div>
         <div class="flex items-center">
           <span
-            class:list={[
-              "text-base font-bold text-neutral-900 dark:text-neutral-100",
-              { "waline-pageview-count": stat.walinePageview },
-            ]}
+            class="text-base font-bold text-neutral-900 dark:text-neutral-100"
             data-stat-id={stat.id}
-            data-path={stat.path}
           >
             {stat.formatted && typeof stat.value === "number"
               ? formatNumber(stat.value)
@@ -150,48 +162,138 @@ const stats: SiteStat[] = [
   </div>
 </WidgetLayout>
 
-<script is:inline define:vars={{ siteStartDate, lastPostDate, todayText }}>
+<script is:inline define:vars={{ siteStartDate, lastPostDate, todayText, umamiShareUrl, umamiRefreshInterval, dynamicApiUrl }}>
   function updateDynamicStats() {
-    const today = new Date();
+    const now = Date.now();
 
     // 更新运行天数
     const startDate = new Date(siteStartDate);
-    const diffTime = Math.abs(today.getTime() - startDate.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const diffDays = Math.ceil(Math.abs(now - startDate.getTime()) / 86400000);
+    document
+      .querySelectorAll('[data-stat-id="running-days"]')
+      .forEach((element) => {
+        element.textContent = diffDays.toString();
+      });
 
-    const runningDaysElements = document.querySelectorAll('[data-stat-id="running-days"]');
-    runningDaysElements.forEach((element) => {
-      element.textContent = diffDays.toString();
-    });
-
-    // 更新最后活动时间
-    if (lastPostDate) {
-      const lastPost = new Date(lastPostDate);
-      const timeSinceLastPost = Math.abs(today.getTime() - lastPost.getTime());
-      const daysSinceLastUpdate = Math.floor(timeSinceLastPost / (1000 * 60 * 60 * 24));
-
-      const lastUpdateElements = document.querySelectorAll('[data-stat-id="last-update"]');
-      lastUpdateElements.forEach((element) => {
-        if (daysSinceLastUpdate === 0) {
-          element.textContent = todayText;
-          if (element.nextElementSibling) {
-            element.nextElementSibling.style.display = 'none';
+    // 更新最后活动时间（文章与动态取较新者）
+    const renderLastActivity = (ts) => {
+      const days = Math.floor(Math.abs(now - ts) / 86400000);
+      document
+        .querySelectorAll('[data-stat-id="last-update"]')
+        .forEach((element) => {
+          if (days === 0) {
+            element.textContent = todayText;
+            if (element.nextElementSibling) {
+              element.nextElementSibling.style.display = "none";
+            }
+          } else {
+            element.textContent = days.toString();
+            if (element.nextElementSibling) {
+              element.nextElementSibling.style.display = "";
+            }
           }
-        } else {
-          element.textContent = daysSinceLastUpdate.toString();
-          if (element.nextElementSibling) {
-            element.nextElementSibling.style.display = '';
+        });
+    };
+
+    let lastActivityTs = lastPostDate ? Date.parse(lastPostDate) : 0;
+    if (lastActivityTs) renderLastActivity(lastActivityTs);
+
+    fetch(dynamicApiUrl)
+      .then((response) => (response.ok ? response.json() : []))
+      .then((list) => {
+        if (Array.isArray(list)) {
+          for (const item of list) {
+            const t = Number(item && item.published);
+            if (Number.isFinite(t) && t > lastActivityTs) lastActivityTs = t;
           }
         }
-      });
+        if (lastActivityTs) renderLastActivity(lastActivityTs);
+      })
+      .catch(() => {});
+  }
+
+  // Umami 今日/累计访客
+  function shanghaiDayStart() {
+    const parts = new Intl.DateTimeFormat("en-US", {
+      timeZone: "Asia/Shanghai",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).formatToParts(new Date());
+    const value = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+    return Date.parse(`${value.year}-${value.month}-${value.day}T00:00:00+08:00`);
+  }
+
+    async function loadVisitorStats() {
+    try {
+      const share = new URL(umamiShareUrl);
+      const slug = share.pathname.split("/").filter(Boolean).pop();
+      if (!slug) throw new Error("Invalid Umami share URL");
+
+      const shareResponse = await fetch(
+        `${share.origin}/api/share/${encodeURIComponent(slug)}`,
+      );
+      if (!shareResponse.ok) throw new Error(`Share HTTP ${shareResponse.status}`);
+      const shareData = await shareResponse.json();
+      const headers = {
+        "x-umami-share-token": shareData.token,
+        "x-umami-share-context": "1",
+      };
+
+      const rangeResponse = await fetch(
+        `${share.origin}/api/websites/${shareData.websiteId}/daterange`,
+        { headers },
+      );
+      if (!rangeResponse.ok) throw new Error(`Date range HTTP ${rangeResponse.status}`);
+      const range = await rangeResponse.json();
+      const totalStart = Date.parse(range.startDate);
+      if (!Number.isFinite(totalStart)) throw new Error("Invalid Umami date range");
+
+      const endAt = Date.now();
+      const statsUrl = (startAt) =>
+        `${share.origin}/api/websites/${shareData.websiteId}/stats?startAt=${startAt}&endAt=${endAt}`;
+
+      const [todayResponse, totalResponse] = await Promise.all([
+        fetch(statsUrl(shanghaiDayStart()), { headers }),
+        fetch(statsUrl(totalStart), { headers }),
+      ]);
+      if (!todayResponse.ok || !totalResponse.ok) {
+        throw new Error("Umami stats request failed");
+      }
+      const [today, total] = await Promise.all([
+        todayResponse.json(),
+        totalResponse.json(),
+      ]);
+
+      document
+        .querySelectorAll('[data-stat-id="today-visitors"]')
+        .forEach((element) => {
+          element.textContent = Number(today.visitors).toLocaleString();
+        });
+      document
+        .querySelectorAll('[data-stat-id="total-visitors"]')
+        .forEach((element) => {
+          element.textContent = Number(total.visitors).toLocaleString();
+        });
+    } catch (error) {
+      console.warn("Failed to load Umami visitor stats", error);
     }
   }
 
   // 页面加载时更新
   updateDynamicStats();
+  if (umamiShareUrl) {
+    loadVisitorStats();
+    if (!window.__umamiVisitorTimer) {
+      window.__umamiVisitorTimer = window.setInterval(() => {
+        if (!document.hidden) loadVisitorStats();
+      }, umamiRefreshInterval);
+    }
+  }
 
   // 页面切换时重新更新
   document.addEventListener("swup:contentReplaced", () => {
     setTimeout(updateDynamicStats, 100);
+    if (umamiShareUrl) setTimeout(loadVisitorStats, 100);
   });
 </script>

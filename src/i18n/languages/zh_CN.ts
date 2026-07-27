@@ -270,10 +270,9 @@ export const zh_CN: Translation = {
 
 	// 站点统计
 	[Key.siteStats]: "站点统计",
-	[Key.siteStatsHomeViews]: "主页访问",
+	[Key.siteStatsTodayVisitors]: "今日访客",
+	[Key.siteStatsTotalVisitors]: "累计访客",
 	[Key.siteStatsPostCount]: "文章",
-	[Key.siteStatsCategoryCount]: "分类",
-	[Key.siteStatsTagCount]: "标签",
 	[Key.siteStatsTotalWords]: "总字数",
 	[Key.siteStatsRunningDays]: "运行时长",
 	[Key.siteStatsLastUpdate]: "最后活动",

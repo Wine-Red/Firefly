@@ -268,10 +268,9 @@ enum I18nKey {
 
 	// 站点统计
 	siteStats = "siteStats",
-	siteStatsHomeViews = "siteStatsHomeViews",
+	siteStatsTodayVisitors = "siteStatsTodayVisitors",
+	siteStatsTotalVisitors = "siteStatsTotalVisitors",
 	siteStatsPostCount = "siteStatsPostCount",
-	siteStatsCategoryCount = "siteStatsCategoryCount",
-	siteStatsTagCount = "siteStatsTagCount",
 	siteStatsTotalWords = "siteStatsTotalWords",
 	siteStatsRunningDays = "siteStatsRunningDays",
 	siteStatsLastUpdate = "siteStatsLastUpdate",

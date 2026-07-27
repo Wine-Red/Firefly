@@ -280,10 +280,9 @@ export const ru: Translation = {
 
 	// Статистика сайта
 	[Key.siteStats]: "Статистика сайта",
-	[Key.siteStatsHomeViews]: "Просмотры главной",
+	[Key.siteStatsTodayVisitors]: "Посетители сегодня",
+	[Key.siteStatsTotalVisitors]: "Всего посетителей",
 	[Key.siteStatsPostCount]: "Статьи",
-	[Key.siteStatsCategoryCount]: "Категории",
-	[Key.siteStatsTagCount]: "Теги",
 	[Key.siteStatsTotalWords]: "Всего слов",
 	[Key.siteStatsRunningDays]: "Дней работы",
 	[Key.siteStatsLastUpdate]: "Последняя активность",
