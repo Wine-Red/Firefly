@@ -43,3 +43,6 @@ package/
 
 # Codex 远程附件（临时文件）
 .codex-remote-attachments/
+
+# Qoder local analysis and generated reports
+.qoder/
