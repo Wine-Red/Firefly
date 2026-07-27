@@ -40,3 +40,6 @@ Firefly-docs/
 cache/
 package/
 .obsidian/
+
+# Codex 远程附件（临时文件）
+.codex-remote-attachments/
