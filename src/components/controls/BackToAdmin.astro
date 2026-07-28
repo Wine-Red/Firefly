@@ -1,0 +1,56 @@
+---
+import FloatingButton from "@/components/common/FloatingButton.astro";
+import { url } from "@/utils/url-utils";
+
+const adminUrl = "https://cms.winered-0v0.com/";
+---
+
+<FloatingButton
+  id="back-to-admin-btn"
+  icon="material-symbols:admin-panel-settings-outline-rounded"
+  ariaLabel="进入博客后台"
+  onclick="openBlogAdmin()"
+  class="hide"
+/>
+
+<script is:inline define:vars={{ adminUrl, homeUrl: url("/") }}>
+  const adminEntryStorageKey = "winered:show-admin-entry";
+
+  function normalizePath(path) {
+    const normalized = path.replace(/\/+$/, "");
+    return normalized || "/";
+  }
+
+  function updateAdminEntryVisibility() {
+    const button = document.getElementById("back-to-admin-btn");
+    if (!button) return;
+
+    const currentUrl = new URL(window.location.href);
+    const adminPreference = currentUrl.searchParams.get("admin");
+
+    // A one-time personal switch: ?admin=1 shows the entry in this browser;
+    // ?admin=0 hides it again. Remove the switch from the visible URL afterwards.
+    if (adminPreference === "1") {
+      localStorage.setItem(adminEntryStorageKey, "1");
+      currentUrl.searchParams.delete("admin");
+      history.replaceState(null, "", `${currentUrl.pathname}${currentUrl.search}${currentUrl.hash}`);
+    } else if (adminPreference === "0") {
+      localStorage.removeItem(adminEntryStorageKey);
+      currentUrl.searchParams.delete("admin");
+      history.replaceState(null, "", `${currentUrl.pathname}${currentUrl.search}${currentUrl.hash}`);
+    }
+
+    const isHome =
+      normalizePath(window.location.pathname) === normalizePath(homeUrl);
+    const isEnabled = localStorage.getItem(adminEntryStorageKey) === "1";
+    button.classList.toggle("hide", !isHome || !isEnabled);
+  }
+
+  window.openBlogAdmin = function () {
+    window.open(adminUrl, "_blank", "noopener,noreferrer");
+  };
+
+  updateAdminEntryVisibility();
+  document.addEventListener("astro:page-load", updateAdminEntryVisibility);
+  document.addEventListener("swup:contentReplaced", updateAdminEntryVisibility);
+</script>
