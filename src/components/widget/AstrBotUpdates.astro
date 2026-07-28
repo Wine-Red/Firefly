@@ -99,13 +99,10 @@ const archiveUrl = url("/archive/?author=AstrBot");
               class="ai-row group relative flex gap-3 border-t border-(--line-divider) px-1 py-2.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary)"
               aria-label={post.data.title}
             >
-              {/* 左侧日期栏：金色大数字日 + 金发丝线 + 宽字距月份 */}
-              <div class="flex w-10 shrink-0 flex-col items-center pt-0.5 text-center leading-none">
-                <span class="text-[1.3rem] font-bold tabular-nums text-(--primary)">{day}</span>
-                <span class="my-1.5 h-px w-4 bg-(--gold) opacity-70" aria-hidden="true"></span>
-                <span class="text-[0.58rem] font-semibold tracking-[0.22em] text-50">
-                  {month}月
-                </span>
+              {/* 左侧日期栏：日大月小，斜杠划分（与时间问候同格式） */}
+              <div class="flex w-11 shrink-0 items-baseline justify-center pt-1 leading-none text-(--primary)">
+                <span class="text-[1.3rem] font-bold tabular-nums">{day}</span>
+                <span class="ml-0.5 text-[0.72rem] font-bold tabular-nums opacity-70">/{month}</span>
               </div>
               {/* 内容区：发丝竖线与日期栏分隔 */}
               <div class="min-w-0 flex-1 border-l border-(--line-divider) pl-3">
