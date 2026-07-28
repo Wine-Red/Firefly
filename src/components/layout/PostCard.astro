@@ -191,7 +191,7 @@ const descriptionText = description || remarkPluginFrontmatter.excerpt || "";
           src={processedImage}
           basePath={getFileDirFromPath(entry.filePath || "")}
           alt="Cover Image of the Post"
-          class="w-full h-full transition-transform duration-300 group-hover:scale-110 group-active:scale-115"
+          class="w-full h-full"
           preview={true}
           loading={loading}
           apiUrls={apiUrls}
@@ -433,21 +433,18 @@ const descriptionText = description || remarkPluginFrontmatter.excerpt || "";
       width: 62% !important;
       clip-path: polygon(10% 0, 100% 0, 100% 100%, 0 100%) !important;
       transform: translateX(44%);
-      transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1) !important;
       will-change: transform;
     }
 
     :global(.list-mode) .post-card-wrapper:hover .post-card-image {
       transform: translateX(0);
+      transition-duration: 0.45s !important;
     }
 
-    /* hover 时文字层提到封面之上（干净浮起，不加光晕、不垫纱幕），
-       可读性由封面自身的 cover-blend 溶解保证 */
+    /* 文字层始终高于滑动封面，避免 hover 结束时封面尚未回位便压住文字。 */
     :global(.list-mode) .has-cover .post-card-content {
       position: relative;
-    }
-
-    :global(.list-mode) .post-card-wrapper:hover .post-card-content {
       z-index: 30;
     }
 
