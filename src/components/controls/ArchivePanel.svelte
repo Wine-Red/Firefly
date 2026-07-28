@@ -12,6 +12,7 @@ export let sortedPosts: Post[] = [];
 const params = new URLSearchParams(window.location.search);
 tags = params.has("tag") ? params.getAll("tag") : [];
 categories = params.has("category") ? params.getAll("category") : [];
+const authors = params.has("author") ? params.getAll("author") : [];
 const uncategorized = params.get("uncategorized");
 
 interface Post {
@@ -70,15 +71,7 @@ function formatFilterSummary(filters: ActiveFilter[]) {
 		.join("  ·  ");
 }
 
-function isAIFilterActive() {
-	try {
-		return sessionStorage.getItem("aiFilterInPlace") !== "0";
-	} catch {
-		return true;
-	}
-}
-
-function updateArchivePosts(filterAI = isAIFilterActive()) {
+function updateArchivePosts() {
 	let filteredPosts: Post[] = sortedPosts;
 	const currentFilters: ActiveFilter[] = [];
 
@@ -95,6 +88,10 @@ function updateArchivePosts(filterAI = isAIFilterActive()) {
 
 	if (tags.length > 0) {
 		currentFilters.push({ labelKey: I18nKey.tags, values: tags });
+	}
+
+	if (authors.length > 0) {
+		currentFilters.push({ labelKey: I18nKey.author, values: authors });
 	}
 
 	activeFilters = currentFilters;
@@ -121,9 +118,9 @@ function updateArchivePosts(filterAI = isAIFilterActive()) {
 		filteredPosts = filteredPosts.filter((post) => !post.data.category);
 	}
 
-	if (filterAI) {
+	if (authors.length > 0) {
 		filteredPosts = filteredPosts.filter(
-			(post) => post.data.author !== "AstrBot",
+			(post) => post.data.author && authors.includes(post.data.author),
 		);
 	}
 
@@ -158,19 +155,6 @@ function updateArchivePosts(filterAI = isAIFilterActive()) {
 
 onMount(() => {
 	updateArchivePosts();
-
-	const handleAIFilterChange = (event: Event) => {
-		const { active } = (event as CustomEvent<{ active: boolean }>).detail;
-		updateArchivePosts(active);
-	};
-
-	window.addEventListener("firefly:ai-filter-change", handleAIFilterChange);
-	return () => {
-		window.removeEventListener(
-			"firefly:ai-filter-change",
-			handleAIFilterChange,
-		);
-	};
 });
 </script>
 

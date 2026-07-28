@@ -1,0 +1,311 @@
+---
+import { Icon } from "astro-icon/components";
+import CoverImage from "@/components/common/CoverImage.astro";
+import WidgetLayout from "@/components/common/WidgetLayout.astro";
+import I18nKey from "@/i18n/i18nKey";
+import { i18n } from "@/i18n/translation";
+import { getSortedPosts } from "@/utils/content-utils";
+import { getApiUrlList, processCoverImageSync } from "@/utils/image-utils";
+import { getFileDirFromPath, getPostUrlBySlug, url } from "@/utils/url-utils";
+
+interface Props {
+	class?: string;
+	style?: string;
+}
+
+const { class: className, style } = Astro.props;
+const recentPosts = (await getSortedPosts())
+	.filter((post) => post.data.author === "AstrBot")
+	.sort((a, b) => b.data.published.getTime() - a.data.published.getTime())
+	.slice(0, 3);
+const archiveUrl = url("/archive/?author=AstrBot");
+---
+
+<WidgetLayout id="astrbot-updates" name="AI资讯" class={className} style={style}>
+  <a
+    slot="title-icon"
+    href={archiveUrl}
+    class="ai-more group flex items-center gap-1 px-1 py-1 text-xs font-semibold tracking-wide text-50 transition-colors hover:text-(--primary) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary)"
+    aria-label="查看全部 AstrBot 文章"
+  >
+    <span>{i18n(I18nKey.more)}</span>
+    <Icon name="material-symbols:arrow-forward-rounded" class="text-base transition-transform duration-200 group-hover:translate-x-0.5" aria-hidden="true" />
+  </a>
+
+  {
+    recentPosts.length > 0 ? (
+      <div class="ai-reel">
+        {recentPosts.map((post, index) => {
+          const cover = processCoverImageSync(post.data.image, post.id, post.data.category);
+          const apiUrls = getApiUrlList(post.data.image, post.id, post.data.category);
+          const coverContent = cover ? (
+            <CoverImage
+              src={cover}
+              basePath={getFileDirFromPath(post.filePath || "")}
+              alt={`《${post.data.title}》封面`}
+              class="h-full w-full"
+              preview={true}
+              loading="lazy"
+              apiUrls={apiUrls}
+            />
+          ) : (
+            <div class="ai-cover-fallback absolute inset-0 flex items-center justify-center">
+              <Icon name="material-symbols:smart-toy-outline-rounded" class="text-3xl text-(--primary) opacity-60" aria-hidden="true" />
+            </div>
+          );
+          const day = String(post.data.published.getDate()).padStart(2, "0");
+          const month = String(post.data.published.getMonth() + 1).padStart(2, "0");
+
+          return index === 0 ? (
+            <a
+              href={getPostUrlBySlug(post.id)}
+              class="ai-lead-frame group relative mb-1 block focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary)"
+              aria-label={post.data.title}
+            >
+              {/* 偏移金线外框：构成主义错位感 */}
+              <div class="ai-lead-line" aria-hidden="true"></div>
+              <div class="ai-lead-clip relative h-32 overflow-hidden">
+                <div class="ai-lead-image absolute inset-0">{coverContent}</div>
+                {/* 融合渐变：顶部融进卡片底色（明暗自适应），底部压暗托字 */}
+                <div class="ai-lead-veil absolute inset-0" aria-hidden="true"></div>
+                {/* hover 金线扫过 */}
+                <div class="ai-lead-sweep" aria-hidden="true"></div>
+                {/* 顶部标注 */}
+                <div class="ai-lead-label" aria-hidden="true">
+                  <span class="ai-lead-star">✦</span>
+                  <span class="ai-lead-label-text">Latest</span>
+                  <span class="ai-lead-label-line"></span>
+                  <time class="ai-lead-label-date" datetime={post.data.published.toISOString()}>
+                    {month}.{day}
+                  </time>
+                </div>
+                {/* 底部标题条：金条 + 分类/标题 */}
+                <div class="ai-lead-caption">
+                  <span class="ai-lead-caption-bar" aria-hidden="true"></span>
+                  <div class="min-w-0">
+                    {post.data.category && (
+                      <div class="ai-lead-category truncate">{post.data.category}</div>
+                    )}
+                    <h3 class="ai-lead-title">{post.data.title}</h3>
+                  </div>
+                </div>
+                {/* 右下角构成主义色票 */}
+                <div class="ai-lead-swatch" aria-hidden="true"></div>
+              </div>
+            </a>
+          ) : (
+            <a
+              href={getPostUrlBySlug(post.id)}
+              class="ai-row group relative flex items-center gap-3 border-t border-(--line-divider) px-1 py-2.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary)"
+              aria-label={post.data.title}
+            >
+              {/* 日期块：金色大数字 + 宽字距月份 */}
+              <div class="ai-row-date flex w-9 shrink-0 flex-col items-center leading-none">
+                <span class="text-lg font-bold tabular-nums text-(--primary)">{day}</span>
+                <span class="mt-1 text-[0.58rem] font-semibold tracking-[0.18em] text-40">
+                  {month}月
+                </span>
+              </div>
+              <div class="min-w-0 flex-1">
+                {post.data.category && (
+                  <div class="mb-0.5 truncate text-[0.6rem] font-semibold tracking-[0.18em] text-40">
+                    {post.data.category}
+                  </div>
+                )}
+                <h3 class="line-clamp-2 text-[0.82rem] font-semibold leading-[1.4] text-75 transition-colors group-hover:text-(--primary)">
+                  {post.data.title}
+                </h3>
+              </div>
+              <Icon name="material-symbols:arrow-outward-rounded" class="shrink-0 text-base text-(--primary) opacity-0 transition-all duration-200 group-hover:opacity-80" aria-hidden="true" />
+              {/* hover 左侧金线 accent */}
+              <span class="ai-row-accent absolute bottom-2.5 left-0 top-2.5 w-0.5 origin-center scale-y-0 bg-(--primary) transition-transform duration-200 group-hover:scale-y-100" aria-hidden="true"></span>
+            </a>
+          );
+        })}
+      </div>
+    ) : (
+      <p class="px-2 py-4 text-center text-sm text-50">暂无 AstrBot 更新</p>
+    )
+  }
+</WidgetLayout>
+
+<style>
+  /* —— 头条：与「时间问候」APOD 图区同源的构成主义手法 —— */
+
+  /* 偏移金线外框：直角细金线，错位构成感 */
+  .ai-lead-line {
+    position: absolute;
+    inset: 0;
+    transform: translate(5px, 5px);
+    border: 1px solid color-mix(in srgb, var(--primary) 55%, transparent);
+    pointer-events: none;
+    z-index: 0;
+    transition: border-color 240ms ease;
+  }
+  .ai-lead-frame:hover .ai-lead-line {
+    border-color: color-mix(in srgb, var(--primary) 85%, transparent);
+  }
+
+  .ai-lead-clip {
+    z-index: 1;
+    background: color-mix(in srgb, var(--primary) 6%, transparent);
+    /* 斜切右上角，呼应构成主义几何 */
+    clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%);
+  }
+
+  .ai-lead-image :global(.cover-image-container),
+  .ai-lead-image :global(img) {
+    transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .ai-lead-frame:hover .ai-lead-image :global(.cover-image-container),
+  .ai-lead-frame:hover .ai-lead-image :global(img) {
+    transform: scale(1.045);
+  }
+
+  /* 融合渐变：顶部融进卡片底色（随明暗主题变化），底部压暗托出文字 */
+  .ai-lead-veil {
+    background:
+      linear-gradient(to bottom,
+        var(--card-bg) 0%,
+        transparent 24%),
+      linear-gradient(to top,
+        rgba(10, 10, 14, 0.78) 0%,
+        rgba(10, 10, 14, 0.3) 38%,
+        transparent 60%);
+  }
+
+  /* hover 金线扫过 */
+  .ai-lead-sweep {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    left: -2px;
+    background: linear-gradient(to bottom, transparent, var(--primary), transparent);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .ai-lead-frame:hover .ai-lead-sweep {
+    animation: ai-sweep 1.1s ease forwards;
+  }
+  @keyframes ai-sweep {
+    0%   { left: -2px; opacity: 0; }
+    15%  { opacity: 0.9; }
+    85%  { opacity: 0.9; }
+    100% { left: calc(100% + 2px); opacity: 0; }
+  }
+
+  /* 顶部标注：宽字距小字（位于暗色渐变之上，双色模式均可读） */
+  .ai-lead-label {
+    position: absolute;
+    top: 0.55rem;
+    left: 0.7rem;
+    right: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: #f3ead8;
+    opacity: 0.92;
+    pointer-events: none;
+  }
+  .ai-lead-star {
+    font-size: 0.6rem;
+    color: var(--primary);
+    line-height: 1;
+  }
+  .ai-lead-label-text {
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+  }
+  .ai-lead-label-line {
+    flex: 1;
+    height: 1px;
+    background: color-mix(in srgb, var(--primary) 45%, transparent);
+  }
+  .ai-lead-label-date {
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    opacity: 0.75;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* 底部标题条：金色竖条 + 标题 */
+  .ai-lead-caption {
+    position: absolute;
+    left: 0.7rem;
+    right: 0.7rem;
+    bottom: 0.6rem;
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    pointer-events: none;
+  }
+  .ai-lead-caption-bar {
+    flex: none;
+    width: 3px;
+    height: 2rem;
+    background: var(--primary);
+  }
+  .ai-lead-category {
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    color: var(--primary);
+    opacity: 0.95;
+    margin-bottom: 0.15rem;
+  }
+  .ai-lead-title {
+    color: #f3ead8;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
+  }
+
+  /* 右下角构成主义色票：金色主块 + 错位描边小块 */
+  .ai-lead-swatch {
+    position: absolute;
+    right: 0.65rem;
+    top: 0.55rem;
+    width: 9px;
+    height: 9px;
+    background: var(--primary);
+    pointer-events: none;
+  }
+  .ai-lead-swatch::after {
+    content: "";
+    position: absolute;
+    left: -5px;
+    top: 5px;
+    width: 5px;
+    height: 5px;
+    border: 1px solid color-mix(in srgb, var(--primary) 70%, transparent);
+  }
+
+  /* 无封面兜底：主题色微光 + 发丝格纹（明暗自适应） */
+  .ai-cover-fallback {
+    background:
+      radial-gradient(circle at 72% 35%, color-mix(in srgb, var(--primary) 22%, transparent), transparent 26%),
+      repeating-linear-gradient(90deg, transparent 0 17px, color-mix(in srgb, var(--primary) 12%, transparent) 17px 18px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ai-lead-image :global(.cover-image-container),
+    .ai-lead-image :global(img),
+    .ai-lead-sweep,
+    .ai-lead-line,
+    .ai-row-accent,
+    .ai-more :global(svg) {
+      transition: none !important;
+      transform: none !important;
+      animation: none !important;
+    }
+  }
+</style>

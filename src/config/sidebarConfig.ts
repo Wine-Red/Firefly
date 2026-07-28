@@ -131,6 +131,13 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 			showOnPostPage: true,
 		},
 		{
+			// AstrBot 最近发布的文章
+			type: "astrbotUpdates",
+			enable: true,
+			position: "top",
+			showOnPostPage: true,
+		},
+		{
 			// 最新动态：暂时隐藏，动态页本身已经提供完整时间线
 			type: "dynamic",
 			enable: false,

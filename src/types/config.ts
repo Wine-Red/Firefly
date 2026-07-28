@@ -425,6 +425,7 @@ export type WidgetComponentType =
 	| "sidebarToc"
 	| "advertisement"
 	| "stats"
+	| "astrbotUpdates"
 	| "calendar"
 	| "timeGreeting"
 	| "music"
