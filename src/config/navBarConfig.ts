@@ -60,13 +60,27 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 		], */
 	});
 
-	// 添加外部状态监测页面链接
+	// 次要外部入口统一收纳，复用导航下拉菜单以保持桌面与移动端交互一致。
 	links.push({
-		name: "监测",
-		url: "https://status.winered-0v0.com/status/winered",
-		icon: "material-symbols:monitor-heart-rounded", // 替换为实心图标
-		external: true, 
-		hideExternalIcon: true, // 隐藏外链标志
+		name: "更多",
+		url: "/",
+		icon: "material-symbols:more-horiz",
+		children: [
+			{
+				name: "监测",
+				url: "https://status.winered-0v0.com/status/winered",
+				icon: "material-symbols:monitor-heart-rounded",
+				external: true,
+				hideExternalIcon: true,
+			},
+			{
+				name: "分享",
+				url: "https://drive.winered-0v0.com/",
+				icon: "material-symbols:folder-shared-rounded",
+				external: true,
+				hideExternalIcon: true,
+			},
+		],
 	});
 
 	// 仅返回链接，其它导航搜索相关配置在模块顶层常量中独立导出
