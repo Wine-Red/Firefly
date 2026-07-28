@@ -99,8 +99,8 @@ const archiveUrl = url("/archive/?author=AstrBot");
               class="ai-row group relative flex gap-3 border-t border-(--line-divider) px-1 py-2.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary)"
               aria-label={post.data.title}
             >
-              {/* 左侧日期栏：日大月小，斜杠划分（与时间问候同格式） */}
-              <div class="flex w-11 shrink-0 items-baseline justify-center pt-1 leading-none text-(--primary)">
+              {/* 左侧日期栏：日大月小斜杠，整体垂直居中 */}
+              <div class="flex w-11 shrink-0 items-baseline justify-center self-center leading-none text-(--primary)">
                 <span class="text-[1.3rem] font-bold tabular-nums">{day}</span>
                 <span class="ml-0.5 text-[0.72rem] font-bold tabular-nums opacity-70">/{month}</span>
               </div>
