@@ -20,6 +20,7 @@ interface Post {
 		title: string;
 		tags: string[];
 		category?: string | null;
+		author?: string;
 		published: Date;
 	};
 }
@@ -69,7 +70,15 @@ function formatFilterSummary(filters: ActiveFilter[]) {
 		.join("  ·  ");
 }
 
-onMount(async () => {
+function isAIFilterActive() {
+	try {
+		return sessionStorage.getItem("aiFilterInPlace") !== "0";
+	} catch {
+		return true;
+	}
+}
+
+function updateArchivePosts(filterAI = isAIFilterActive()) {
 	let filteredPosts: Post[] = sortedPosts;
 	const currentFilters: ActiveFilter[] = [];
 
@@ -112,6 +121,12 @@ onMount(async () => {
 		filteredPosts = filteredPosts.filter((post) => !post.data.category);
 	}
 
+	if (filterAI) {
+		filteredPosts = filteredPosts.filter(
+			(post) => post.data.author !== "AstrBot",
+		);
+	}
+
 	// 按发布时间倒序排序，确保不受置顶影响
 	filteredPosts = filteredPosts
 		.slice()
@@ -139,6 +154,23 @@ onMount(async () => {
 	groupedPostsArray.sort((a, b) => b.year - a.year);
 
 	groups = groupedPostsArray;
+}
+
+onMount(() => {
+	updateArchivePosts();
+
+	const handleAIFilterChange = (event: Event) => {
+		const { active } = (event as CustomEvent<{ active: boolean }>).detail;
+		updateArchivePosts(active);
+	};
+
+	window.addEventListener("firefly:ai-filter-change", handleAIFilterChange);
+	return () => {
+		window.removeEventListener(
+			"firefly:ai-filter-change",
+			handleAIFilterChange,
+		);
+	};
 });
 </script>
 

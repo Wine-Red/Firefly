@@ -496,8 +496,8 @@ const archiveUrl = url("/archive/");
       // 在页面跳转前提前触发过滤按钮的动画
       const wrap = document.getElementById("ai-filter-wrap");
       if (wrap) {
-        const { isHome, isOriginal } = getCategoryBarState(bar, targetUrl);
-        if (!isHome && !isOriginal) {
+        const { isHome, isOriginal, isArchive } = getCategoryBarState(bar, targetUrl);
+        if (!isHome && !isOriginal && !isArchive) {
           wrap.classList.add("hide-filter");
         } else {
           wrap.classList.remove("hide-filter");
@@ -513,6 +513,7 @@ const archiveUrl = url("/archive/");
 
   // AI 过滤逻辑（原地过滤，不再跳转 /original/）
   const AI_FILTER_STATE_KEY = "aiFilterInPlace";
+  const AI_FILTER_CHANGE_EVENT = "firefly:ai-filter-change";
   // 跨 Swup 导航缓存原创列表 HTML（原创文章少，/original/ 第一页即可覆盖）
   let cachedOriginalDoc: Document | null = null;
   let originalListFetchPromise: Promise<Document | null> | null = null;
@@ -521,22 +522,22 @@ const archiveUrl = url("/archive/");
 
   function isAIFilterActive() {
     try {
-      return sessionStorage.getItem(AI_FILTER_STATE_KEY) === "1";
+      // 未设置时默认过滤 AI；显式关闭后才展示全部文章。
+      return sessionStorage.getItem(AI_FILTER_STATE_KEY) !== "0";
     } catch {
-      return false;
+      return true;
     }
   }
 
   function setAIFilterActive(active: boolean) {
     try {
-      if (active) {
-        sessionStorage.setItem(AI_FILTER_STATE_KEY, "1");
-      } else {
-        sessionStorage.removeItem(AI_FILTER_STATE_KEY);
-      }
+      sessionStorage.setItem(AI_FILTER_STATE_KEY, active ? "1" : "0");
     } catch {
       /* sessionStorage 不可用时静默降级 */
     }
+    window.dispatchEvent(
+      new CustomEvent(AI_FILTER_CHANGE_EVENT, { detail: { active } }),
+    );
   }
 
   function updateAIFilterButton(btn: HTMLElement, filtered: boolean) {
@@ -661,9 +662,9 @@ const archiveUrl = url("/archive/");
     if (!bar) return;
 
     // 首页和原创文章列表共享这组控制项。
-    const { isHome, isOriginal } = getCategoryBarState(bar, new URL(window.location.href));
+    const { isHome, isOriginal, isArchive } = getCategoryBarState(bar, new URL(window.location.href));
 
-    if (!isHome && !isOriginal) {
+    if (!isHome && !isOriginal && !isArchive) {
       wrap.classList.add("hide-filter");
     } else {
       wrap.classList.remove("hide-filter");
@@ -680,6 +681,8 @@ const archiveUrl = url("/archive/");
     } else if (isHome && isAIFilterActive()) {
       // 刷新 / Swup 回到首页时保持过滤态
       applyInPlaceAIFilter(bar, btn);
+    } else if (isArchive) {
+      updateAIFilterButton(btn, isAIFilterActive());
     } else {
       updateAIFilterButton(btn, false);
     }
@@ -706,11 +709,13 @@ const archiveUrl = url("/archive/");
         return;
       }
 
-      if (!currentState.isHome) return;
+      if (!currentState.isHome && !currentState.isArchive) return;
 
       const nextActive = !isAIFilterActive();
       setAIFilterActive(nextActive);
-      if (nextActive) {
+      if (currentState.isArchive) {
+        updateAIFilterButton(currentBtn, nextActive);
+      } else if (nextActive) {
         applyInPlaceAIFilter(currentBar, currentBtn);
       } else {
         removeInPlaceAIFilter(currentBtn);
