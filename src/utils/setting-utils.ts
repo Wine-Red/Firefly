@@ -85,10 +85,49 @@ export function setHue(hue: number): void {
 	r.style.setProperty("--hue", String(hue));
 }
 
-export function applyThemeToDocument(theme: LIGHT_DARK_MODE) {
-	// 检查是否在浏览器环境中
+let themeTransitionTimer: ReturnType<typeof setTimeout> | null = null;
+
+function beginThemeTransition(targetIsDark: boolean) {
+	const root = document.documentElement;
+	const reducedMotion = window.matchMedia(
+		"(prefers-reduced-motion: reduce)",
+	).matches;
+
+	if (reducedMotion) {
+		return;
+	}
+
+	if (themeTransitionTimer) {
+		clearTimeout(themeTransitionTimer);
+	}
+
+	root.classList.remove("is-theme-transitioning");
+	// Restart the small visual pulse when the user toggles again before it ends.
+	void root.offsetWidth;
+	root.dataset.themeTransition = targetIsDark ? "to-dark" : "to-light";
+	root.classList.add("is-theme-transitioning");
+
+	themeTransitionTimer = setTimeout(() => {
+		root.classList.remove("is-theme-transitioning");
+		delete root.dataset.themeTransition;
+		themeTransitionTimer = null;
+	}, 380);
+}
+
+export function setThemeTransitionOrigin(x: number, y: number): void {
 	if (typeof document === "undefined") {
 		return;
+	}
+
+	const root = document.documentElement;
+	root.style.setProperty("--theme-transition-x", `${Math.round(x)}px`);
+	root.style.setProperty("--theme-transition-y", `${Math.round(y)}px`);
+}
+
+export function applyThemeToDocument(theme: LIGHT_DARK_MODE): boolean {
+	// 检查是否在浏览器环境中
+	if (typeof document === "undefined") {
+		return false;
 	}
 
 	// 解析主题
@@ -124,15 +163,15 @@ export function applyThemeToDocument(theme: LIGHT_DARK_MODE) {
 
 	// 如果既不需要主题切换也不需要代码主题更新，直接返回
 	if (!needsThemeChange && !needsCodeThemeUpdate) {
-		return;
+		return false;
 	}
 
 	// 批量 DOM 操作，减少重绘
 	if (needsThemeChange) {
-		// 添加过渡保护类（但会导致大量重绘，所以使用更轻量的方式）
-		// document.documentElement.classList.add("is-theme-transitioning");
+		beginThemeTransition(targetIsDark);
 
-		// 直接切换主题，利用 CSS 变量的特性让浏览器优化过渡
+		// Keep the theme mutation to a single class change. The transition styling
+		// deliberately leaves ambient animations (stars, moon and waves) untouched.
 		if (targetIsDark) {
 			document.documentElement.classList.add("dark");
 		} else {
@@ -144,6 +183,8 @@ export function applyThemeToDocument(theme: LIGHT_DARK_MODE) {
 	if (needsCodeThemeUpdate) {
 		document.documentElement.setAttribute("data-theme", expectedTheme);
 	}
+
+	return true;
 }
 
 // 系统主题监听器引用
@@ -161,10 +202,14 @@ export function setTheme(theme: LIGHT_DARK_MODE): void {
 	}
 
 	// 先应用主题
-	applyThemeToDocument(theme);
+	const didChange = applyThemeToDocument(theme);
 
 	// 保存到localStorage
 	localStorage.setItem("theme", theme);
+
+	if (didChange) {
+		window.dispatchEvent(new CustomEvent("theme-change"));
+	}
 
 	// 如果切换到 system 模式，需要监听系统主题变化
 	if (theme === SYSTEM_MODE) {

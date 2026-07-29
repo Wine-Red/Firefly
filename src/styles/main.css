@@ -74,136 +74,76 @@ html {
 }
 
 @layer components {
-    /* View Transitions API 主题切换动画 */
-    /* 为整个文档根元素设置视图过渡 */
-    ::view-transition-old(root),
-    ::view-transition-new(root) {
-        animation-duration: 0.5s;
-        animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-        /* 使用混合模式使颜色过渡更平滑 */
-        mix-blend-mode: normal;
+    /* Theme switch: a light pulse travels from the pressed control while only
+       stable surface colours transition. Ambient Canvas/SVG animations remain
+       outside this rule and continue at their normal frame rate. */
+    html {
+        --theme-transition-x: calc(100vw - 2.75rem);
+        --theme-transition-y: 2.75rem;
     }
-    
-    /* 视图过渡组 - 使用交叉淡化效果 */
-    ::view-transition-group(root) {
-        animation-duration: 0.5s;
-        animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+
+    html.is-theme-transitioning::before {
+        content: "";
+        position: fixed;
+        inset: -20vmax;
+        z-index: 2147483647;
+        pointer-events: none;
+        opacity: 0;
+        transform: scale(0.72);
+        transform-origin: var(--theme-transition-x) var(--theme-transition-y);
+        background: radial-gradient(
+            circle at var(--theme-transition-x) var(--theme-transition-y),
+            color-mix(in oklch, var(--primary) 30%, transparent) 0,
+            color-mix(in oklch, var(--primary) 12%, transparent) 12vmax,
+            transparent 34vmax
+        );
+        animation: theme-luminance-pulse 380ms cubic-bezier(0.22, 1, 0.36, 1) both;
+        will-change: opacity, transform;
     }
-    
-    /* 淡出旧视图 - 使用更平滑的曲线 */
-    ::view-transition-old(root) {
-        animation-name: theme-fade-out;
-        /* 确保背景色同步切换 */
-        z-index: 2;
+
+    html[data-theme-transition="to-dark"].is-theme-transitioning::before {
+        background: radial-gradient(
+            circle at var(--theme-transition-x) var(--theme-transition-y),
+            color-mix(in oklch, var(--primary) 38%, transparent) 0,
+            color-mix(in oklch, #05070d 24%, transparent) 16vmax,
+            transparent 36vmax
+        );
     }
-    
-    /* 淡入新视图 - 使用更平滑的曲线 */
-    ::view-transition-new(root) {
-        animation-name: theme-fade-in;
-        /* 确保新视图在上层 */
-        z-index: 1;
+
+    @keyframes theme-luminance-pulse {
+        0% { opacity: 0; transform: scale(0.72); }
+        34% { opacity: 0.92; }
+        100% { opacity: 0; transform: scale(1.16); }
     }
-    
-    /* 定义淡出动画 - 使用更平滑的缓动函数 */
-    @keyframes theme-fade-out {
-        0% {
-            opacity: 1;
+
+    html.is-theme-transitioning body,
+    html.is-theme-transitioning #navbar > div,
+    html.is-theme-transitioning .card-base,
+    html.is-theme-transitioning .card-base-transparent,
+    html.is-theme-transitioning .float-panel,
+    html.is-theme-transitioning .dropdown-content,
+    html.is-theme-transitioning .btn-card,
+    html.is-theme-transitioning .btn-regular {
+        transition-property: background-color, border-color, color, box-shadow !important;
+        transition-duration: 260ms !important;
+        transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1) !important;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        html.is-theme-transitioning::before {
+            animation: none;
         }
-        100% {
-            opacity: 0;
+
+        html.is-theme-transitioning body,
+        html.is-theme-transitioning #navbar > div,
+        html.is-theme-transitioning .card-base,
+        html.is-theme-transitioning .card-base-transparent,
+        html.is-theme-transitioning .float-panel,
+        html.is-theme-transitioning .dropdown-content,
+        html.is-theme-transitioning .btn-card,
+        html.is-theme-transitioning .btn-regular {
+            transition: none !important;
         }
-    }
-    
-    /* 定义淡入动画 - 从下层淡入 */
-    @keyframes theme-fade-in {
-        0% {
-            opacity: 0;
-        }
-        100% {
-            opacity: 1;
-        }
-    }
-    
-    /* 确保边框和分隔线元素在主题切换时有更明确的过渡时长 */
-    .transition,
-    [class*="border"],
-    [class*="transition"] {
-        transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
-        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-        transition-duration: 0.15s;
-    }
-    
-    /* 主题过渡保护类 - 仅在非 View Transitions 模式下使用 */
-    /* 当使用 View Transitions API 时，浏览器会自动处理过渡，不需要禁用 transition */
-    .is-theme-transitioning:not(.use-view-transition) *,
-    .is-theme-transitioning:not(.use-view-transition) *::before,
-    .is-theme-transitioning:not(.use-view-transition) *::after {
-        transition: none !important;
-        animation: none !important;
-    }
-    
-    /* 在主题切换时禁用代码块的复杂效果以提升性能 */
-    /* 使用 View Transitions 时也需要禁用代码块动画，因为它们太多了 */
-    .is-theme-transitioning .expressive-code,
-    .is-theme-transitioning .expressive-code * {
-        transition: none !important;
-        animation: none !important;
-        will-change: auto !important;
-    }
-    
-    /* 禁用复杂选择器元素的过渡 - 仅在非 View Transitions 模式下 */
-    .is-theme-transitioning:not(.use-view-transition) .float-panel,
-    .is-theme-transitioning:not(.use-view-transition) .float-panel *,
-    .is-theme-transitioning:not(.use-view-transition) .music-player,
-    .is-theme-transitioning:not(.use-view-transition) .music-player *,
-    .is-theme-transitioning:not(.use-view-transition) .widget,
-    .is-theme-transitioning:not(.use-view-transition) .widget *,
-    .is-theme-transitioning:not(.use-view-transition) .dropdown-content,
-    .is-theme-transitioning:not(.use-view-transition) .dropdown-content * {
-        transition: none !important;
-        animation: none !important;
-    }
-    
-    /* 强制使用 contain 隔离渲染上下文 - 仅在非 View Transitions 模式下 */
-    .is-theme-transitioning:not(.use-view-transition) .post-card,
-    .is-theme-transitioning:not(.use-view-transition) .widget,
-    .is-theme-transitioning:not(.use-view-transition) .float-panel {
-        contain: layout style paint !important;
-    }
-    
-    /* 水波纹效果精确同步处理 - 仅在非 View Transitions 模式下 */
-    .is-theme-transitioning:not(.use-view-transition) svg use {
-        /* 禁用过渡但保持动画 */
-        transition: none;
-        /* 强制立即继承页面背景色 */
-        fill: currentColor;
-    }
-    
-    /* 导航栏主题切换保护 - 仅在非 View Transitions 模式下禁用过渡 */
-    .is-theme-transitioning:not(.use-view-transition) #navbar > div,
-    .is-theme-transitioning:not(.use-view-transition) #navbar[data-transparent-mode] > div,
-    .is-theme-transitioning:not(.use-view-transition) #navbar[data-transparent-mode].scrolled > div,
-    .is-theme-transitioning:not(.use-view-transition) body.wallpaper-transparent #navbar > div,
-    .is-theme-transitioning:not(.use-view-transition) body.wallpaper-transparent #navbar[data-transparent-mode] > div,
-    .is-theme-transitioning:not(.use-view-transition) body.wallpaper-transparent #navbar[data-transparent-mode].scrolled > div,
-    .is-theme-transitioning:not(.use-view-transition) #wallpaper-wrapper ~ * #navbar > div,
-    .is-theme-transitioning:not(.use-view-transition) #wallpaper-wrapper ~ * #navbar[data-transparent-mode] > div,
-    .is-theme-transitioning:not(.use-view-transition) body:has(#wallpaper-wrapper) #navbar > div,
-    .is-theme-transitioning:not(.use-view-transition) body:has(#wallpaper-wrapper) #navbar[data-transparent-mode] > div {
-        transition: none !important;
-        backdrop-filter: none !important;
-    }
-    
-    /* 导航栏相关浮动面板的过渡禁用 */
-    .is-theme-transitioning .dropdown-content,
-    .is-theme-transitioning .float-panel,
-    .is-theme-transitioning #display-setting,
-    .is-theme-transitioning #nav-menu-panel,
-    .is-theme-transitioning #translate-panel,
-    .is-theme-transitioning #mobile-toc-panel,
-    .is-theme-transitioning #search-panel {
-        transition: none !important;
-        backdrop-filter: none !important;
     }
     
     .card-base {

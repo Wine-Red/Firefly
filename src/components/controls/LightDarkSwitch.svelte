@@ -9,6 +9,7 @@ import {
 	applyThemeToDocument,
 	getStoredTheme,
 	setTheme,
+	setThemeTransitionOrigin,
 } from "@/utils/setting-utils";
 
 // Define Swup type for window object
@@ -25,19 +26,22 @@ type WindowWithSwup = Window & { swup?: SwupInstance };
 let mode: LIGHT_DARK_MODE = $state(SYSTEM_MODE);
 let displayedMode: LIGHT_DARK_MODE = $state(LIGHT_MODE); // 显示的实际主题（在system模式下会随系统变化）
 
-function switchScheme(newMode: LIGHT_DARK_MODE) {
+function switchScheme(newMode: LIGHT_DARK_MODE, event?: MouseEvent) {
+	if (event) {
+		setThemeTransitionOrigin(event.clientX, event.clientY);
+	}
 	mode = newMode;
 	setTheme(newMode);
 	updateDisplayedMode(); // 主动调用更新显示的模式
 }
 
-function toggleScheme() {
+function toggleScheme(event: MouseEvent) {
 	// 无论当前 mode 是什么（包括 system），只根据当前"显示"的状态进行翻转，并将结果固定（脱离 system）
 	if (displayedMode === LIGHT_MODE) {
-		switchScheme(DARK_MODE);
+		switchScheme(DARK_MODE, event);
 		displayedMode = DARK_MODE; // 立刻更新UI状态
 	} else {
-		switchScheme(LIGHT_MODE);
+		switchScheme(LIGHT_MODE, event);
 		displayedMode = LIGHT_MODE; // 立刻更新UI状态
 	}
 }
