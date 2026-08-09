@@ -41,6 +41,16 @@ export const friendsConfig: FriendLink[] = [
 		weight: 10, // 权重，数字越大排序越靠前
 		enabled: true, // 是否启用
 	},
+	
+		{
+		title: "MingBlog（Ming 博客）",
+		imgurl: "https://mingblog.site/icons/icon-512.png",
+		desc: "记录日常生活、城市影像、旅行与观察，以及认真看过、读过和听过的作品。",
+		siteurl: "https://mingblog.site",
+		tags: ["Blog"],
+		weight: 10, // 权重，数字越大排序越靠前
+		enabled: true, // 是否启用
+	},
 ];
 
 // 获取启用的友链并进行排序
