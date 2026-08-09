@@ -12,6 +12,7 @@
     "astro": "astro",
     "type-check": "tsc --noEmit --isolatedDeclarations",
     "cms:sync": "node scripts/cms-sync.js",
+    "bangumi:sync": "node scripts/bangumi-sync.js",
     "cms:setup": "node scripts/cms-setup.js",
     "test:cms": "node scripts/cms-smoke-test.js",
     "format": "biome format --write ./src",

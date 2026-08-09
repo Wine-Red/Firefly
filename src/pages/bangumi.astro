@@ -1,8 +1,11 @@
 ---
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 import { Icon } from "astro-icon/components";
 import BangumiSection from "@/components/pages/bangumi/BangumiSection.astro";
 import TabNav from "@/components/pages/bangumi/TabNav.astro";
 import { siteConfig } from "@/config";
+import bangumiSourceConfig from "@/config/bangumiConfig.json";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
 import MainGridLayout from "@/layouts/MainGridLayout.astro";
@@ -19,28 +22,46 @@ if (!siteConfig.pages.bangumi) {
 	return Astro.redirect("/404/");
 }
 
-// 获取构建时间
-const buildTime = formatDateI18nWithTime(new Date());
-
 ////////////// Bangumi 配置 ////////////////////////
 const bangumiConfig = {
 	username: siteConfig.bangumi?.userId, // 在这里配置你的Bangumi用户名
 	apiUrl: "https://api.bgm.tv",
-	categories: {
-		book: false,
-		anime: false,
-		music: false,
-		game: true,
-		real: false,
-	},
-	// 数据获取设置
-	pagination: {
-		limit: 50, // 每页获取数量
-		delay: 50, // 请求间隔毫秒数，避免频率限制
-		maxTotal: 1000, // 最大获取总数，防止无限循环（0=无限制）
-	},
+	categories: bangumiSourceConfig.categories,
+	pagination: bangumiSourceConfig.pagination,
 };
 //////////////////////////////////////////////////
+
+type BangumiSnapshot = {
+	version: number;
+	userId: string;
+	syncedAt: string;
+	categories: Record<string, UserSubjectCollection[]>;
+};
+
+let bangumiSnapshot: BangumiSnapshot | null = null;
+try {
+	const snapshotPath = path.resolve("public/assets/bangumi/data.json");
+	bangumiSnapshot = JSON.parse(
+		await readFile(snapshotPath, "utf8"),
+	) as BangumiSnapshot;
+	if (
+		bangumiSnapshot.version !== 1 ||
+		bangumiSnapshot.userId !== bangumiConfig.username ||
+		!bangumiSnapshot.categories
+	) {
+		throw new Error("Bangumi 快照配置与当前站点不匹配");
+	}
+	console.log(
+		`[Bangumi] 使用 Actions 生成的本地快照：${bangumiSnapshot.syncedAt}`,
+	);
+} catch (error) {
+	if ((error as { code?: string }).code !== "ENOENT") throw error;
+	console.log("[Bangumi] 未找到本地快照，回退到构建时 API 请求");
+}
+
+const buildTime = formatDateI18nWithTime(
+	new Date(bangumiSnapshot?.syncedAt || Date.now()),
+);
 
 // 分类映射
 const categoryMap = {
@@ -148,6 +169,8 @@ const isUserIdConfigured =
 
 if (!isUserIdConfigured) {
 	console.log("[Bangumi] ⚠️ 未配置 Bangumi 用户ID，跳过数据获取");
+} else if (bangumiSnapshot) {
+	console.log("[Bangumi] 📦 从本地快照读取数据和封面");
 } else {
 	console.log("[Bangumi] 🌐 从 API 获取数据");
 }
@@ -160,11 +183,13 @@ for (const [categoryKey, enabled] of Object.entries(bangumiConfig.categories)) {
 	if (enabled && categoryMap[categoryKey as keyof typeof categoryMap]) {
 		const categoryInfo = categoryMap[categoryKey as keyof typeof categoryMap];
 		try {
-			const data = await fetchBangumiData(
-				// biome-ignore lint/style/noNonNullAssertion: Checked by isUserIdConfigured
-				bangumiConfig.username!,
-				categoryInfo.subjectType,
-			);
+			const data = bangumiSnapshot
+				? bangumiSnapshot.categories[categoryKey] || []
+				: await fetchBangumiData(
+						// biome-ignore lint/style/noNonNullAssertion: Checked by isUserIdConfigured
+						bangumiConfig.username!,
+						categoryInfo.subjectType,
+					);
 			bangumiData[categoryKey] = data;
 			tabs.push({
 				id: categoryKey,

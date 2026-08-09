@@ -1,4 +1,5 @@
 import type { SiteConfig } from "@/types/config";
+import bangumiConfig from "./bangumiConfig.json";
 import { fontConfig } from "./fontConfig";
 
 // 定义站点语言
@@ -110,11 +111,13 @@ export const siteConfig: SiteConfig = {
 	// bangumi配置
 	bangumi: {
 		// Bangumi用户名或用户ID
-		userId: "1248161",
+		userId: bangumiConfig.userId,
 		// 条目类型排序，数组中的类型将按顺序优先展示
 		// 可选值: "anime" | "book" | "music" | "game" | "real" (暂不支持"real"类型)
 		// 未列出的类型将按默认顺序排在后面
-		categoryOrder: ["game"],
+		categoryOrder: bangumiConfig.categoryOrder as NonNullable<
+			SiteConfig["bangumi"]
+		>["categoryOrder"],
 	},
 
 	// 页面开关配置 - 控制特定页面的访问权限，设为false会返回404

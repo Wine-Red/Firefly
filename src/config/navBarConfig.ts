@@ -27,6 +27,14 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 		});
 	}
 
+	if (siteConfig.pages.bangumi) {
+		links.push({
+			name: "游戏",
+			url: "/bangumi/",
+			icon: "material-symbols:stadia-controller",
+		});
+	}
+
 	// 根据配置决定是否添加友链，在siteConfig关闭pages.friends时导航栏不显示友链
 	if (siteConfig.pages.friends) {
 		links.push(LinkPreset.Friends);
@@ -36,15 +44,6 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 	if (siteConfig.pages.guestbook) {
 		links.push(LinkPreset.Guestbook);
 	}
-
-	// 游戏入口（暂时隐藏：2025 导航重构，恢复时取消注释即可）
-	// if (siteConfig.pages.bangumi) {
-	// 	links.push({
-	// 		name: "游戏",
-	// 		url: "/bangumi/",
-	// 		icon: "material-symbols:stadia-controller",
-	// 	});
-	// }
 
 	// 关于及其子菜单
 	links.push({
