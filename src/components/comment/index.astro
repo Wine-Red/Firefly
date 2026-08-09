@@ -41,7 +41,7 @@ let commentService: string = commentConfig?.type || "none";
 
 {
   commentService !== "none" && (
-    <div id="post-comments" class="card-base p-4 sm:p-6 md:p-8 mb-6 relative overflow-hidden">
+    <div id="post-comments" class="card-base p-4 sm:p-6 md:p-8 mb-6 relative">
       <!-- 评论区标题 -->
       <div class="relative z-10 mb-4 sm:mb-6">
         <div class="flex items-center gap-3 mb-2">
@@ -71,3 +71,9 @@ let commentService: string = commentConfig?.type || "none";
     </div>
   )
 }
+
+<style>
+  #post-comments {
+    overflow: visible;
+  }
+</style>
