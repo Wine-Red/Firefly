@@ -18,7 +18,7 @@ docker compose pull
 docker compose up -d
 ```
 
-容器只监听服务器本机的 `127.0.0.1:8055`。在宝塔中为 `cms.winered-0v0.com` 新建站点，反向代理到 `http://127.0.0.1:8055`，申请并强制使用 HTTPS。
+容器只监听服务器本机的 `127.0.0.1:8055`。在 1Panel 中为 `cms.winered-0v0.com` 新建反向代理网站，代理到 `http://127.0.0.1:8055`，申请并强制使用 HTTPS。
 
 `database`、`uploads`、`extensions` 和 `.env` 必须纳入服务器备份，但不要提交到 Git。
 
@@ -42,10 +42,26 @@ pnpm cms:setup
 
 - `DIRECTUS_URL`：`https://cms.winered-0v0.com`
 - `DIRECTUS_TOKEN`：上一步创建的只读 Token
+- `MEMOS_ACCESS_TOKEN`：Memos 的只读访问 Token
+- `HEATMAP_GITHUB_TOKEN`：构建 GitHub 贡献热力图所需的只读 Token
+- `SERVER_HOST`：1Panel 服务器公网 IP，例如 `124.221.70.12`
+- `SERVER_PORT`：SSH 端口，例如 `22`
+- `SERVER_USERNAME`：SSH 部署用户，例如 `ubuntu`
+- `SERVER_KEY`：该部署用户对应的完整 SSH 私钥
+- `SERVER_HOST_KEY`：服务器 `/etc/ssh/ssh_host_ed25519_key.pub` 的完整内容
 
-Actions 会复用既有的 `SERVER_HOST`、`SERVER_USERNAME`、`SERVER_KEY` 和 `SERVER_PORT`，建立仅在构建期间存在的 SSH 隧道，通过服务器本机的 `127.0.0.1:8055` 拉取文章。这样不需要为 GitHub Runner 放开 CMS 的海外公网访问；文章中的 Directus 资源地址仍使用 `DIRECTUS_URL` 对应的公开 HTTPS 域名。
+Actions 通过公开 HTTPS 域名直接从 `DIRECTUS_URL` 拉取文章，并从 `https://memos.winered-0v0.com` 同步 Memos。Directus 和 Memos 的容器端口无需对公网开放；只需保证两个域名的 HTTPS 反向代理可从 GitHub Runner 访问。`DIRECTUS_TOKEN` 和 `MEMOS_ACCESS_TOKEN` 仅保存在 GitHub Secrets 中。
 
-构建完成后使用同一组 SSH 凭据通过 `rsync` 增量部署到宝塔站点目录，因此服务器需要安装 `rsync`。
+博客部署使用 `SERVER_HOST`、`SERVER_USERNAME`、`SERVER_KEY`、`SERVER_PORT` 和 `SERVER_HOST_KEY` 连接 1Panel 服务器。`SERVER_HOST_KEY` 用于固定服务器身份，避免部署时盲目信任网络扫描到的 SSH 主机密钥。在服务器可信终端中执行以下命令获取并核对它：
+
+```bash
+sudo cat /etc/ssh/ssh_host_ed25519_key.pub
+sudo ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub -E sha256
+```
+
+第一条命令的整行输出保存为 `SERVER_HOST_KEY`；私钥文件不得提交到仓库。文章中的 Directus 资源地址继续使用 `DIRECTUS_URL` 对应的公开 HTTPS 域名。
+
+构建完成后通过 `rsync` 将 `dist/` 增量部署到 1Panel 静态网站目录 `/opt/1panel/www/sites/winered.com/index`。1Panel 服务器需要安装 `rsync`，SSH 部署用户必须对该目录拥有写权限。工作流会验证 Secrets、Directus 和 Memos 连通性、静态产物以及 SSH 主机身份；上传前确认目录存在且可写，上传后确认首页和动态数据均已部署。并发部署会排队而不会中途取消正在执行的 `rsync`。
 
 ## 4. 配置文章发布触发器
 

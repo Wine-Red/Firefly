@@ -1,151 +1,174 @@
-name: Deploy to Baota Panel
+name: Deploy Firefly to 1Panel
 
 on:
   push:
-    branches: [main, master]
+    branches: [master]
   workflow_dispatch:
   # Directus Flow calls GitHub's repository dispatch API after content changes.
   repository_dispatch:
     types: [cms-publish, memos-sync]
 
+permissions:
+  contents: read
+
 concurrency:
   group: firefly-production
-  cancel-in-progress: true
+  # Let an active rsync finish; a newer deployment waits and runs afterwards.
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash --noprofile --norc -euo pipefail {0}
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    env:
-      DIRECTUS_PUBLIC_URL: ${{ secrets.DIRECTUS_URL }}
-      DIRECTUS_TOKEN: ${{ secrets.DIRECTUS_TOKEN }}
-      MEMOS_ACCESS_TOKEN: ${{ secrets.MEMOS_ACCESS_TOKEN }}
+    timeout-minutes: 20
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: "22"
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9.14.4
-          run_install: false
+          package-manager-cache: false
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: |
+          corepack enable
+          corepack prepare pnpm@9.14.4 --activate
+          pnpm install --frozen-lockfile
 
       - name: Sync Bangumi data and covers
         run: pnpm bangumi:sync
 
-      - name: Pull published posts from Directus over SSH
-        if: ${{ env.DIRECTUS_PUBLIC_URL != '' }}
+      - name: Pull published posts from Directus
         env:
-          SSH_HOST: ${{ secrets.SERVER_HOST }}
-          SSH_USER: ${{ secrets.SERVER_USERNAME }}
-          SSH_PORT: ${{ secrets.SERVER_PORT }}
-          SSH_PRIVATE_KEY: ${{ secrets.SERVER_KEY }}
-          DIRECTUS_URL: http://127.0.0.1:18055
+          DIRECTUS_URL: ${{ secrets.DIRECTUS_URL }}
+          DIRECTUS_PUBLIC_URL: ${{ secrets.DIRECTUS_URL }}
+          DIRECTUS_TOKEN: ${{ secrets.DIRECTUS_TOKEN }}
         run: |
-          install -m 700 -d ~/.ssh
-          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/firefly-deploy
-          chmod 600 ~/.ssh/firefly-deploy
-          ssh-keyscan -p "$SSH_PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts
-
-          ssh \
-            -i ~/.ssh/firefly-deploy \
-            -p "$SSH_PORT" \
-            -o ExitOnForwardFailure=yes \
-            -o ServerAliveInterval=30 \
-            -NT \
-            -L 18055:127.0.0.1:8055 \
-            "$SSH_USER@$SSH_HOST" &
-          tunnel_pid=$!
-          trap 'kill "$tunnel_pid" 2>/dev/null || true; rm -f ~/.ssh/firefly-deploy' EXIT
-
-          for attempt in {1..10}; do
-            if curl --silent --output /dev/null --max-time 2 "$DIRECTUS_URL/server/health"; then
-              break
-            fi
-            if [ "$attempt" -eq 10 ]; then
-              echo "Directus SSH tunnel did not become ready" >&2
+          for variable in DIRECTUS_URL DIRECTUS_TOKEN; do
+            if [ -z "${!variable}" ]; then
+              echo "Missing $variable GitHub Actions secret" >&2
               exit 1
             fi
-            sleep 1
           done
 
+          DIRECTUS_URL="${DIRECTUS_URL%/}"
+          curl --fail --silent --show-error --output /dev/null \
+            --connect-timeout 10 --max-time 30 \
+            --retry 2 --retry-all-errors \
+            "$DIRECTUS_URL/server/ping"
           pnpm cms:sync
 
-      - name: Build site
+      - name: Verify Memos API
+        env:
+          MEMOS_API_URL: https://memos.winered-0v0.com
+          MEMOS_ACCESS_TOKEN: ${{ secrets.MEMOS_ACCESS_TOKEN }}
+        run: |
+          if [ -z "$MEMOS_ACCESS_TOKEN" ]; then
+            echo "Missing MEMOS_ACCESS_TOKEN GitHub Actions secret" >&2
+            exit 1
+          fi
+
+          curl --fail --silent --show-error --output /dev/null \
+            --connect-timeout 10 --max-time 30 \
+            --retry 2 --retry-all-errors \
+            --get \
+            --header "Authorization: Bearer $MEMOS_ACCESS_TOKEN" \
+            --data-urlencode 'pageSize=1' \
+            --data-urlencode 'filter=visibility == "PUBLIC"' \
+            "$MEMOS_API_URL/api/v1/memos"
+
+      - name: Build and validate site
         env:
           GITHUB_TOKEN: ${{ secrets.HEATMAP_GITHUB_TOKEN }}
-          SSH_HOST: ${{ secrets.SERVER_HOST }}
-          SSH_USER: ${{ secrets.SERVER_USERNAME }}
-          SSH_PORT: ${{ secrets.SERVER_PORT }}
-          SSH_PRIVATE_KEY: ${{ secrets.SERVER_KEY }}
-          MEMOS_API_URL: http://127.0.0.1:15230
+          MEMOS_API_URL: https://memos.winered-0v0.com
+          MEMOS_ACCESS_TOKEN: ${{ secrets.MEMOS_ACCESS_TOKEN }}
         run: |
-          install -m 700 -d ~/.ssh
-          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/firefly-deploy
-          chmod 600 ~/.ssh/firefly-deploy
-          ssh-keyscan -p "$SSH_PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts
+          pnpm build:site
+          test -s dist/index.html
+          test -s dist/api/dynamic.json
 
-          ssh \
-            -i ~/.ssh/firefly-deploy \
-            -p "$SSH_PORT" \
-            -o ExitOnForwardFailure=yes \
-            -o ServerAliveInterval=30 \
-            -NT \
-            -L 15230:127.0.0.1:5230 \
-            "$SSH_USER@$SSH_HOST" &
-          tunnel_pid=$!
-          trap 'kill "$tunnel_pid" 2>/dev/null || true; rm -f ~/.ssh/firefly-deploy' EXIT
+          if grep --recursive --fixed-strings --quiet -- "$MEMOS_ACCESS_TOKEN" dist; then
+            echo "Build output contains MEMOS_ACCESS_TOKEN" >&2
+            exit 1
+          fi
+          if [ -n "${GITHUB_TOKEN:-}" ] && \
+            grep --recursive --fixed-strings --quiet -- "$GITHUB_TOKEN" dist; then
+            echo "Build output contains HEATMAP_GITHUB_TOKEN" >&2
+            exit 1
+          fi
 
-          for attempt in {1..10}; do
-            if curl --silent --output /dev/null --max-time 2 "$MEMOS_API_URL/"; then
-              break
-            fi
-            if [ "$attempt" -eq 10 ]; then
-              echo "Memos SSH tunnel did not become ready" >&2
+      - name: Deploy static site to 1Panel
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USERNAME: ${{ secrets.SERVER_USERNAME }}
+          SERVER_PORT: ${{ secrets.SERVER_PORT }}
+          SERVER_KEY: ${{ secrets.SERVER_KEY }}
+          SERVER_HOST_KEY: ${{ secrets.SERVER_HOST_KEY }}
+          DEPLOY_TARGET: /opt/1panel/www/sites/winered.com/index
+        run: |
+          for variable in SERVER_HOST SERVER_USERNAME SERVER_PORT SERVER_KEY SERVER_HOST_KEY; do
+            if [ -z "${!variable}" ]; then
+              echo "Missing $variable GitHub Actions secret" >&2
               exit 1
             fi
-            sleep 1
           done
+          if ! [[ "$SERVER_PORT" =~ ^[0-9]+$ ]] || \
+            (( 10#$SERVER_PORT < 1 || 10#$SERVER_PORT > 65535 )); then
+            echo "SERVER_PORT is invalid" >&2
+            exit 1
+          fi
+          if [[ "$SERVER_HOST_KEY" != ssh-ed25519\ * ]]; then
+            echo "SERVER_HOST_KEY must contain the server's ssh-ed25519 public key" >&2
+            exit 1
+          fi
 
-          pnpm build:site
-
-      - name: Deploy changed files to Baota Panel
-        env:
-          SSH_HOST: ${{ secrets.SERVER_HOST }}
-          SSH_USER: ${{ secrets.SERVER_USERNAME }}
-          SSH_PORT: ${{ secrets.SERVER_PORT }}
-          SSH_PRIVATE_KEY: ${{ secrets.SERVER_KEY }}
-          DEPLOY_TARGET: /www/wwwroot/winered-0v0.com
-        run: |
+          umask 077
           install -m 700 -d ~/.ssh
-          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/firefly-deploy
-          chmod 600 ~/.ssh/firefly-deploy
-          ssh-keyscan -p "$SSH_PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts
-          trap 'rm -f ~/.ssh/firefly-deploy' EXIT
+          printf '%s\n' "$SERVER_KEY" | tr -d '\r' > ~/.ssh/firefly-deploy
 
-          ssh \
-            -i ~/.ssh/firefly-deploy \
-            -p "$SSH_PORT" \
-            "$SSH_USER@$SSH_HOST" \
-            "if ! command -v rsync >/dev/null; then echo 'rsync is required on the server' >&2; exit 1; fi; mkdir -p '$DEPLOY_TARGET'"
+          known_host="$SERVER_HOST"
+          if [ "$SERVER_PORT" != "22" ]; then
+            known_host="[$SERVER_HOST]:$SERVER_PORT"
+          fi
+          printf '%s %s\n' "$known_host" "$SERVER_HOST_KEY" > ~/.ssh/known_hosts
+          trap 'rm -f ~/.ssh/firefly-deploy ~/.ssh/known_hosts' EXIT
+
+          ssh_options=(
+            -i ~/.ssh/firefly-deploy
+            -p "$SERVER_PORT"
+            -o BatchMode=yes
+            -o ConnectTimeout=15
+            -o IdentitiesOnly=yes
+            -o ServerAliveCountMax=3
+            -o ServerAliveInterval=15
+            -o StrictHostKeyChecking=yes
+          )
+          rsync_ssh="ssh -i $HOME/.ssh/firefly-deploy -p $SERVER_PORT -o BatchMode=yes -o ConnectTimeout=15 -o IdentitiesOnly=yes -o ServerAliveCountMax=3 -o ServerAliveInterval=15 -o StrictHostKeyChecking=yes"
+
+          ssh "${ssh_options[@]}" "$SERVER_USERNAME@$SERVER_HOST" \
+            "command -v rsync >/dev/null || { echo 'rsync is required on the server' >&2; exit 1; }; test -d '$DEPLOY_TARGET' || { echo '1Panel site directory does not exist: $DEPLOY_TARGET' >&2; exit 1; }; test -w '$DEPLOY_TARGET' || { echo '1Panel site directory is not writable: $DEPLOY_TARGET' >&2; exit 1; }"
 
           rsync \
             --archive \
-            --compress \
             --checksum \
-            --delete-delay \
+            --compress \
             --delay-updates \
+            --delete-delay \
             --human-readable \
             --itemize-changes \
+            --chmod=Du=rwx,Dgo=rx,Fu=rw,Fgo=r \
             --exclude='.user.ini' \
             --exclude='.well-known/' \
-            -e "ssh -i ~/.ssh/firefly-deploy -p $SSH_PORT" \
+            -e "$rsync_ssh" \
             dist/ \
-            "$SSH_USER@$SSH_HOST:$DEPLOY_TARGET/"
+            "$SERVER_USERNAME@$SERVER_HOST:$DEPLOY_TARGET/"
+
+          ssh "${ssh_options[@]}" "$SERVER_USERNAME@$SERVER_HOST" \
+            "test -s '$DEPLOY_TARGET/index.html' && test -s '$DEPLOY_TARGET/api/dynamic.json'"
