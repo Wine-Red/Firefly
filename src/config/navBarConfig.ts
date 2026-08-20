@@ -73,6 +73,13 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 				hideExternalIcon: true,
 			},
 			{
+				name: "探针",
+				url: "https://vps.winered-0v0.com/",
+				icon: "material-symbols:speed-rounded",
+				external: true,
+				hideExternalIcon: true,
+			},
+			{
 				name: "分享",
 				url: "https://drive.winered-0v0.com/",
 				icon: "material-symbols:folder-shared-rounded",
